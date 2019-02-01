@@ -1,0 +1,22 @@
+server:
+  port: 8080
+  tomcat:
+    basedir: /Data/logs/tomcat_base/
+    accesslog:
+      enabled: true
+      pattern: "%h %t %r %s %b %T"
+
+mybatis:
+ configuration:
+  map-underscore-to-camel-case: true
+
+logging:
+ level:
+  com.hehe.mapper: debug
+
+spring:
+ datasource:
+   url: jdbc:mysql://localhost:3306/seckilling_db?useUnicode=true&characterEncoding=UTF-8&useSSL=false
+   username: root
+   password: smile
+   driver-class-name: com.mysql.cj.jdbc.Driver
