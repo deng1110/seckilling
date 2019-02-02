@@ -2,6 +2,9 @@ package com.deng.seckilling.po;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+
+import java.sql.Date;
 
 /**
  * @author: dengjunbing
@@ -10,6 +13,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@ToString
 public class UserPo {
 
     private Long id;
@@ -20,7 +24,15 @@ public class UserPo {
 
     private String sex;
 
+    private Long phoneNumber;
+
     private String identityCardId;
 
+    private Date birthday;
+
     private String address;
+
+    private String rank;
+
+    private String status;
 }

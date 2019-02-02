@@ -3,6 +3,8 @@ package com.deng.seckilling.util;
 import java.io.*;
 
 /**
+ * 对文件读写操作的工具类
+ *
  * @author: dengjunbing
  * @version: v1.0
  * @since: 2019/1/29 11:09

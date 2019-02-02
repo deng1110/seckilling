@@ -1,7 +1,7 @@
 server:
   port: 8080
   tomcat:
-    basedir: /Data/logs/tomcat_base/
+    basedir: /seckilling/tomcat_logs/
     accesslog:
       enabled: true
       pattern: "%h %t %r %s %b %T"
@@ -11,8 +11,8 @@ mybatis:
   map-underscore-to-camel-case: true
 
 logging:
- level:
-  com.hehe.mapper: debug
+  config: classpath:logback-spring.xml
+
 
 spring:
  datasource:
@@ -20,3 +20,10 @@ spring:
    username: root
    password: smile
    driver-class-name: com.mysql.cj.jdbc.Driver
+
+#pagehelper分页插件配置
+pagehelper:
+  helperDialect: mysql
+  reasonable: true
+  supportMethodsArguments: true
+  params=count: countSql

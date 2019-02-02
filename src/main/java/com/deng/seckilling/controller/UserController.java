@@ -5,11 +5,12 @@ import com.deng.seckilling.po.UserPo;
 import com.deng.seckilling.rpc.RpcResponse;
 import com.deng.seckilling.service.UserService;
 import com.deng.seckilling.util.CheckDataUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 /**
  * 用户相关的所有接口
@@ -25,22 +26,72 @@ public class UserController {
     @Resource
     UserService userService;
 
-    @RequestMapping("/getuser")
-    public List<UserPo> getUser() {
-        return userService.getUserService();
-    }
+    private Logger logger = LoggerFactory.getLogger(getClass());
 
+    /**
+     * 用户登录接口
+     *
+     * @param userName 用户名
+     * @param passWord 密码
+     * @return RpcResponse 登录返回结果
+     */
     @RequestMapping("/login")
     public RpcResponse login(String userName, String passWord) {
-        if(CheckDataUtils.isEmpty(userName) || CheckDataUtils.isEmpty(passWord)){
+        if (CheckDataUtils.isEmpty(userName) || CheckDataUtils.isEmpty(passWord)) {
+            logger.warn("login方法入参错误！");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
-        return userService.verifyUser(userName, passWord);
+        logger.info(userName + "尝试登录的密码是" + passWord);
+        return userService.verifyUserService(userName, passWord);
+    }
+
+    /**
+     * 根据条件查询符合要求的用户集合接口
+     * //TODO:该方法需要root权限
+     *
+     * @param userPo 存储条件的实体
+     * @return RpcResponse 满足要求的用户集合
+     */
+    @RequestMapping("/querybycondition")
+    public RpcResponse queryUsersByCondition(UserPo userPo) {
+        logger.info("查询用户集合接口，查询条件为：" + userPo.toString());
+        return userService.queryUsersByConditionService(userPo);
+    }
+
+    /**
+     * 用户注册（只需要基本信息）接口
+     *
+     * @param userPo 承载注册信息的载体
+     * @return RpcResponse注册用户信息
+     */
+    @RequestMapping("/register")
+    public RpcResponse register(UserPo userPo) {
+        if (CheckDataUtils.isEmpty(userPo.getUserName()) || CheckDataUtils.isEmpty(userPo.getPhoneNumber()) ||
+                CheckDataUtils.isEmpty(userPo.getPassWord()) || (false == CheckDataUtils.isSex(userPo.getSex())) ||
+                (false == CheckDataUtils.isRank(userPo.getRank()))
+                ) {
+            logger.warn("register方法入参错误！");
+            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
+        }
+        logger.info("待注册的信息为"+userPo.toString());
+        return userService.registerUserService(userPo);
+    }
+
+    /**
+     * 完善个人信息接口(不能修改ID和用户名)
+     *
+     * @param userPo 待完善信息载体
+     * @return 完善用户的Id
+     */
+    @RequestMapping("/complete")
+    public RpcResponse complete(UserPo userPo){
+        if(CheckDataUtils.isEmpty(userPo.getId())){
+            logger.warn("complete方法入参错误！");
+            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
+        }
+        logger.info("待完善的信息为"+userPo.toString());
+        return userService.completeUserInfoService(userPo);
     }
 
 
-    @RequestMapping("/test")
-    public String test() {
-        return "test.....";
-    }
 }
