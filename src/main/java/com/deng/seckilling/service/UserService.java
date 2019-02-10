@@ -1,5 +1,6 @@
 package com.deng.seckilling.service;
 
+import com.deng.seckilling.constant.DefaultValue;
 import com.deng.seckilling.constant.ErrorCode;
 import com.deng.seckilling.dao.UserMapper;
 import com.deng.seckilling.po.UserPo;
@@ -59,7 +60,7 @@ public class UserService {
      * （传输过来什么条件，查询规则就是什么条件。如果没传任何条件默认查所有）
      *
      * @param userPo 存储查询条件的实体
-     * @return RpcResponse<List                                                                                                                                                                                                                                                               <                                                                                                                                                                                                                                                               UserPo>>满足要求的用户集合
+     * @return RpcResponse 查询到的用户集合
      */
     public RpcResponse<List<UserPo>> queryUsersByConditionService(UserPo userPo) {
         List<UserPo> userPoList = new ArrayList<UserPo>();
@@ -79,7 +80,8 @@ public class UserService {
     }
 
     /**
-     * 注册用户service，会验证用户名是否重复！！！
+     * 注册用户service
+     * 会验证用户名是否重复！！！
      * （只注册基本信息）
      *
      * @param userPo 承载注册信息的载体
@@ -112,7 +114,8 @@ public class UserService {
     }
 
     /**
-     * 完善个人信息Service，会验证传过来的用户Id是否存在！！！
+     * 完善个人信息Service
+     * 会验证传过来的用户Id是否存在！！！
      *
      * @param userPo 待完善的信息的载体
      * @return 完善成功返回用户Id
@@ -124,6 +127,10 @@ public class UserService {
         if (0 == this.queryUsersByConditionService(userPo1).getCode()) {
             //若用户存在，则可完善信息
             int result = 0;
+            //完善信息不可更改用户名（写此代码的时候的逻辑是用户名一旦创建不可更改）
+            userPo.setUserName("");
+            //完善信息的时候用户账户的状态不可更改，可通过其他专用方法更改
+            userPo.setStatus("");
             try {
                 result = userMapper.updateUserInfo(userPo);
             } catch (Exception e) {
@@ -140,6 +147,72 @@ public class UserService {
         logger.warn("ID为" + userPo.getId() + "的用户不存在！");
         return RpcResponse.error(ErrorCode.USER_NOTEXIT_ERROR);
     }
+
+    /**
+     * 作废用户账户Service
+     * 会验证用户是否存在！！！
+     *
+     * @param id 待作废的用户账户Id
+     * @return 作废成功的用户账户Id
+     */
+    public RpcResponse invalidUserByIdService(Long id) {
+        //验证用户Id是否存在
+        UserPo userPo1 = new UserPo();
+        userPo1.setId(id);
+        //如果用户Id存在
+        if (0 == this.queryUsersByConditionService(userPo1).getCode()) {
+            userPo1.setStatus(DefaultValue.USERSTATUS_VALUE_INVALID);
+            int result = 0;
+            try {
+                result = userMapper.updateUserInfo(userPo1);
+            } catch (Exception e) {
+                logger.error("作废用户账户sql执行失败！！！，错误信息为" + e);
+                return RpcResponse.error(ErrorCode.INVALID_USER_ERROR);
+            }
+            if (1 == result) {
+                logger.info(id + "的用户账户作废成功");
+                return RpcResponse.success(userPo1.getId());
+            }
+            logger.warn(userPo1.getId() + "的用户账户作废失败");
+            return RpcResponse.error(ErrorCode.INVALID_USER_ERROR);
+
+        }
+        logger.warn("ID为" + id + "的用户不存在！");
+        return RpcResponse.error(ErrorCode.USER_NOTEXIT_ERROR);
+    }
+
+    /**
+     * 冻结用户账户Service
+     * 会验证用户Id是否存在！！！
+     *
+     * @param id 待冻结的用户Id
+     * @return 冻结成功的用户Id
+     */
+    public RpcResponse frozenUserByIdService(Long id) {
+        //验证用户Id是否存在
+        UserPo userPo1 = new UserPo();
+        userPo1.setId(id);
+        //如果用户Id存在
+        if (0 == this.queryUsersByConditionService(userPo1).getCode()) {
+            userPo1.setStatus(DefaultValue.USERSTATUS_VALUE_FROZEN);
+            int result = 0;
+            try {
+                result = userMapper.updateUserInfo(userPo1);
+            } catch (Exception e) {
+                logger.error("冻结用户账户sql执行失败！！！，错误信息为" + e);
+                return RpcResponse.error(ErrorCode.FROZEN_USER_ERROR);
+            }
+            if (1 == result) {
+                logger.info(id + "的用户账户冻结成功");
+                return RpcResponse.success(userPo1.getId());
+            }
+            logger.warn(userPo1.getId() + "的用户账户冻结失败");
+            return RpcResponse.error(ErrorCode.FROZEN_USER_ERROR);
+        }
+        logger.warn("ID为" + id + "的用户不存在！");
+        return RpcResponse.error(ErrorCode.USER_NOTEXIT_ERROR);
+    }
+
 
     /**
      * 分页demo

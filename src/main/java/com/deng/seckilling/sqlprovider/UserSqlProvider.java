@@ -45,8 +45,11 @@ public class UserSqlProvider {
         return sql;
     }
 
-    public String updateUserInfo(UserPo userPo){
-        String sql = "update user set status = 'normal' ";
+    public String updateUserInfo(UserPo userPo) {
+        String sql = "update user set id = #{id} ";
+        if (false == CheckDataUtils.isEmpty(userPo.getUserName())) {
+            sql += ",user_name = #{userName}";
+        }
         if (false == CheckDataUtils.isEmpty(userPo.getPassWord())) {
             sql += ",pass_word = #{passWord} ";
         }
@@ -65,7 +68,10 @@ public class UserSqlProvider {
         if (false == CheckDataUtils.isEmpty(userPo.getAddress())) {
             sql += ",address = #{address} ";
         }
-        sql += "where id = #{id} and status = 'normal' ";
+        if (false == CheckDataUtils.isEmpty(userPo.getStatus())) {
+            sql += ",status = #{status}";
+        }
+        sql += "where id = #{id}";
         return sql;
     }
 }

@@ -47,7 +47,8 @@ public class UserController {
 
     /**
      * 根据条件查询符合要求的用户集合接口
-     * //TODO:该方法需要root权限
+     * （只能查正常用户账户状态的用户）
+     * TODO:该方法需要root权限
      *
      * @param userPo 存储条件的实体
      * @return RpcResponse 满足要求的用户集合
@@ -59,7 +60,9 @@ public class UserController {
     }
 
     /**
-     * 用户注册（只需要基本信息）接口
+     * 用户注册接口
+     * （只需要基本信息即可注册，基本信息[必填项]如下： ）
+     * （用户名，密码，性别，手机号,角色）
      *
      * @param userPo 承载注册信息的载体
      * @return RpcResponse注册用户信息
@@ -73,25 +76,57 @@ public class UserController {
             logger.warn("register方法入参错误！");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
-        logger.info("待注册的信息为"+userPo.toString());
+        logger.info("待注册的信息为" + userPo.toString());
         return userService.registerUserService(userPo);
     }
 
     /**
-     * 完善个人信息接口(不能修改ID和用户名)
+     * 完善个人信息接口
+     * (不能修改ID和用户名)
      *
      * @param userPo 待完善信息载体
      * @return 完善用户的Id
      */
     @RequestMapping("/complete")
-    public RpcResponse complete(UserPo userPo){
-        if(CheckDataUtils.isEmpty(userPo.getId())){
+    public RpcResponse complete(UserPo userPo) {
+        if (CheckDataUtils.isEmpty(userPo.getId())) {
             logger.warn("complete方法入参错误！");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
-        logger.info("待完善的信息为"+userPo.toString());
+        logger.info("待完善的信息为" + userPo.toString());
         return userService.completeUserInfoService(userPo);
     }
 
+    /**
+     * 作废用户账户接口
+     *
+     * @param id 待作废用户Id
+     * @return 作废结果：作废用户账户的Id
+     */
+    @RequestMapping("invalid")
+    public RpcResponse invalid(Long id) {
+        if (CheckDataUtils.isEmpty(id)) {
+            logger.warn("作废用户账户方法入参错误");
+            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
+        }
+        logger.info("要作废的用户Id为" + id);
+        return userService.invalidUserByIdService(id);
+    }
+
+    /**
+     * 冻结用户账户接口
+     *
+     * @param id 待冻结用户Id
+     * @return 冻结结果：冻结用户账户的Id
+     */
+    @RequestMapping("frozen")
+    public RpcResponse frozen(Long id) {
+        if (CheckDataUtils.isEmpty(id)) {
+            logger.warn("冻结用户账户方法入参错误");
+            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
+        }
+        logger.info("要冻结的用户Id为" + id);
+        return userService.frozenUserByIdService(id);
+    }
 
 }
