@@ -6,8 +6,7 @@ import com.deng.seckilling.po.UserPo;
 import com.deng.seckilling.rpc.RpcResponse;
 import com.deng.seckilling.service.UserService;
 import com.deng.seckilling.util.CheckDataUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,12 +23,11 @@ import javax.annotation.Resource;
  */
 @RestController
 @RequestMapping("/user")
+@Slf4j
 public class UserController {
 
     @Resource
     UserService userService;
-
-    private Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
      * 用户登录接口
@@ -41,10 +39,10 @@ public class UserController {
     @RequestMapping("/login")
     public RpcResponse login(String userName, String passWord) {
         if (CheckDataUtils.isEmpty(userName) || CheckDataUtils.isEmpty(passWord)) {
-            logger.warn("login方法入参错误！");
+            log.warn("login方法入参错误！");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
-        logger.info(userName + "尝试登录的密码是" + passWord);
+        log.info(userName + "尝试登录的密码是" + passWord);
         return userService.verifyUserService(userName, passWord);
     }
 
@@ -58,17 +56,17 @@ public class UserController {
      */
     @PostMapping("/querybycondition")
      public RpcResponse queryUsersByCondition(UserPo userPo) {
-        logger.info("查询用户集合接口，查询条件为：" + userPo.toString());
+        log.info("查询用户集合接口，查询条件为：" + userPo.toString());
         return userService.queryUsersByConditionService(userPo);
     }
 
     @GetMapping("/querybycondition")
     public RpcResponse queryUsersByCondition(Integer pageNum, UserPo userPo) {
         if (CheckDataUtils.isEmpty(pageNum)) {
-            logger.warn("带分页的querybycondition的分页参数错误！");
+            log.warn("带分页的querybycondition的分页参数错误！");
             return RpcResponse.error(ErrorCode.FENYE_PARAMS_ERROR);
         }
-        logger.info("第" + pageNum + "页");
+        log.info("第" + pageNum + "页");
         logger.info("查询用户集合接口，查询条件为：" + userPo.toString());
         return userService.queryUsersByConditionService(pageNum, DefaultValue.FENYE_PAGESIZE_VALUE,userPo);
     }
@@ -87,10 +85,10 @@ public class UserController {
                 CheckDataUtils.isEmpty(userPo.getPassWord()) || (false == CheckDataUtils.isSex(userPo.getSex())) ||
                 (false == CheckDataUtils.isRank(userPo.getRank()))
                 ) {
-            logger.warn("register方法入参错误！");
+            log.warn("register方法入参错误！");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
-        logger.info("待注册的信息为" + userPo.toString());
+        log.info("待注册的信息为" + userPo.toString());
         return userService.registerUserService(userPo);
     }
 
@@ -104,10 +102,10 @@ public class UserController {
     @RequestMapping("/complete")
     public RpcResponse complete(UserPo userPo) {
         if (CheckDataUtils.isEmpty(userPo.getId())) {
-            logger.warn("complete方法入参错误！");
+            log.warn("complete方法入参错误！");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
-        logger.info("待完善的信息为" + userPo.toString());
+        log.info("待完善的信息为" + userPo.toString());
         return userService.completeUserInfoService(userPo);
     }
 
@@ -120,10 +118,10 @@ public class UserController {
     @RequestMapping("invalid")
     public RpcResponse invalid(Long id) {
         if (CheckDataUtils.isEmpty(id)) {
-            logger.warn("作废用户账户方法入参错误");
+            log.warn("作废用户账户方法入参错误");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
-        logger.info("要作废的用户Id为" + id);
+        log.info("要作废的用户Id为" + id);
         return userService.invalidUserByIdService(id);
     }
 
@@ -136,10 +134,10 @@ public class UserController {
     @RequestMapping("frozen")
     public RpcResponse frozen(Long id) {
         if (CheckDataUtils.isEmpty(id)) {
-            logger.warn("冻结用户账户方法入参错误");
+            log.warn("冻结用户账户方法入参错误");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
-        logger.info("要冻结的用户Id为" + id);
+        log.info("要冻结的用户Id为" + id);
         return userService.frozenUserByIdService(id);
     }
 

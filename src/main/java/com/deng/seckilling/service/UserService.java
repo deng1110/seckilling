@@ -8,8 +8,7 @@ import com.deng.seckilling.rpc.RpcResponse;
 import com.deng.seckilling.util.CheckDataUtils;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -24,12 +23,11 @@ import java.util.List;
  * @since: 2019/1/29 11:47
  */
 @Service
+@Slf4j
 public class UserService {
 
     @Resource
     UserMapper userMapper;
-
-    private Logger logger = LoggerFactory.getLogger(getClass());
 
     /**
      * 验证用户的用户名密码Service
@@ -43,14 +41,14 @@ public class UserService {
         try {
             userPoList = userMapper.getUsersByUserNameAndPassword(userName, passWord);
         } catch (Exception e) {
-            logger.error("验证用户登录sql执行失败！！！错误信息为" + e);
+            log.error("验证用户登录sql执行失败！！！错误信息为" + e);
             return RpcResponse.error(ErrorCode.USERLOGIN_FAIL_ERROR);
         }
         if (false == CheckDataUtils.isEmpty(userPoList)) {
-            logger.info(userName + "登录成功");
+            log.info(userName + "登录成功");
             return RpcResponse.success(userPoList.get(0));
         } else {
-            logger.warn(userName + "登录失败");
+            log.warn(userName + "登录失败");
             return RpcResponse.error(ErrorCode.USERLOGIN_FAIL_ERROR);
         }
     }
@@ -67,14 +65,14 @@ public class UserService {
         try {
             userPoList = userMapper.getUserByCondition(userPo);
         } catch (Exception e) {
-            logger.error("按条件查找用户sql执行失败！！！，错误信息为" + e);
+            log.error("按条件查找用户sql执行失败！！！，错误信息为" + e);
             return RpcResponse.error(ErrorCode.QUERYUSER_FAIL_ERROR);
         }
         if (false == CheckDataUtils.isEmpty(userPoList)) {
-            logger.info("按条件查询用户成功，共查到" + userPoList.size() + "条数据");
+            log.info("按条件查询用户成功，共查到" + userPoList.size() + "条数据");
             return RpcResponse.success(userPoList);
         } else {
-            logger.warn("按条件查询用户成功，但查出0条数据");
+            log.warn("按条件查询用户成功，但查出0条数据");
             return RpcResponse.error(ErrorCode.QUERYUSER_NULL_ERROR);
         }
     }
@@ -120,7 +118,7 @@ public class UserService {
         UserPo userPo1 = new UserPo();
         userPo1.setUserName(userPo.getUserName());
         if (0 == this.queryUsersByConditionService(userPo1).getCode()) {
-            logger.warn(userPo.getUserName() + "的用户名已存在");
+            log.warn(userPo.getUserName() + "的用户名已存在");
             return RpcResponse.error(ErrorCode.USERNAME_EXIT_ERROR);
         }
         //若用户名可用，则进行注册
@@ -128,16 +126,16 @@ public class UserService {
         try {
             result = userMapper.insertUserBasicInfo(userPo);
         } catch (Exception e) {
-            logger.error("注册用户sql执行失败！！！，错误信息为" + e);
+            log.error("注册用户sql执行失败！！！，错误信息为" + e);
             return RpcResponse.error(ErrorCode.REGISTER_FAIL_ERROR);
         }
         if (1 == result) {
-            logger.info(userPo.getUserName() + "注册成功，ID为" + userPo.getId());
+            log.info(userPo.getUserName() + "注册成功，ID为" + userPo.getId());
             //把密码去掉，不返回密码！
             userPo.setPassWord("");
             return RpcResponse.success(userPo);
         }
-        logger.warn(userPo.getUserName() + "注册失败");
+        log.warn(userPo.getUserName() + "注册失败");
         return RpcResponse.error(ErrorCode.REGISTER_FAIL_ERROR);
     }
 
@@ -162,17 +160,17 @@ public class UserService {
             try {
                 result = userMapper.updateUserInfo(userPo);
             } catch (Exception e) {
-                logger.error("完善用户信息sql执行失败！！！，错误信息为" + e);
+                log.error("完善用户信息sql执行失败！！！，错误信息为" + e);
                 return RpcResponse.error(ErrorCode.COMPLETE_USERINFO_ERROR);
             }
             if (1 == result) {
-                logger.info(userPo.getId() + "完善用户信息成功");
+                log.info(userPo.getId() + "完善用户信息成功");
                 return RpcResponse.success(userPo.getId());
             }
-            logger.warn(userPo.getId() + "完善用户信息失败");
+            log.warn(userPo.getId() + "完善用户信息失败");
             return RpcResponse.error(ErrorCode.COMPLETE_USERINFO_ERROR);
         }
-        logger.warn("ID为" + userPo.getId() + "的用户不存在！");
+        log.warn("ID为" + userPo.getId() + "的用户不存在！");
         return RpcResponse.error(ErrorCode.USER_NOTEXIT_ERROR);
     }
 
@@ -194,18 +192,18 @@ public class UserService {
             try {
                 result = userMapper.updateUserInfo(userPo1);
             } catch (Exception e) {
-                logger.error("作废用户账户sql执行失败！！！，错误信息为" + e);
+                log.error("作废用户账户sql执行失败！！！，错误信息为" + e);
                 return RpcResponse.error(ErrorCode.INVALID_USER_ERROR);
             }
             if (1 == result) {
-                logger.info(id + "的用户账户作废成功");
+                log.info(id + "的用户账户作废成功");
                 return RpcResponse.success(userPo1.getId());
             }
-            logger.warn(userPo1.getId() + "的用户账户作废失败");
+            log.warn(userPo1.getId() + "的用户账户作废失败");
             return RpcResponse.error(ErrorCode.INVALID_USER_ERROR);
 
         }
-        logger.warn("ID为" + id + "的用户不存在！");
+        log.warn("ID为" + id + "的用户不存在！");
         return RpcResponse.error(ErrorCode.USER_NOTEXIT_ERROR);
     }
 
@@ -227,17 +225,17 @@ public class UserService {
             try {
                 result = userMapper.updateUserInfo(userPo1);
             } catch (Exception e) {
-                logger.error("冻结用户账户sql执行失败！！！，错误信息为" + e);
+                log.error("冻结用户账户sql执行失败！！！，错误信息为" + e);
                 return RpcResponse.error(ErrorCode.FROZEN_USER_ERROR);
             }
             if (1 == result) {
-                logger.info(id + "的用户账户冻结成功");
+                log.info(id + "的用户账户冻结成功");
                 return RpcResponse.success(userPo1.getId());
             }
-            logger.warn(userPo1.getId() + "的用户账户冻结失败");
+            log.warn(userPo1.getId() + "的用户账户冻结失败");
             return RpcResponse.error(ErrorCode.FROZEN_USER_ERROR);
         }
-        logger.warn("ID为" + id + "的用户不存在！");
+        log.warn("ID为" + id + "的用户不存在！");
         return RpcResponse.error(ErrorCode.USER_NOTEXIT_ERROR);
     }
 
