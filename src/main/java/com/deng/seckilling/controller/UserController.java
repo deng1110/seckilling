@@ -1,5 +1,6 @@
 package com.deng.seckilling.controller;
 
+import com.deng.seckilling.constant.DefaultValue;
 import com.deng.seckilling.constant.ErrorCode;
 import com.deng.seckilling.po.UserPo;
 import com.deng.seckilling.rpc.RpcResponse;
@@ -7,6 +8,8 @@ import com.deng.seckilling.service.UserService;
 import com.deng.seckilling.util.CheckDataUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -53,10 +56,21 @@ public class UserController {
      * @param userPo 存储条件的实体
      * @return RpcResponse 满足要求的用户集合
      */
-    @RequestMapping("/querybycondition")
-    public RpcResponse queryUsersByCondition(UserPo userPo) {
+    @PostMapping("/querybycondition")
+     public RpcResponse queryUsersByCondition(UserPo userPo) {
         logger.info("查询用户集合接口，查询条件为：" + userPo.toString());
         return userService.queryUsersByConditionService(userPo);
+    }
+
+    @GetMapping("/querybycondition")
+    public RpcResponse queryUsersByCondition(Integer pageNum, UserPo userPo) {
+        if (CheckDataUtils.isEmpty(pageNum)) {
+            logger.warn("带分页的querybycondition的分页参数错误！");
+            return RpcResponse.error(ErrorCode.FENYE_PARAMS_ERROR);
+        }
+        logger.info("第" + pageNum + "页");
+        logger.info("查询用户集合接口，查询条件为：" + userPo.toString());
+        return userService.queryUsersByConditionService(pageNum, DefaultValue.FENYE_PAGESIZE_VALUE,userPo);
     }
 
     /**

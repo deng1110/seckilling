@@ -18,7 +18,7 @@ public class DefaultValue {
     public static final String USERSTATUS_VALUE_NORMAL = "normal";
     public static final String USERSTATUS_VALUE_FROZEN = "frozen";
     public static final String USERSTATUS_VALUE_INVALID = "invalid";
-
+    public static final Integer FENYE_PAGESIZE_VALUE = 5;
 
     //
 }

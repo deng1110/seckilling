@@ -80,6 +80,34 @@ public class UserService {
     }
 
     /**
+     * 根据条件查询符合要求的用户集合Service
+     * （带分页功能）
+     *
+     * @param pageNum  第几页
+     * @param pageSize 每页的数据项
+     * @param userPo   存储查询条件的实体
+     * @return
+     */
+    public RpcResponse queryUsersByConditionService(Integer pageNum, Integer pageSize, UserPo userPo) {
+        List<UserPo> userPoList = new ArrayList<UserPo>();
+        PageHelper.startPage(pageNum, pageSize);
+        try {
+            userPoList = userMapper.getUserByCondition(userPo);
+        } catch (Exception e) {
+            logger.error("按条件查找用户sql执行失败！！！，错误信息为" + e);
+            return RpcResponse.error(ErrorCode.QUERYUSER_FAIL_ERROR);
+        }
+        if (false == CheckDataUtils.isEmpty(userPoList)) {
+            logger.info("按条件查询用户成功，共查到" + userPoList.size() + "条数据");
+            PageInfo<UserPo> pageInfo = new PageInfo<UserPo>(userPoList);
+            return RpcResponse.success(pageInfo);
+        } else {
+            logger.warn("按条件查询用户成功，但查出0条数据");
+            return RpcResponse.error(ErrorCode.QUERYUSER_NULL_ERROR);
+        }
+    }
+
+    /**
      * 注册用户service
      * 会验证用户名是否重复！！！
      * （只注册基本信息）
@@ -221,10 +249,13 @@ public class UserService {
      * @param pageSize
      * @return
      */
-    public PageInfo<UserPo> getUserbyPage(Integer pageNum, Integer pageSize) {
+    public RpcResponse getUserbyPage(Integer pageNum, Integer pageSize) {
+
+        UserPo userPo = new UserPo();
+        userPo.setSex("male");
         PageHelper.startPage(pageNum, pageSize);
-        List<UserPo> listUser = userMapper.getUserByCondition(new UserPo());
+        List<UserPo> listUser = userMapper.getUserByCondition(userPo);
         PageInfo<UserPo> pageInfo = new PageInfo<UserPo>(listUser);
-        return pageInfo;
+        return RpcResponse.success(pageInfo);
     }
 }

@@ -19,6 +19,10 @@ public class CheckDataUtils<T> {
         return null == target || 0 >= target;
     }
 
+    public static boolean isEmpty(Integer target) {
+        return null == target || 0 >= target;
+    }
+
     public static boolean isEmpty(Date date) {
         return null == date;
     }
