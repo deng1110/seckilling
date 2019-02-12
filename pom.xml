@@ -40,7 +40,7 @@
             <version>1.2.3</version>
         </dependency>
 
-        <!--  这里是依赖 -->
+        <!--这里是依赖-->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
