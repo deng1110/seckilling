@@ -15,7 +15,7 @@ public class UserSqlProvider {
 
     public String getUserByCondition(UserPo userPo) {
         String sql = "select * from user where status = 'normal' ";
-        if (false == CheckDataUtils.isEmpty(userPo.getId())) {
+        if (false == CheckDataUtils.isExit(userPo.getId())) {
             sql += "and id = #{id} ";
         }
         if (false == CheckDataUtils.isEmpty(userPo.getUserName())) {
@@ -27,7 +27,7 @@ public class UserSqlProvider {
         if (false == CheckDataUtils.isEmpty(userPo.getSex())) {
             sql += "and sex = #{sex} ";
         }
-        if (false == CheckDataUtils.isEmpty(userPo.getPhoneNumber())) {
+        if (false == CheckDataUtils.isExit(userPo.getPhoneNumber())) {
             sql += "and phone_number = #{phoneNumber} ";
         }
         if (false == CheckDataUtils.isEmpty(userPo.getIdentityCardId())) {
@@ -56,7 +56,7 @@ public class UserSqlProvider {
         if (false == CheckDataUtils.isEmpty(userPo.getSex())) {
             sql += ",sex = #{sex} ";
         }
-        if (false == CheckDataUtils.isEmpty(userPo.getPhoneNumber())) {
+        if (false == CheckDataUtils.isExit(userPo.getPhoneNumber())) {
             sql += ",phone_number = #{phoneNumber} ";
         }
         if (false == CheckDataUtils.isEmpty(userPo.getIdentityCardId())) {

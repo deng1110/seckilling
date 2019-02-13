@@ -19,6 +19,9 @@ public class CheckDataUtils<T> {
         return null == target || 0 >= target;
     }
 
+    public static boolean isExit(Long target){
+        return null == target;
+    }
     public static boolean isEmpty(Integer target) {
         return null == target || 0 >= target;
     }
@@ -54,7 +57,7 @@ public class CheckDataUtils<T> {
         Field[] fields = target.getClass().getDeclaredFields();
         for (Field f : fields) {
             f.setAccessible(true);
-            if (null != f.get(target)) {
+            if (null != f.get(target) && "" != f.get(target) && false == "".equals(f.get(target))) {
                 return false;
             }
         }

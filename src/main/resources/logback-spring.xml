@@ -3,7 +3,7 @@
     <property name="LOG_FILE" value="/seckilling/logs/"/>
 
     <!--<property name="TRACE_LOG_FILE" value="/seckilling/logs/trace/"/>-->
-    <property name="TRACE_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss}%m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
+    <!--<property name="TRACE_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss}%m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>-->
 
     <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
     <conversionRule conversionWord="wex"
@@ -31,19 +31,19 @@
             <charset>utf8</charset>
         </encoder>
     </appender>
-    <appender name="TRACE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${TRACE_LOG_FILE}.%d{yyyy-MM-dd}.log</fileNamePattern>
-            <MaxHistory>30</MaxHistory>
-        </rollingPolicy>
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>${TRACE_LOG_PATTERN}</pattern>
-        </encoder>
-    </appender>
+    <!--<appender name="TRACE" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+        <!--<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">-->
+            <!--<fileNamePattern>${TRACE_LOG_FILE}.%d{yyyy-MM-dd}.log</fileNamePattern>-->
+            <!--<MaxHistory>30</MaxHistory>-->
+        <!--</rollingPolicy>-->
+        <!--<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">-->
+            <!--<pattern>${TRACE_LOG_PATTERN}</pattern>-->
+        <!--</encoder>-->
+    <!--</appender>-->
 
-    <logger name="com.haodf.communal.support.rpc.trace.TraceLogger" additivity="false" level="INFO">
-        <appender-ref ref="TRACE"/>
-    </logger>
+    <!--<logger name="com.haodf.communal.support.rpc.trace.TraceLogger" additivity="false" level="INFO">-->
+        <!--<appender-ref ref="TRACE"/>-->
+    <!--</logger>-->
 
     <logger name="org.apache.catalina.startup.DigesterFactory" level="ERROR"/>
     <logger name="org.apache.catalina.util.LifecycleBase" level="ERROR"/>
