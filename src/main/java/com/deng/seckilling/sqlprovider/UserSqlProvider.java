@@ -18,28 +18,28 @@ public class UserSqlProvider {
         if (false == CheckDataUtils.isExit(userPo.getId())) {
             sql += "and id = #{id} ";
         }
-        if (false == CheckDataUtils.isEmpty(userPo.getUserName())) {
+        if (false == CheckDataUtils.isExit(userPo.getUserName())) {
             sql += "and user_name = #{userName} ";
         }
-        if (false == CheckDataUtils.isEmpty(userPo.getPassWord())) {
+        if (false == CheckDataUtils.isExit(userPo.getPassWord())) {
             sql += "and pass_word = #{passWord} ";
         }
-        if (false == CheckDataUtils.isEmpty(userPo.getSex())) {
+        if (false == CheckDataUtils.isExit(userPo.getSex())) {
             sql += "and sex = #{sex} ";
         }
         if (false == CheckDataUtils.isExit(userPo.getPhoneNumber())) {
             sql += "and phone_number = #{phoneNumber} ";
         }
-        if (false == CheckDataUtils.isEmpty(userPo.getIdentityCardId())) {
+        if (false == CheckDataUtils.isExit(userPo.getIdentityCardId())) {
             sql += "and identity_card_id = #{identityCardId} ";
         }
-        if (false == CheckDataUtils.isEmpty(userPo.getBirthday())) {
+        if (false == CheckDataUtils.isExit(userPo.getBirthday())) {
             sql += "and birthday = #{birthday} ";
         }
-        if (false == CheckDataUtils.isEmpty(userPo.getAddress())) {
+        if (false == CheckDataUtils.isExit(userPo.getAddress())) {
             sql += "and address = #{address} ";
         }
-        if (false == CheckDataUtils.isEmpty(userPo.getRank())) {
+        if (false == CheckDataUtils.isExit(userPo.getRank())) {
             sql += "and rank = #{rank} ";
         }
         return sql;
@@ -47,28 +47,28 @@ public class UserSqlProvider {
 
     public String updateUserInfo(UserPo userPo) {
         String sql = "update user set id = #{id} ";
-        if (false == CheckDataUtils.isEmpty(userPo.getUserName())) {
+        if (false == CheckDataUtils.isExit(userPo.getUserName())) {
             sql += ",user_name = #{userName}";
         }
-        if (false == CheckDataUtils.isEmpty(userPo.getPassWord())) {
+        if (false == CheckDataUtils.isExit(userPo.getPassWord())) {
             sql += ",pass_word = #{passWord} ";
         }
-        if (false == CheckDataUtils.isEmpty(userPo.getSex())) {
+        if (false == CheckDataUtils.isExit(userPo.getSex())) {
             sql += ",sex = #{sex} ";
         }
         if (false == CheckDataUtils.isExit(userPo.getPhoneNumber())) {
             sql += ",phone_number = #{phoneNumber} ";
         }
-        if (false == CheckDataUtils.isEmpty(userPo.getIdentityCardId())) {
+        if (false == CheckDataUtils.isExit(userPo.getIdentityCardId())) {
             sql += ",identity_card_id = #{identityCardId} ";
         }
-        if (false == CheckDataUtils.isEmpty(userPo.getBirthday())) {
+        if (false == CheckDataUtils.isExit(userPo.getBirthday())) {
             sql += ",birthday = #{birthday} ";
         }
-        if (false == CheckDataUtils.isEmpty(userPo.getAddress())) {
+        if (false == CheckDataUtils.isExit(userPo.getAddress())) {
             sql += ",address = #{address} ";
         }
-        if (false == CheckDataUtils.isEmpty(userPo.getStatus())) {
+        if (false == CheckDataUtils.isExit(userPo.getStatus())) {
             sql += ",status = #{status}";
         }
         sql += "where id = #{id}";
