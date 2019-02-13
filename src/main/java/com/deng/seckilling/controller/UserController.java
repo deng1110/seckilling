@@ -8,6 +8,7 @@ import com.deng.seckilling.service.UserService;
 import com.deng.seckilling.util.CheckDataUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,7 +36,7 @@ public class UserController {
      * @param passWord 密码
      * @return RpcResponse 登录返回结果
      */
-    @RequestMapping("/login")
+    @PostMapping("/login")
     public RpcResponse login(String userName, String passWord) {
         if (CheckDataUtils.isEmpty(userName) || CheckDataUtils.isEmpty(passWord)) {
             log.warn("login接口入参错误！");
@@ -54,27 +55,55 @@ public class UserController {
      * @return RpcResponse 满足要求的用户集合
      */
     @RequestMapping("/querybycondition")
-     public RpcResponse queryUsersByCondition(UserPo userPo) {
-        log.info("查询用户集合接口，查询条件为：" + userPo.toString());
+    public RpcResponse queryUsersByCondition(UserPo userPo) {
+        try {
+            if (CheckDataUtils.isEmpty(userPo)) {
+                log.warn("查询用户接口的查询条件不能为空！");
+                return RpcResponse.error(ErrorCode.QUERYPARAMS_ISNULL_ERROR);
+            }
+        } catch (IllegalAccessException e) {
+            log.error("工具类报错，错误信息为：" + e);
+            return RpcResponse.error(ErrorCode.SYSTEM_ERROR);
+        }
+        if (false == CheckDataUtils.isEmpty(userPo.getPassWord())) {
+            log.warn("密码不能作为查询条件！");
+            return RpcResponse.error(ErrorCode.PASSWORD_NOTPARAMS_ERROR);
+        }
+        log.info("查询用户接口，查询条件为：" + userPo.toString());
         return userService.queryUsersByConditionService(userPo);
     }
 
     /**
-     * 带分页的按条件查询用户集合接口
+     * 带分页的 按条件查询用户集合接口
+     * （只能查正常用户账户状态的用户）
+     * TODO:该方法需要root权限
      *
      * @param pageNum 第几页
-     * @param userPo 满足要求的用户集合
+     * @param userPo  满足要求的用户集合
      * @return RpcResponse 满足要求的用户集合
      */
     @RequestMapping("/querybycondition/{pageNum}")
     public RpcResponse queryUsersByCondition(@PathVariable Integer pageNum, UserPo userPo) {
+        try {
+            if (CheckDataUtils.isEmpty(userPo)) {
+                log.warn("带分页的查询用户接口的查询条件不能为空！");
+                return RpcResponse.error(ErrorCode.QUERYPARAMS_ISNULL_ERROR);
+            }
+        } catch (IllegalAccessException e) {
+            log.error("工具类报错，错误信息为：" + e);
+            return RpcResponse.error(ErrorCode.SYSTEM_ERROR);
+        }
         if (CheckDataUtils.isEmpty(pageNum)) {
-            log.warn("带分页的querybycondition接口入参错误！");
+            log.warn("带分页的querybycondition接口输入的页码参数错误！");
             return RpcResponse.error(ErrorCode.FENYE_PARAMS_ERROR);
         }
-        log.info("分页查询接口，正在查询第" + pageNum + "页数据");
-        log.info("查询用户集合接口，查询条件为：" + userPo.toString());
-        return userService.queryUsersByConditionService(pageNum, DefaultValue.FENYE_PAGESIZE_VALUE,userPo);
+        if (false == CheckDataUtils.isEmpty(userPo.getPassWord())) {
+            log.warn("密码不能作为查询条件！");
+            return RpcResponse.error(ErrorCode.PASSWORD_NOTPARAMS_ERROR);
+        }
+        log.info("带分页的查询用户接口，正在查询第" + pageNum + "页数据");
+        log.info("带分页的查询用户接口，查询条件为：" + userPo.toString());
+        return userService.queryUsersByConditionService(pageNum, DefaultValue.FENYE_PAGESIZE_VALUE, userPo);
     }
 
     /**

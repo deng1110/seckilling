@@ -64,6 +64,8 @@ public class UserService {
     public RpcResponse<List<UserPo>> queryUsersByConditionService(UserPo userPo) {
         List<UserPo> userPoList = new ArrayList<UserPo>();
         try {
+            //密码不能作为查询条件
+            userPo.setPassWord("");
             userPoList = userMapper.getUserByCondition(userPo);
         } catch (Exception e) {
             log.error("按条件查找用户sql执行失败！！！，错误信息为" + e);
@@ -85,12 +87,14 @@ public class UserService {
      * @param pageNum  第几页
      * @param pageSize 每页的数据项
      * @param userPo   存储查询条件的实体
-     * @return
+     * @return RpcResponse 查询到的用户集合
      */
     public RpcResponse queryUsersByConditionService(Integer pageNum, Integer pageSize, UserPo userPo) {
         List<UserPo> userPoList = new ArrayList<UserPo>();
         PageHelper.startPage(pageNum, pageSize);
         try {
+            //密码不能作为查询条件
+            userPo.setPassWord("");
             userPoList = userMapper.getUserByCondition(userPo);
         } catch (Exception e) {
             log.error("带分页的按条件查找用户sql执行失败！！！，错误信息为" + e);
@@ -101,7 +105,7 @@ public class UserService {
             PageInfo<UserPo> pageInfo = new PageInfo<UserPo>(userPoList);
             return RpcResponse.success(pageInfo);
         } else {
-            log.warn("带分页按条件查询用户成功，但查出0条数据");
+            log.warn("带分页的按条件查询用户成功，但查出0条数据");
             return RpcResponse.error(ErrorCode.QUERYUSER_NULL_ERROR);
         }
     }

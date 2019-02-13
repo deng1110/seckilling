@@ -1,7 +1,7 @@
 package com.deng.seckilling.util;
 
 import com.deng.seckilling.constant.DefaultValue;
-
+import java.lang.reflect.Field;
 import java.sql.Date;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +37,28 @@ public class CheckDataUtils<T> {
 
     public static <T> boolean isEmpty(Map<String, T> map) {
         return null == map || map.isEmpty();
+    }
+
+    /**
+     * 判断 对象中所有属性是否均为空
+     *
+     * @param target 目标对象
+     * @param <T>    泛型类型
+     * @return true：均为空；false：非均为空
+     * @throws IllegalAccessException 需要调用者捕获异常
+     */
+    public static <T> boolean isEmpty(T target) throws IllegalAccessException {
+        if (null == target) {
+            return true;
+        }
+        Field[] fields = target.getClass().getDeclaredFields();
+        for (Field f : fields) {
+            f.setAccessible(true);
+            if (null != f.get(target)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static boolean isRank(String rank) {

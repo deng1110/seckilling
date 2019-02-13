@@ -18,6 +18,7 @@ public class CommonUtils {
 
     /**
      * 用于获取结果集的映射关系
+     *
      * @param origin
      * @return String类型的结果集
      */
