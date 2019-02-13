@@ -150,7 +150,7 @@ public class UserController {
      * @param id 待作废用户Id
      * @return 作废结果：作废用户账户的Id
      */
-    @RequestMapping("invalid")
+    @RequestMapping("/invalid")
     public RpcResponse invalid(Long id) {
         if (CheckDataUtils.isEmpty(id)) {
             log.warn("invalid接口入参错误");
@@ -166,7 +166,7 @@ public class UserController {
      * @param id 待冻结用户Id
      * @return 冻结结果：冻结用户账户的Id
      */
-    @RequestMapping("frozen")
+    @RequestMapping("/frozen")
     public RpcResponse frozen(Long id) {
         if (CheckDataUtils.isEmpty(id)) {
             log.warn("frozen接口入参错误");
@@ -174,6 +174,22 @@ public class UserController {
         }
         log.info("要冻结的用户Id为" + id);
         return userService.frozenUserByIdService(id);
+    }
+
+    /**
+     * 解冻用户账户接口
+     *
+     * @param id 待解冻用户Id
+     * @return 解冻结果：解冻用户账户的Id
+     */
+    @RequestMapping("/unfrozen")
+    public RpcResponse unfrozen(Long id) {
+        if (CheckDataUtils.isEmpty(id)) {
+            log.warn("unfrozen接口入参错误");
+            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
+        }
+        log.info("要解冻的用户Id为" + id);
+        return userService.unfrozenUserByIdService(id);
     }
 
 }

@@ -60,4 +60,12 @@ public interface UserMapper {
     @UpdateProvider(type = UserSqlProvider.class, method = "updateUserInfo")
     int updateUserInfo(UserPo userPo);
 
+    /**
+     * 根据用户Id查询用户信息
+     *
+     * @param id 待查询的用户id
+     * @return 返回的用户信息
+     */
+    @Select("select * from user where id = #{id}")
+    UserPo getUserByUserId(@Param("id") Long id);
 }

@@ -19,32 +19,16 @@ public class CheckDataUtils<T> {
         return null == target || 0 >= target;
     }
 
-    public static boolean isExit(Long target) {
-        return null == target;
-    }
-
     public static boolean isEmpty(Integer target) {
         return null == target || 0 >= target;
-    }
-
-    public static boolean isExit(Integer target) {
-        return null == target;
     }
 
     public static boolean isEmpty(Date date) {
         return null == date;
     }
 
-    public static boolean isExit(Date date) {
-        return null == date;
-    }
-
     public static boolean isEmpty(String target) {
         return null == target || target.isEmpty();
-    }
-
-    public static boolean isExit(String target) {
-        return null == target;
     }
 
     public static <T> boolean isEmpty(List<T> list) {
@@ -53,6 +37,23 @@ public class CheckDataUtils<T> {
 
     public static <T> boolean isEmpty(Map<String, T> map) {
         return null == map || map.isEmpty();
+    }
+
+
+    public static boolean isExit(Long target) {
+        return null == target;
+    }
+
+    public static boolean isExit(Integer target) {
+        return null == target;
+    }
+
+    public static boolean isExit(Date date) {
+        return null == date;
+    }
+
+    public static boolean isExit(String target) {
+        return null == target;
     }
 
     /**

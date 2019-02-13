@@ -247,21 +247,68 @@ public class UserService {
         return RpcResponse.error(ErrorCode.USER_NOTEXIT_ERROR);
     }
 
+    /**
+     * 根据用户ID查询用户信息Service
+     *
+     * @param id 用户Id
+     * @return 对应的用户信息
+     */
+    public RpcResponse<UserPo> getUserByIdService(Long id) {
+        UserPo userPo = new UserPo();
+        try {
+            userPo = userMapper.getUserByUserId(id);
+        } catch (Exception e) {
+            log.error("根据Id查询用户信息的sql执行失败！！！，错误信息为" + e);
+            return RpcResponse.error(ErrorCode.QUERYUSER_FAIL_ERROR);
+        }
+        if (null == userPo) {
+            log.warn("根据Id查询用户信息成功，但查出0条数据");
+            return RpcResponse.error(ErrorCode.USER_NOTEXIT_ERROR);
+        } else {
+            log.info("根据Id查询用户信息成功，用户信息为" + userPo);
+            return RpcResponse.success(userPo);
+        }
+    }
 
     /**
-     * 分页demo
+     * 解冻用户Service
+     * 会验证该用户之前的状态是否为冻结状态
      *
-     * @param pageNum
-     * @param pageSize
-     * @return
+     * @param id 待冻结的用户Id
+     * @return 冻结成功后的用户Id
      */
-    public RpcResponse getUserbyPage(Integer pageNum, Integer pageSize) {
-
-        UserPo userPo = new UserPo();
-        userPo.setSex("male");
-        PageHelper.startPage(pageNum, pageSize);
-        List<UserPo> listUser = userMapper.getUserByCondition(userPo);
-        PageInfo<UserPo> pageInfo = new PageInfo<UserPo>(listUser);
-        return RpcResponse.success(pageInfo);
+    public RpcResponse unfrozenUserByIdService(Long id) {
+        RpcResponse<UserPo> rpcResponse = this.getUserByIdService(id);
+        if (0 != rpcResponse.getCode()) {
+            log.warn("解冻用户时查询ID为" + id + "的用户时候失败");
+            return RpcResponse.error(ErrorCode.UNFROZEN_USER_ERROR);
+        }
+        UserPo userPo = rpcResponse.getData();
+        if (DefaultValue.USERSTATUS_VALUE_NORMAL.equals(userPo.getStatus())) {
+            log.warn("当前用户状态为非冻结状态无需解冻");
+            return RpcResponse.error(ErrorCode.USERSTATUS_NORMAL_ERROR);
+        } else if (DefaultValue.USERSTATUS_VALUE_FROZEN.equals(userPo.getStatus())) {
+            UserPo userPo1 = new UserPo();
+            userPo1.setId(id);
+            userPo1.setStatus(DefaultValue.USERSTATUS_VALUE_NORMAL);
+            int result = 0;
+            try {
+                result = userMapper.updateUserInfo(userPo1);
+            } catch (Exception e) {
+                log.error("解冻用户信息sql执行失败！！！，错误信息为" + e);
+                return RpcResponse.error(ErrorCode.UNFROZEN_USER_ERROR);
+            }
+            if (1 == result) {
+                log.info("解冻Id为" + id + "的用户成功");
+                return RpcResponse.success(id);
+            } else {
+                log.warn("解冻用户执行成功，但影响行数为0");
+                return RpcResponse.error(ErrorCode.UNFROZEN_USER_ERROR);
+            }
+        } else {
+            log.warn("查出的用户状态为作废状态");
+            return RpcResponse.error(ErrorCode.USER_NOTEXIT_ERROR);
+        }
     }
+
 }

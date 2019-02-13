@@ -25,5 +25,7 @@ public class ErrorCode {
     public static final ErrorInfo FENYE_PARAMS_ERROR = new ErrorInfo(1011, "请输入正确页码");
     public static final ErrorInfo PASSWORD_NOTPARAMS_ERROR = new ErrorInfo(1012, "密码不能作为查询条件");
     public static final ErrorInfo QUERYPARAMS_ISNULL_ERROR = new ErrorInfo(1013, "查询条件不能为空");
+    public static final ErrorInfo USERSTATUS_NORMAL_ERROR = new ErrorInfo(1014, "该用户当前为非冻结状态，无需解冻");
+    public static final ErrorInfo UNFROZEN_USER_ERROR = new ErrorInfo(1015, "解冻用户失败");
 
 }
