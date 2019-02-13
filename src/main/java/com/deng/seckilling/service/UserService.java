@@ -46,6 +46,7 @@ public class UserService {
         }
         if (false == CheckDataUtils.isEmpty(userPoList)) {
             log.info(userName + "登录成功");
+            userPoList.get(0).setPassWord("*****");
             return RpcResponse.success(userPoList.get(0));
         } else {
             log.warn(userName + "登录失败");
@@ -92,15 +93,15 @@ public class UserService {
         try {
             userPoList = userMapper.getUserByCondition(userPo);
         } catch (Exception e) {
-            logger.error("按条件查找用户sql执行失败！！！，错误信息为" + e);
+            log.error("带分页的按条件查找用户sql执行失败！！！，错误信息为" + e);
             return RpcResponse.error(ErrorCode.QUERYUSER_FAIL_ERROR);
         }
         if (false == CheckDataUtils.isEmpty(userPoList)) {
-            logger.info("按条件查询用户成功，共查到" + userPoList.size() + "条数据");
+            log.info("带分页的按条件查询用户成功，共查到" + userPoList.size() + "条数据");
             PageInfo<UserPo> pageInfo = new PageInfo<UserPo>(userPoList);
             return RpcResponse.success(pageInfo);
         } else {
-            logger.warn("按条件查询用户成功，但查出0条数据");
+            log.warn("带分页按条件查询用户成功，但查出0条数据");
             return RpcResponse.error(ErrorCode.QUERYUSER_NULL_ERROR);
         }
     }
@@ -124,6 +125,7 @@ public class UserService {
         //若用户名可用，则进行注册
         int result = 0;
         try {
+            userPo.setStatus(DefaultValue.USERSTATUS_VALUE_NORMAL);
             result = userMapper.insertUserBasicInfo(userPo);
         } catch (Exception e) {
             log.error("注册用户sql执行失败！！！，错误信息为" + e);
@@ -131,8 +133,8 @@ public class UserService {
         }
         if (1 == result) {
             log.info(userPo.getUserName() + "注册成功，ID为" + userPo.getId());
-            //把密码去掉，不返回密码！
-            userPo.setPassWord("");
+            //把密码去掉，不可返回密码！
+            userPo.setPassWord("*****");
             return RpcResponse.success(userPo);
         }
         log.warn(userPo.getUserName() + "注册失败");
@@ -157,6 +159,8 @@ public class UserService {
             userPo.setUserName("");
             //完善信息的时候用户账户的状态不可更改，可通过其他专用方法更改
             userPo.setStatus("");
+            //完善信息不可更改用户角色，可通过其他专用方法更改
+            userPo.setRank("");
             try {
                 result = userMapper.updateUserInfo(userPo);
             } catch (Exception e) {

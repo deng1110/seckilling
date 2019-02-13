@@ -7,8 +7,7 @@ import com.deng.seckilling.rpc.RpcResponse;
 import com.deng.seckilling.service.UserService;
 import com.deng.seckilling.util.CheckDataUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -39,7 +38,7 @@ public class UserController {
     @RequestMapping("/login")
     public RpcResponse login(String userName, String passWord) {
         if (CheckDataUtils.isEmpty(userName) || CheckDataUtils.isEmpty(passWord)) {
-            log.warn("login方法入参错误！");
+            log.warn("login接口入参错误！");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
         log.info(userName + "尝试登录的密码是" + passWord);
@@ -54,20 +53,27 @@ public class UserController {
      * @param userPo 存储条件的实体
      * @return RpcResponse 满足要求的用户集合
      */
-    @PostMapping("/querybycondition")
+    @RequestMapping("/querybycondition")
      public RpcResponse queryUsersByCondition(UserPo userPo) {
         log.info("查询用户集合接口，查询条件为：" + userPo.toString());
         return userService.queryUsersByConditionService(userPo);
     }
 
-    @GetMapping("/querybycondition")
-    public RpcResponse queryUsersByCondition(Integer pageNum, UserPo userPo) {
+    /**
+     * 带分页的按条件查询用户集合接口
+     *
+     * @param pageNum 第几页
+     * @param userPo 满足要求的用户集合
+     * @return RpcResponse 满足要求的用户集合
+     */
+    @RequestMapping("/querybycondition/{pageNum}")
+    public RpcResponse queryUsersByCondition(@PathVariable Integer pageNum, UserPo userPo) {
         if (CheckDataUtils.isEmpty(pageNum)) {
-            log.warn("带分页的querybycondition的分页参数错误！");
+            log.warn("带分页的querybycondition接口入参错误！");
             return RpcResponse.error(ErrorCode.FENYE_PARAMS_ERROR);
         }
-        log.info("第" + pageNum + "页");
-        logger.info("查询用户集合接口，查询条件为：" + userPo.toString());
+        log.info("分页查询接口，正在查询第" + pageNum + "页数据");
+        log.info("查询用户集合接口，查询条件为：" + userPo.toString());
         return userService.queryUsersByConditionService(pageNum, DefaultValue.FENYE_PAGESIZE_VALUE,userPo);
     }
 
@@ -85,7 +91,7 @@ public class UserController {
                 CheckDataUtils.isEmpty(userPo.getPassWord()) || (false == CheckDataUtils.isSex(userPo.getSex())) ||
                 (false == CheckDataUtils.isRank(userPo.getRank()))
                 ) {
-            log.warn("register方法入参错误！");
+            log.warn("register接口入参错误！");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
         log.info("待注册的信息为" + userPo.toString());
@@ -102,7 +108,7 @@ public class UserController {
     @RequestMapping("/complete")
     public RpcResponse complete(UserPo userPo) {
         if (CheckDataUtils.isEmpty(userPo.getId())) {
-            log.warn("complete方法入参错误！");
+            log.warn("complete接口入参错误！");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
         log.info("待完善的信息为" + userPo.toString());
@@ -118,7 +124,7 @@ public class UserController {
     @RequestMapping("invalid")
     public RpcResponse invalid(Long id) {
         if (CheckDataUtils.isEmpty(id)) {
-            log.warn("作废用户账户方法入参错误");
+            log.warn("invalid接口入参错误");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
         log.info("要作废的用户Id为" + id);
@@ -134,7 +140,7 @@ public class UserController {
     @RequestMapping("frozen")
     public RpcResponse frozen(Long id) {
         if (CheckDataUtils.isEmpty(id)) {
-            log.warn("冻结用户账户方法入参错误");
+            log.warn("frozen接口入参错误");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
         log.info("要冻结的用户Id为" + id);

@@ -21,7 +21,7 @@ public class ErrorCode {
     public static final ErrorInfo QUERYUSER_FAIL_ERROR = new ErrorInfo(1008,"查询用户失败");
     public static final ErrorInfo INVALID_USER_ERROR = new ErrorInfo(1009,"作废用户账户失败");
     public static final ErrorInfo FROZEN_USER_ERROR = new ErrorInfo(1010,"冻结用户账户失败");
-    public static final ErrorInfo FENYE_PARAMS_ERROR = new ErrorInfo(1011, "请输入页码");
+    public static final ErrorInfo FENYE_PARAMS_ERROR = new ErrorInfo(1011, "请输入正确页码");
 
 
 }
