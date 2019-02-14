@@ -101,8 +101,7 @@ public class UserController {
             log.warn("密码不能作为查询条件！");
             return RpcResponse.error(ErrorCode.PASSWORD_NOTPARAMS_ERROR);
         }
-        log.info("带分页的查询用户接口，正在查询第" + pageNum + "页数据");
-        log.info("带分页的查询用户接口，查询条件为：" + userPo.toString());
+        log.info("带分页的查询用户接口，正在查询第" + pageNum + "页数据，查询条件为" + userPo.toString());
         return userService.queryUsersByConditionService(pageNum, DefaultValue.FENYE_PAGESIZE_VALUE, userPo);
     }
 
@@ -139,6 +138,12 @@ public class UserController {
         if (CheckDataUtils.isEmpty(userPo.getId())) {
             log.warn("complete接口入参错误！");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
+        }
+        if(null != userPo.getSex()){
+            if(false == CheckDataUtils.isSex(userPo.getSex())){
+                log.warn("complete接口入参错误！(性别字段入参失败)");
+                return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
+            }
         }
         log.info("待完善的信息为" + userPo.toString());
         return userService.completeUserInfoService(userPo);

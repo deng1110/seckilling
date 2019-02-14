@@ -68,4 +68,13 @@ public interface UserMapper {
      */
     @Select("select * from user where id = #{id}")
     UserPo getUserByUserId(@Param("id") Long id);
+
+    /**
+     * 根据用户名查询用户信息
+     *
+     * @param userName 待查询用户名
+     * @return 返回的用户信息
+     */
+    @Select("select * from user where user_name = #{userName}")
+    UserPo getUserByUserName(@Param("userName") String userName);
 }

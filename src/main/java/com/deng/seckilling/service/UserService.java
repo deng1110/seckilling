@@ -65,7 +65,7 @@ public class UserService {
         List<UserPo> userPoList = new ArrayList<UserPo>();
         try {
             //密码不能作为查询条件
-            userPo.setPassWord("");
+            userPo.setPassWord(null);
             userPoList = userMapper.getUserByCondition(userPo);
         } catch (Exception e) {
             log.error("按条件查找用户sql执行失败！！！，错误信息为" + e);
@@ -94,7 +94,7 @@ public class UserService {
         PageHelper.startPage(pageNum, pageSize);
         try {
             //密码不能作为查询条件
-            userPo.setPassWord("");
+            userPo.setPassWord(null);
             userPoList = userMapper.getUserByCondition(userPo);
         } catch (Exception e) {
             log.error("带分页的按条件查找用户sql执行失败！！！，错误信息为" + e);
@@ -120,9 +120,7 @@ public class UserService {
      */
     public RpcResponse registerUserService(UserPo userPo) {
         //验证该用户名是否已经存在
-        UserPo userPo1 = new UserPo();
-        userPo1.setUserName(userPo.getUserName());
-        if (0 == this.queryUsersByConditionService(userPo1).getCode()) {
+        if (0 == this.queryUserByUserNameService(userPo.getUserName()).getCode()) {
             log.warn(userPo.getUserName() + "的用户名已存在");
             return RpcResponse.error(ErrorCode.USERNAME_EXIT_ERROR);
         }
@@ -160,11 +158,11 @@ public class UserService {
             //若用户存在，则可完善信息
             int result = 0;
             //完善信息不可更改用户名（写此代码的时候的逻辑是用户名一旦创建不可更改）
-            userPo.setUserName("");
+            userPo.setUserName(null);
             //完善信息的时候用户账户的状态不可更改，可通过其他专用方法更改
-            userPo.setStatus("");
+            userPo.setStatus(null);
             //完善信息不可更改用户角色，可通过其他专用方法更改
-            userPo.setRank("");
+            userPo.setRank(null);
             try {
                 result = userMapper.updateUserInfo(userPo);
             } catch (Exception e) {
@@ -249,11 +247,12 @@ public class UserService {
 
     /**
      * 根据用户ID查询用户信息Service
+     *（冻结，作废，正常用户状态的用户都可以查出来）
      *
      * @param id 用户Id
      * @return 对应的用户信息
      */
-    public RpcResponse<UserPo> getUserByIdService(Long id) {
+    public RpcResponse<UserPo> queryUserByIdService(Long id) {
         UserPo userPo = new UserPo();
         try {
             userPo = userMapper.getUserByUserId(id);
@@ -271,6 +270,29 @@ public class UserService {
     }
 
     /**
+     * 根据用户名查询用户信息
+     * （冻结，作废，正常用户状态的用户都可以查出来）
+     *
+     * @param userName 用户名
+     * @return 对应的用户信息
+     */
+    public RpcResponse<UserPo> queryUserByUserNameService(String userName){
+        UserPo userPo = new UserPo();
+        try {
+            userPo = userMapper.getUserByUserName(userName);
+        } catch (Exception e) {
+            log.error("根据用户名查询用户信息的sql执行失败！！！，错误信息为" + e);
+            return RpcResponse.error(ErrorCode.QUERYUSER_FAIL_ERROR);
+        }
+        if (null == userPo) {
+            log.warn("根据用户名查询用户信息成功，但查出0条数据");
+            return RpcResponse.error(ErrorCode.USER_NOTEXIT_ERROR);
+        } else {
+            log.info("根据用户名查询用户信息成功，用户信息为" + userPo);
+            return RpcResponse.success(userPo);
+        }
+    }
+    /**
      * 解冻用户Service
      * 会验证该用户之前的状态是否为冻结状态
      *
@@ -278,7 +300,7 @@ public class UserService {
      * @return 冻结成功后的用户Id
      */
     public RpcResponse unfrozenUserByIdService(Long id) {
-        RpcResponse<UserPo> rpcResponse = this.getUserByIdService(id);
+        RpcResponse<UserPo> rpcResponse = this.queryUserByIdService(id);
         if (0 != rpcResponse.getCode()) {
             log.warn("解冻用户时查询ID为" + id + "的用户时候失败");
             return RpcResponse.error(ErrorCode.UNFROZEN_USER_ERROR);
