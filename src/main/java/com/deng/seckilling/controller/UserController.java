@@ -2,11 +2,13 @@ package com.deng.seckilling.controller;
 
 import com.deng.seckilling.constant.DefaultValue;
 import com.deng.seckilling.constant.ErrorCode;
+import com.deng.seckilling.mq.UserSenderMq;
 import com.deng.seckilling.po.UserPo;
 import com.deng.seckilling.rpc.RpcResponse;
 import com.deng.seckilling.service.UserService;
 import com.deng.seckilling.util.CheckDataUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -139,8 +141,8 @@ public class UserController {
             log.warn("complete接口入参错误！");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
-        if(null != userPo.getSex()){
-            if(false == CheckDataUtils.isSex(userPo.getSex())){
+        if (null != userPo.getSex()) {
+            if (false == CheckDataUtils.isSex(userPo.getSex())) {
                 log.warn("complete接口入参错误！(性别字段入参失败)");
                 return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
             }
@@ -195,6 +197,18 @@ public class UserController {
         }
         log.info("要解冻的用户Id为" + id);
         return userService.unfrozenUserByIdService(id);
+    }
+
+    /**
+     * 测试RabbitMq的接口
+     */
+    @Autowired
+    UserSenderMq userSenderMq;
+
+    @RequestMapping("/test")
+    public RpcResponse test() {
+        userSenderMq.sendMsg("sendUser.direct", "sendUserRoutingKey", "hello");
+        return RpcResponse.success();
     }
 
 }

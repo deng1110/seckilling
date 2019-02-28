@@ -247,7 +247,8 @@ public class UserService {
 
     /**
      * 根据用户ID查询用户信息Service
-     *（冻结，作废，正常用户状态的用户都可以查出来）
+     * （冻结，作废，正常用户状态的用户都可以查出来）
+     * TODO:要root权限
      *
      * @param id 用户Id
      * @return 对应的用户信息
@@ -272,11 +273,12 @@ public class UserService {
     /**
      * 根据用户名查询用户信息
      * （冻结，作废，正常用户状态的用户都可以查出来）
+     * TODO:要root权限
      *
      * @param userName 用户名
      * @return 对应的用户信息
      */
-    public RpcResponse<UserPo> queryUserByUserNameService(String userName){
+    public RpcResponse<UserPo> queryUserByUserNameService(String userName) {
         UserPo userPo = new UserPo();
         try {
             userPo = userMapper.getUserByUserName(userName);
@@ -292,6 +294,7 @@ public class UserService {
             return RpcResponse.success(userPo);
         }
     }
+
     /**
      * 解冻用户Service
      * 会验证该用户之前的状态是否为冻结状态

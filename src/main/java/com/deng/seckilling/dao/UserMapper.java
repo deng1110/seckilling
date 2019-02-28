@@ -66,7 +66,7 @@ public interface UserMapper {
      * @param id 待查询的用户id
      * @return 返回的用户信息
      */
-    @Select("select * from user where id = #{id}")
+    @Select("select * from user where id = #{id} limit 1")
     UserPo getUserByUserId(@Param("id") Long id);
 
     /**
@@ -75,6 +75,6 @@ public interface UserMapper {
      * @param userName 待查询用户名
      * @return 返回的用户信息
      */
-    @Select("select * from user where user_name = #{userName}")
+    @Select("select * from user where user_name = #{userName} limit 1")
     UserPo getUserByUserName(@Param("userName") String userName);
 }
