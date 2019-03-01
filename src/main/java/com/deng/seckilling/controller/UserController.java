@@ -7,14 +7,15 @@ import com.deng.seckilling.po.UserPo;
 import com.deng.seckilling.rpc.RpcResponse;
 import com.deng.seckilling.service.UserService;
 import com.deng.seckilling.util.CheckDataUtils;
+import com.deng.seckilling.util.SessionUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * 用户相关的所有接口
@@ -211,4 +212,13 @@ public class UserController {
         return RpcResponse.success();
     }
 
+    @RequestMapping("/setsession")
+    public RpcResponse setSess(HttpServletRequest request,String name){
+        return RpcResponse.success(SessionUtils.setSession(request,name));
+    }
+
+    @RequestMapping("/getsession")
+    public RpcResponse getSess(HttpServletRequest request,String sessionId){
+        return RpcResponse.success(SessionUtils.getSession(request,sessionId));
+    }
 }
