@@ -9,6 +9,7 @@ import com.deng.seckilling.service.UserService;
 import com.deng.seckilling.util.CheckDataUtils;
 import com.deng.seckilling.util.SessionUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * 用户相关的所有接口
@@ -40,13 +42,13 @@ public class UserController {
      * @return RpcResponse 登录返回结果
      */
     @PostMapping("/login")
-    public RpcResponse login(String userName, String passWord) {
+    public RpcResponse login(HttpServletRequest request, HttpServletResponse response, String userName, String passWord) {
         if (CheckDataUtils.isEmpty(userName) || CheckDataUtils.isEmpty(passWord)) {
             log.warn("login接口入参错误！");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
         log.info(userName + "尝试登录的密码是" + passWord);
-        return userService.verifyUserService(userName, passWord);
+        return userService.verifyUserService(request, response, userName, passWord);
     }
 
     /**

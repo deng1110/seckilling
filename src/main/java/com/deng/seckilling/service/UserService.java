@@ -6,12 +6,16 @@ import com.deng.seckilling.dao.UserMapper;
 import com.deng.seckilling.po.UserPo;
 import com.deng.seckilling.rpc.RpcResponse;
 import com.deng.seckilling.util.CheckDataUtils;
+import com.deng.seckilling.util.SessionUtils;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,7 +40,7 @@ public class UserService {
      * @param passWord 密码
      * @return boolean：true(成功)，false(失败)
      */
-    public RpcResponse verifyUserService(String userName, String passWord) {
+    public RpcResponse verifyUserService(HttpServletRequest request, HttpServletResponse response, String userName, String passWord) {
         List<UserPo> userPoList = new ArrayList<UserPo>();
         try {
             userPoList = userMapper.getUsersByUserNameAndPassword(userName, passWord);
@@ -47,6 +51,7 @@ public class UserService {
         if (false == CheckDataUtils.isEmpty(userPoList)) {
             log.info(userName + "登录成功");
             userPoList.get(0).setPassWord("*****");
+            SessionUtils.setSession(request, userPoList.get(0));
             return RpcResponse.success(userPoList.get(0));
         } else {
             log.warn(userName + "登录失败");

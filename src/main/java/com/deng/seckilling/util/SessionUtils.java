@@ -16,7 +16,7 @@ public class SessionUtils<T> {
     public static <T> String setSession(HttpServletRequest request, T t) {
         HttpSession session = request.getSession(true);
         session.setAttribute(session.getId(), t);
-        log.info("存储SessionID为" + session.getId() + ";存储的数据为" + t);
+        log.info("存储SessionID为" + session.getId() + ";数据为" + t);
         return session.getId();
     }
 
