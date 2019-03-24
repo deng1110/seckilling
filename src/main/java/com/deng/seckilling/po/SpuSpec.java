@@ -18,7 +18,9 @@ public class SpuSpec {
 
     private Long spuId;
 
-    //规格Id
+    /**
+     * 规格Id
+     */
     private Long specId;
 
     private Timestamp createTime;

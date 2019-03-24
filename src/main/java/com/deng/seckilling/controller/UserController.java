@@ -2,14 +2,13 @@ package com.deng.seckilling.controller;
 
 import com.deng.seckilling.constant.DefaultValue;
 import com.deng.seckilling.constant.ErrorCode;
-import com.deng.seckilling.mq.UserSenderMq;
-import com.deng.seckilling.po.UserPo;
+import com.deng.seckilling.constant.Sex;
+import com.deng.seckilling.po.User;
+import com.deng.seckilling.rpc.RpcCommonUtil;
 import com.deng.seckilling.rpc.RpcResponse;
 import com.deng.seckilling.service.UserService;
-import com.deng.seckilling.util.CheckDataUtils;
-import com.deng.seckilling.util.SessionUtils;
+import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * 用户相关的所有接口
@@ -43,71 +43,82 @@ public class UserController {
      */
     @PostMapping("/login")
     public RpcResponse login(HttpServletRequest request, HttpServletResponse response, String userName, String passWord) {
-        if (CheckDataUtils.isEmpty(userName) || CheckDataUtils.isEmpty(passWord)) {
-            log.warn("login接口入参错误！");
+        if (RpcCommonUtil.isEmpty(userName) || RpcCommonUtil.isEmpty(passWord)) {
+            log.warn("===>login controller params error");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
-        log.info(userName + "尝试登录的密码是" + passWord);
-        return userService.verifyUserService(request, response, userName, passWord);
+        User user = null;
+        try {
+            user = userService.verifyUserService(userName, passWord);
+        } catch (Exception e) {
+            log.error("===>login controller error:{}", e.getMessage());
+            return RpcResponse.error(ErrorCode.SYSTEM_ERROR);
+        }
+        if (null == user) {
+            log.info("===>login controller username:{};password:{};login fail", userName, passWord);
+            return RpcResponse.error(ErrorCode.USERLOGIN_FAIL_ERROR);
+        }
+        request.getSession().setAttribute("sessionId", user.getId());
+        log.info("===>login controller username:{};password:{};login success", userName, passWord);
+        return RpcResponse.success(user.getId().toString());
     }
 
     /**
-     * 根据条件查询符合要求的用户集合接口
-     * （只能查正常用户账户状态的用户）
-     * TODO:该方法需要root权限
+     * 根据条件查询符合要求的用户集合接口(超级管理员)
      *
-     * @param userPo 存储条件的实体
-     * @return RpcResponse 满足要求的用户集合
+     * @param user 参数实体
+     * @return 满足要求的用户集合
      */
     @RequestMapping("/querybycondition")
-    public RpcResponse queryUsersByCondition(UserPo userPo) {
+    public RpcResponse queryUsersByCondition(HttpServletRequest request, HttpServletResponse response, User user) {
+        Object sessionValue = request.getSession().getAttribute(DefaultValue.SESSION_KEY_VALUE);
+        if (null == sessionValue || false == (DefaultValue.SESSION_VALUE_VALUE == Long.parseLong(sessionValue.toString()))) {
+            log.warn("===>query user controller Permission denied error");
+            return RpcResponse.error(ErrorCode.PERMISSION_DENIED_ERROR);
+        }
+        if (RpcCommonUtil.isEmpty(user)) {
+            log.warn("===>query user controller params error");
+            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
+        }
+        List<User> userList = null;
         try {
-            if (CheckDataUtils.isEmpty(userPo)) {
-                log.warn("查询用户接口的查询条件不能为空！");
-                return RpcResponse.error(ErrorCode.QUERYPARAMS_ISNULL_ERROR);
-            }
-        } catch (IllegalAccessException e) {
-            log.error("工具类报错，错误信息为：" + e);
+            userList = userService.queryUsersByConditionService(user);
+        } catch (Exception e) {
+            log.error("===>query user controller error:{}", e.getMessage());
             return RpcResponse.error(ErrorCode.SYSTEM_ERROR);
         }
-        if (false == CheckDataUtils.isEmpty(userPo.getPassWord())) {
-            log.warn("密码不能作为查询条件！");
-            return RpcResponse.error(ErrorCode.PASSWORD_NOTPARAMS_ERROR);
+        if (null == userList) {
+            return RpcResponse.error(ErrorCode.QUERYUSER_NULL_ERROR);
         }
-        log.info("查询用户接口，查询条件为：" + userPo.toString());
-        return userService.queryUsersByConditionService(userPo);
+        return RpcResponse.success(userList);
     }
 
     /**
-     * 带分页的 按条件查询用户集合接口
-     * （只能查正常用户账户状态的用户）
-     * TODO:该方法需要root权限
+     * 带分页的根据条件查询符合要求的用户集合接口(超级管理员)
      *
      * @param pageNum 第几页
-     * @param userPo  满足要求的用户集合
-     * @return RpcResponse 满足要求的用户集合
+     * @param user    满足要求的用户集合
+     * @return 满足要求的用户集合
      */
     @RequestMapping("/querybycondition/{pageNum}")
-    public RpcResponse queryUsersByCondition(@PathVariable Integer pageNum, UserPo userPo) {
+    public RpcResponse queryUsersByCondition(@PathVariable Integer pageNum, HttpServletRequest request, HttpServletResponse response, User user) {
+        Object sessionValue = request.getSession().getAttribute(DefaultValue.SESSION_KEY_VALUE);
+        if (null == sessionValue || false == (DefaultValue.SESSION_VALUE_VALUE == Long.parseLong(sessionValue.toString()))) {
+            log.warn("===>query user controller Permission denied error");
+            return RpcResponse.error(ErrorCode.PERMISSION_DENIED_ERROR);
+        }
+        if (RpcCommonUtil.isEmpty(user) || RpcCommonUtil.isEmpty(pageNum)) {
+            log.warn("===>query user controller params error");
+            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
+        }
+        PageInfo<User> pageInfo = null;
         try {
-            if (CheckDataUtils.isEmpty(userPo)) {
-                log.warn("带分页的查询用户接口的查询条件不能为空！");
-                return RpcResponse.error(ErrorCode.QUERYPARAMS_ISNULL_ERROR);
-            }
-        } catch (IllegalAccessException e) {
-            log.error("工具类报错，错误信息为：" + e);
+            pageInfo = userService.queryUsersByConditionService(pageNum, DefaultValue.FENYE_PAGESIZE_VALUE, user);
+        } catch (Exception e) {
+            log.error("===>query user controller error:{}", e.getMessage());
             return RpcResponse.error(ErrorCode.SYSTEM_ERROR);
         }
-        if (CheckDataUtils.isEmpty(pageNum)) {
-            log.warn("带分页的querybycondition接口输入的页码参数错误！");
-            return RpcResponse.error(ErrorCode.FENYE_PARAMS_ERROR);
-        }
-        if (false == CheckDataUtils.isEmpty(userPo.getPassWord())) {
-            log.warn("密码不能作为查询条件！");
-            return RpcResponse.error(ErrorCode.PASSWORD_NOTPARAMS_ERROR);
-        }
-        log.info("带分页的查询用户接口，正在查询第" + pageNum + "页数据，查询条件为" + userPo.toString());
-        return userService.queryUsersByConditionService(pageNum, DefaultValue.FENYE_PAGESIZE_VALUE, userPo);
+        return RpcResponse.success(pageInfo);
     }
 
     /**
@@ -115,112 +126,122 @@ public class UserController {
      * （只需要基本信息即可注册，基本信息[必填项]如下： ）
      * （用户名，密码，性别，手机号,角色）
      *
-     * @param userPo 承载注册信息的载体
+     * @param user 承载注册信息的载体
      * @return RpcResponse注册用户信息
      */
     @RequestMapping("/register")
-    public RpcResponse register(UserPo userPo) {
-        if (CheckDataUtils.isEmpty(userPo.getUserName()) || CheckDataUtils.isEmpty(userPo.getPhoneNumber()) ||
-                CheckDataUtils.isEmpty(userPo.getPassWord()) || (false == CheckDataUtils.isSex(userPo.getSex())) ||
-                (false == CheckDataUtils.isRank(userPo.getRank()))
-                ) {
-            log.warn("register接口入参错误！");
+    public RpcResponse register(User user) {
+        if (RpcCommonUtil.isEmpty(user) || RpcCommonUtil.isEmpty(user.getUserName()) ||
+                RpcCommonUtil.isEmpty(user.getPassWord()) || RpcCommonUtil.isEmpty(user.getSex()) ||
+                RpcCommonUtil.isEmpty(user.getPhoneNumber()) || false == RpcCommonUtil.isEnumCode(Sex.class, Integer.parseInt(user.getSex()))) {
+            log.warn("===>register controller params error");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
-        log.info("待注册的信息为" + userPo.toString());
-        return userService.registerUserService(userPo);
-    }
-
-    /**
-     * 完善个人信息接口
-     * (不能修改ID和用户名)
-     *
-     * @param userPo 待完善信息载体
-     * @return 完善用户的Id
-     */
-    @RequestMapping("/complete")
-    public RpcResponse complete(UserPo userPo) {
-        if (CheckDataUtils.isEmpty(userPo.getId())) {
-            log.warn("complete接口入参错误！");
-            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
+        User userResult = null;
+        try {
+            userResult = userService.registerUserService(user);
+        } catch (Exception e) {
+            log.error("===>register controller error:{}", e.getMessage());
+            return RpcResponse.error(ErrorCode.SYSTEM_ERROR);
         }
-        if (null != userPo.getSex()) {
-            if (false == CheckDataUtils.isSex(userPo.getSex())) {
-                log.warn("complete接口入参错误！(性别字段入参失败)");
-                return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
-            }
+        if (null == userResult) {
+            log.warn("===>register controller fail register message:{}", user.toString());
+            return RpcResponse.error(ErrorCode.REGISTER_FAIL_ERROR);
         }
-        log.info("待完善的信息为" + userPo.toString());
-        return userService.completeUserInfoService(userPo);
+        log.info("===>register controller success register message:{}", userResult.toString());
+        return RpcResponse.success(userResult);
     }
-
-    /**
-     * 作废用户账户接口
-     *
-     * @param id 待作废用户Id
-     * @return 作废结果：作废用户账户的Id
-     */
-    @RequestMapping("/invalid")
-    public RpcResponse invalid(Long id) {
-        if (CheckDataUtils.isEmpty(id)) {
-            log.warn("invalid接口入参错误");
-            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
-        }
-        log.info("要作废的用户Id为" + id);
-        return userService.invalidUserByIdService(id);
-    }
-
-    /**
-     * 冻结用户账户接口
-     *
-     * @param id 待冻结用户Id
-     * @return 冻结结果：冻结用户账户的Id
-     */
-    @RequestMapping("/frozen")
-    public RpcResponse frozen(Long id) {
-        if (CheckDataUtils.isEmpty(id)) {
-            log.warn("frozen接口入参错误");
-            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
-        }
-        log.info("要冻结的用户Id为" + id);
-        return userService.frozenUserByIdService(id);
-    }
-
-    /**
-     * 解冻用户账户接口
-     *
-     * @param id 待解冻用户Id
-     * @return 解冻结果：解冻用户账户的Id
-     */
-    @RequestMapping("/unfrozen")
-    public RpcResponse unfrozen(Long id) {
-        if (CheckDataUtils.isEmpty(id)) {
-            log.warn("unfrozen接口入参错误");
-            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
-        }
-        log.info("要解冻的用户Id为" + id);
-        return userService.unfrozenUserByIdService(id);
-    }
-
-    /**
-     * 测试RabbitMq的接口
-     */
-    @Autowired
-    UserSenderMq userSenderMq;
-
-    @RequestMapping("/test")
-    public RpcResponse test() {
-        userSenderMq.sendMsg("sendUser.direct", "sendUserRoutingKey", "hello");
-        return RpcResponse.success();
-    }
-
-    @RequestMapping("/setsession")
-    public RpcResponse setSess(HttpServletRequest request,String name){
-        return RpcResponse.success(SessionUtils.setSession(request,name));
-    }
-
-    @RequestMapping("/getsession")
-    public RpcResponse getSess(HttpServletRequest request,String sessionId){
-        return RpcResponse.success(SessionUtils.getSession(request,sessionId));
-    }
+//
+//    /**
+//     * 完善个人信息接口
+//     * (不能修改ID和用户名)
+//     *
+//     * @param user 待完善信息载体
+//     * @return 完善用户的Id
+//     */
+//    @RequestMapping("/complete")
+//    public RpcResponse complete(User user) {
+//        if (CheckDataUtils.isEmpty(user.getId())) {
+//            log.warn("complete接口入参错误！");
+//            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
+//        }
+//        if (null != user.getSex()) {
+//            if (false == CheckDataUtils.isSex(user.getSex())) {
+//                log.warn("complete接口入参错误！(性别字段入参失败)");
+//                return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
+//            }
+//        }
+//        log.info("待完善的信息为" + user.toString());
+//        return userService.completeUserInfoService(user);
+//    }
+//
+//    /**
+//     * 作废用户账户接口
+//     *
+//     * @param id 待作废用户Id
+//     * @return 作废结果：作废用户账户的Id
+//     */
+//    @RequestMapping("/invalid")
+//    public RpcResponse invalid(Long id) {
+//        if (CheckDataUtils.isEmpty(id)) {
+//            log.warn("invalid接口入参错误");
+//            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
+//        }
+//        log.info("要作废的用户Id为" + id);
+//        return userService.invalidUserByIdService(id);
+//    }
+//
+//    /**
+//     * 冻结用户账户接口
+//     *
+//     * @param id 待冻结用户Id
+//     * @return 冻结结果：冻结用户账户的Id
+//     */
+//    @RequestMapping("/frozen")
+//    public RpcResponse frozen(Long id) {
+//        if (CheckDataUtils.isEmpty(id)) {
+//            log.warn("frozen接口入参错误");
+//            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
+//        }
+//        log.info("要冻结的用户Id为" + id);
+//        return userService.frozenUserByIdService(id);
+//    }
+//
+//    /**
+//     * 解冻用户账户接口
+//     *
+//     * @param id 待解冻用户Id
+//     * @return 解冻结果：解冻用户账户的Id
+//     */
+//    @RequestMapping("/unfrozen")
+//    public RpcResponse unfrozen(Long id) {
+//        if (CheckDataUtils.isEmpty(id)) {
+//            log.warn("unfrozen接口入参错误");
+//            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
+//        }
+//        log.info("要解冻的用户Id为" + id);
+//        return userService.unfrozenUserByIdService(id);
+//    }
+//
+//    /**
+//     * 测试RabbitMq的接口
+//     */
+//    @Autowired
+//    UserSenderMq userSenderMq;
+//
+//    @RequestMapping("/test")
+//    public RpcResponse test() {
+//        userSenderMq.sendMsg("sendUser.direct", "sendUserRoutingKey", "hello");
+//        return RpcResponse.success();
+//    }
+//
+//    @RequestMapping("/setsession")
+//    public RpcResponse setSess(HttpServletRequest request, String name) {
+//        return RpcResponse.success(SessionUtils.setSession(request, name));
+//    }
+//
+//    @RequestMapping("/getsession")
+//    public RpcResponse getSess(HttpServletRequest request, String sessionId) {
+//        return RpcResponse.success(SessionUtils.getSession(request, sessionId));
+//    }
 }

@@ -16,7 +16,9 @@ public class Brand {
 
     private Long id;
 
-    //品牌名称
+    /**
+     * 品牌名称
+     */
     private String brandName;
 
     private Timestamp createTime;

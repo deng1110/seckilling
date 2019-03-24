@@ -1,6 +1,6 @@
 package com.deng.seckilling.util;
 
-import com.deng.seckilling.po.UserPo;
+import com.deng.seckilling.po.User;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import java.lang.reflect.Field;
 
@@ -12,8 +12,8 @@ import java.lang.reflect.Field;
 public class CommonUtils {
 
     public static void main(String[] args) {
-        UserPo userPo = new UserPo();
-        System.out.println(getResultsStr(userPo.getClass()));
+        User user = new User();
+        System.out.println(getResultsStr(user.getClass()));
     }
 
     /**

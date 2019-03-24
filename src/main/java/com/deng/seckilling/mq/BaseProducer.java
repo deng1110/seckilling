@@ -17,17 +17,19 @@ import java.util.UUID;
 @Component
 public class BaseProducer implements RabbitTemplate.ConfirmCallback {
 
-    //由于rabbitTemplate的scope属性设置为ConfigurableBeanFactory.SCOPE_PROTOTYPE，所以不能自动注入
+    /**
+     * 由于rabbitTemplate的scope属性设置为ConfigurableBeanFactory.SCOPE_PROTOTYPE，所以不能自动注入
+     */
     private static RabbitTemplate rabbitTemplate;
 
     /**
      * 构造方法注入rabbitTemplate
      */
-    @Autowired
-    public BaseProducer(RabbitTemplate rabbitTemplate) {
-        this.rabbitTemplate = rabbitTemplate;
-        rabbitTemplate.setConfirmCallback(this); //rabbitTemplate如果为单例的话，那回调就是最后设置的内容
-    }
+//    @Autowired
+//    public BaseProducer(RabbitTemplate rabbitTemplate) {
+//        //this.rabbitTemplate = rabbitTemplate;
+//        rabbitTemplate.setConfirmCallback(this); //rabbitTemplate如果为单例的话，那回调就是最后设置的内容
+//    }
 
     /**
      * 生产者发送消息的方法

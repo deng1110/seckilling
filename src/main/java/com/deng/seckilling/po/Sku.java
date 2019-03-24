@@ -16,22 +16,34 @@ public class Sku {
 
     private Long id;
 
-    //商品编号
+    /**
+     * 商品编号
+     */
     private Long skuNo;
 
-    //商品名称
+    /**
+     * 商品名称
+     */
     private String skuName;
 
-    //单价
+    /**
+     * 单价
+     */
     private double price;
 
-    //库存
+    /**
+     * 库存
+     */
     private int stock;
 
-    //所属商家Id
+    /**
+     * 所属商家Id
+     */
     private Long shopId;
 
-    //所属spuId
+    /**
+     * 所属spuId
+     */
     private Long spuId;
 
     private Timestamp createTime;

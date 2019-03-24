@@ -20,7 +20,9 @@ public class Spu {
 
     private String goodsName;
 
-    //最低价格
+    /**
+     * 最低价格
+     */
     private double lowPrice;
 
     private Long categoryId;

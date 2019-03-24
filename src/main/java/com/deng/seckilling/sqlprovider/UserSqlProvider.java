@@ -1,7 +1,6 @@
 package com.deng.seckilling.sqlprovider;
 
-import com.deng.seckilling.po.UserPo;
-import com.deng.seckilling.util.CheckDataUtils;
+import com.deng.seckilling.po.User;
 
 /**
  * 用户相关的用来根据复杂业务需求动态生成sql的类
@@ -13,65 +12,63 @@ import com.deng.seckilling.util.CheckDataUtils;
  */
 public class UserSqlProvider {
 
-    public String getUserByCondition(UserPo userPo) {
-        String sql = "select * from user where status = 'normal' ";
-        if (false == CheckDataUtils.isExit(userPo.getId())) {
+    public String updateUser(User user) {
+        String sql = "update user_info set id = #{id} ";
+        if (false == (null == user.getUserName())) {
+            sql += ",user_name = #{userName}";
+        }
+        if (false == (null == user.getPassWord())) {
+            sql += ",pass_word = #{passWord} ";
+        }
+        if (false == (null == user.getSex())) {
+            sql += ",sex = #{sex} ";
+        }
+        if (false == (null == user.getPhoneNumber())) {
+            sql += ",phone_number = #{phoneNumber} ";
+        }
+        if (false == (null == user.getIdentityCardId())) {
+            sql += ",identity_card_id = #{identityCardId} ";
+        }
+        if (false == (null == user.getBirthday())) {
+            sql += ",birthday = #{birthday} ";
+        }
+        if (false == (null == user.getStatus())) {
+            sql += ",status = #{status}";
+        }
+        if (false == (null == user.getRank())) {
+            sql += ",rank = #{rank}";
+        }
+        sql += " where id = #{id}";
+        return sql;
+    }
+
+    public String listUser(User user) {
+        String sql = "select * from user_info where status = 'normal' ";
+        if (false == (null == user.getId())) {
             sql += "and id = #{id} ";
         }
-        if (false == CheckDataUtils.isExit(userPo.getUserName())) {
+        if (false == (null == user.getUserName())) {
             sql += "and user_name = #{userName} ";
         }
-        if (false == CheckDataUtils.isExit(userPo.getPassWord())) {
+        if (false == (null == user.getPassWord())) {
             sql += "and pass_word = #{passWord} ";
         }
-        if (false == CheckDataUtils.isExit(userPo.getSex())) {
+        if (false == (null == user.getSex())) {
             sql += "and sex = #{sex} ";
         }
-        if (false == CheckDataUtils.isExit(userPo.getPhoneNumber())) {
+        if (false == (null == user.getPhoneNumber())) {
             sql += "and phone_number = #{phoneNumber} ";
         }
-        if (false == CheckDataUtils.isExit(userPo.getIdentityCardId())) {
+        if (false == (null == user.getIdentityCardId())) {
             sql += "and identity_card_id = #{identityCardId} ";
         }
-        if (false == CheckDataUtils.isExit(userPo.getBirthday())) {
+        if (false == (null == user.getBirthday())) {
             sql += "and birthday = #{birthday} ";
         }
-        if (false == CheckDataUtils.isExit(userPo.getAddress())) {
-            sql += "and address = #{address} ";
-        }
-        if (false == CheckDataUtils.isExit(userPo.getRank())) {
+        if (false == (null == user.getRank())) {
             sql += "and rank = #{rank} ";
         }
         return sql;
     }
 
-    public String updateUserInfo(UserPo userPo) {
-        String sql = "update user set id = #{id} ";
-        if (false == CheckDataUtils.isExit(userPo.getUserName())) {
-            sql += ",user_name = #{userName}";
-        }
-        if (false == CheckDataUtils.isExit(userPo.getPassWord())) {
-            sql += ",pass_word = #{passWord} ";
-        }
-        if (false == CheckDataUtils.isExit(userPo.getSex())) {
-            sql += ",sex = #{sex} ";
-        }
-        if (false == CheckDataUtils.isExit(userPo.getPhoneNumber())) {
-            sql += ",phone_number = #{phoneNumber} ";
-        }
-        if (false == CheckDataUtils.isExit(userPo.getIdentityCardId())) {
-            sql += ",identity_card_id = #{identityCardId} ";
-        }
-        if (false == CheckDataUtils.isExit(userPo.getBirthday())) {
-            sql += ",birthday = #{birthday} ";
-        }
-        if (false == CheckDataUtils.isExit(userPo.getAddress())) {
-            sql += ",address = #{address} ";
-        }
-        if (false == CheckDataUtils.isExit(userPo.getStatus())) {
-            sql += ",status = #{status}";
-        }
-        sql += "where id = #{id}";
-        return sql;
-    }
 }

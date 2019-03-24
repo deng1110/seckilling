@@ -16,7 +16,9 @@ public class ShopInfo {
 
     private Long id;
 
-    //店铺名称
+    /**
+     * 店铺名称
+     */
     private Long shopName;
 
     private Timestamp createTime;

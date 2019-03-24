@@ -1,12 +1,5 @@
 package com.deng.seckilling.util;
 
-import com.deng.seckilling.po.UserPo;
-import com.deng.seckilling.rpc.RpcResponse;
-import com.deng.seckilling.service.UserService;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-
 /**
  * Seckilling工具类
  *

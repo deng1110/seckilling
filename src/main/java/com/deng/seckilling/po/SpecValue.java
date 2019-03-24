@@ -16,10 +16,14 @@ public class SpecValue {
 
     private Long id;
 
-    //规格Id
+    /**
+     * 规格Id
+     */
     private Long specId;
 
-    //规格值
+    /**
+     * 规格值
+     */
     private String specValue;
 
     private Timestamp createTime;

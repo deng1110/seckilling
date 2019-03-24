@@ -18,7 +18,9 @@ public class SkuSpecValue {
 
     private Long spuId;
 
-    //规格值Id
+    /**
+     * 规格值Id
+     */
     private Long specValueId;
 
     private Timestamp createTime;

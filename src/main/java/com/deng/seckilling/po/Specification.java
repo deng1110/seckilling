@@ -16,10 +16,14 @@ public class Specification {
 
     private Long id;
 
-    //规格编号
+    /**
+     * 规格编号
+     */
     private Long specNo;
 
-    //规格名称
+    /**
+     * 规格名称
+     */
     private String specName;
 
     private Timestamp createTime;

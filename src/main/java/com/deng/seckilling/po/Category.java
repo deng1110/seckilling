@@ -16,7 +16,9 @@ public class Category {
 
     private Long id;
 
-    //分类名称
+    /**
+     * 分类名称
+     */
     private String categoryName;
 
     private Timestamp createTime;

@@ -11,7 +11,8 @@ import com.deng.seckilling.rpc.ErrorInfo;
  */
 public class ErrorCode {
 
-    public static final ErrorInfo SYSTEM_ERROR = new ErrorInfo(1000, "系统错误，请联系管理员，tel：13104089661");
+    public static final ErrorInfo SYSTEM_ERROR = new ErrorInfo(9999, "系统繁忙，请稍后再试");
+    public static final ErrorInfo PERMISSION_DENIED_ERROR = new ErrorInfo(1000, "权限不足");
     public static final ErrorInfo SECKILLING_PARAMS_ERROR = new ErrorInfo(1001, "入参不能为空或格式错误");
     public static final ErrorInfo USERLOGIN_FAIL_ERROR = new ErrorInfo(1002, "用户名或者密码错误");
     public static final ErrorInfo QUERYUSER_NULL_ERROR = new ErrorInfo(1003, "查询成功，但查出零条数据");
