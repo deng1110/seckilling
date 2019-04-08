@@ -8,11 +8,15 @@ package com.deng.seckilling.constant;
 public class DefaultValue {
 
     /**
-     * 入参的枚举常量类型的值，供CheckDataUtils方法中检测枚举类型调用
+     * 性别枚举值
      */
     public static final String SEX_VALUE_MALE = "male";
     public static final String SEX_VALUE_FEMALE = "female";
-    public static final Integer FENYE_PAGESIZE_VALUE = 5;
+
+    /**
+     * 分页中的每页数据条数默认值
+     */
+    public static final Integer FENYE_PAGESIZE_VALUE = 10;
 
     /**
      * 拦截器中所用URI
@@ -21,8 +25,12 @@ public class DefaultValue {
     public static final String REGISTER_URI_VALUE = "/user/register";
 
     /**
-     * 获取session中数据
+     * 获取session中数据的key
      */
     public static final String SESSION_KEY_VALUE = "sessionId";
+
+    /**
+     * 超级管理员的用户的ID
+     */
     public static final Long SESSION_VALUE_VALUE = 10000L;
 }

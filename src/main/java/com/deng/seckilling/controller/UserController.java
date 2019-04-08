@@ -3,10 +3,12 @@ package com.deng.seckilling.controller;
 import com.deng.seckilling.constant.DefaultValue;
 import com.deng.seckilling.constant.ErrorCode;
 import com.deng.seckilling.constant.Sex;
+import com.deng.seckilling.constant.Status;
 import com.deng.seckilling.po.User;
 import com.deng.seckilling.rpc.RpcCommonUtil;
 import com.deng.seckilling.rpc.RpcResponse;
 import com.deng.seckilling.service.UserService;
+import com.deng.seckilling.util.CommonUtils;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -58,9 +60,9 @@ public class UserController {
             log.info("===>login controller username:{};password:{};login fail", userName, passWord);
             return RpcResponse.error(ErrorCode.USERLOGIN_FAIL_ERROR);
         }
-        request.getSession().setAttribute("sessionId", user.getId());
+        request.getSession().setAttribute(DefaultValue.SESSION_KEY_VALUE, user.getId());
         log.info("===>login controller username:{};password:{};login success", userName, passWord);
-        return RpcResponse.success(user.getId().toString());
+        return RpcResponse.success(user.getId());
     }
 
     /**
@@ -137,6 +139,10 @@ public class UserController {
             log.warn("===>register controller params error");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
+        if (userService.isExist(user.getUserName())) {
+            log.warn("===>register controller, name:{} already exist", user.getUserName());
+            return RpcResponse.error(ErrorCode.USERNAME_EXIT_ERROR);
+        }
         User userResult = null;
         try {
             userResult = userService.registerUserService(user);
@@ -145,83 +151,144 @@ public class UserController {
             return RpcResponse.error(ErrorCode.SYSTEM_ERROR);
         }
         if (null == userResult) {
-            log.warn("===>register controller fail register message:{}", user.toString());
+            log.warn("===>register controller fail, register message:{}", user.toString());
             return RpcResponse.error(ErrorCode.REGISTER_FAIL_ERROR);
         }
-        log.info("===>register controller success register message:{}", userResult.toString());
+        log.info("===>register controller success, register message:{}", userResult.toString());
         return RpcResponse.success(userResult);
     }
-//
-//    /**
-//     * 完善个人信息接口
-//     * (不能修改ID和用户名)
-//     *
-//     * @param user 待完善信息载体
-//     * @return 完善用户的Id
-//     */
-//    @RequestMapping("/complete")
-//    public RpcResponse complete(User user) {
-//        if (CheckDataUtils.isEmpty(user.getId())) {
-//            log.warn("complete接口入参错误！");
-//            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
-//        }
-//        if (null != user.getSex()) {
-//            if (false == CheckDataUtils.isSex(user.getSex())) {
-//                log.warn("complete接口入参错误！(性别字段入参失败)");
-//                return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
-//            }
-//        }
-//        log.info("待完善的信息为" + user.toString());
-//        return userService.completeUserInfoService(user);
-//    }
-//
-//    /**
-//     * 作废用户账户接口
-//     *
-//     * @param id 待作废用户Id
-//     * @return 作废结果：作废用户账户的Id
-//     */
-//    @RequestMapping("/invalid")
-//    public RpcResponse invalid(Long id) {
-//        if (CheckDataUtils.isEmpty(id)) {
-//            log.warn("invalid接口入参错误");
-//            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
-//        }
-//        log.info("要作废的用户Id为" + id);
-//        return userService.invalidUserByIdService(id);
-//    }
-//
-//    /**
-//     * 冻结用户账户接口
-//     *
-//     * @param id 待冻结用户Id
-//     * @return 冻结结果：冻结用户账户的Id
-//     */
-//    @RequestMapping("/frozen")
-//    public RpcResponse frozen(Long id) {
-//        if (CheckDataUtils.isEmpty(id)) {
-//            log.warn("frozen接口入参错误");
-//            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
-//        }
-//        log.info("要冻结的用户Id为" + id);
-//        return userService.frozenUserByIdService(id);
-//    }
-//
-//    /**
-//     * 解冻用户账户接口
-//     *
-//     * @param id 待解冻用户Id
-//     * @return 解冻结果：解冻用户账户的Id
-//     */
-//    @RequestMapping("/unfrozen")
-//    public RpcResponse unfrozen(Long id) {
-//        if (CheckDataUtils.isEmpty(id)) {
-//            log.warn("unfrozen接口入参错误");
-//            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
-//        }
-//        log.info("要解冻的用户Id为" + id);
-//        return userService.unfrozenUserByIdService(id);
-//    }
+
+    /**
+     * 完善个人信息接口
+     * (不能修改ID和用户名)
+     *
+     * @param user 待完善信息载体
+     * @return 完善用户的Id
+     */
+    @RequestMapping("/complete")
+    public RpcResponse complete(User user) {
+        if (RpcCommonUtil.isEmpty(user.getId())) {
+            log.warn("===>complete controller params error");
+            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
+        }
+        if (false == userService.isExist(user.getId())) {
+            log.warn("===>complete controller, id:{} not exist", user.getId());
+            return RpcResponse.error(ErrorCode.USER_NOTEXIT_ERROR);
+        }
+        User userResult = null;
+        try {
+            userResult = userService.completeUserInfoService(user);
+        } catch (Exception e) {
+            log.error("===>complete controller error:{}", e.getMessage());
+            return RpcResponse.error(ErrorCode.SYSTEM_ERROR);
+        }
+        if (userResult == null) {
+            log.warn("===>complete controller fail, complete message:{}", userResult.toString());
+            return RpcResponse.error(ErrorCode.COMPLETE_USERINFO_ERROR);
+        }
+        log.info("===>complete controller success, complete message:{}", userResult.toString());
+        return RpcResponse.success(userResult);
+    }
+
+    /**
+     * 作废用户账户接口
+     *
+     * @param id 待作废用户Id
+     * @return 作废结果：作废用户账户的Id
+     */
+    @RequestMapping("/invalid")
+    public RpcResponse invalid(Long id) {
+        if (RpcCommonUtil.isEmpty(id)) {
+            log.warn("===>invalid controller params error");
+            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
+        }
+        if (false == userService.isExist(id)) {
+            log.warn("===>invalid controller, id:{} not exist", id);
+            return RpcResponse.error(ErrorCode.USER_NOTEXIT_ERROR);
+        }
+        try {
+            id = userService.invalidUserByIdService(id);
+        } catch (Exception e) {
+            log.error("===>invalid controller error:{}", e.getMessage());
+            return RpcResponse.error(ErrorCode.SYSTEM_ERROR);
+        }
+        if (RpcCommonUtil.isEmpty(id)) {
+            log.warn("===>invalid id:{} fail", id);
+            return RpcResponse.error(ErrorCode.INVALID_USER_ERROR);
+        }
+        log.info("===>invalid id:{} success", id);
+        return RpcResponse.success(id);
+    }
+
+    /**
+     * 冻结用户账户接口
+     *
+     * @param id 待冻结用户Id
+     * @return 冻结结果：冻结用户账户的Id
+     */
+    @RequestMapping("/frozen")
+    public RpcResponse frozen(Long id) {
+        if (RpcCommonUtil.isEmpty(id)) {
+            log.warn("===>frozen controller params error");
+            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
+        }
+        List<User> userList = userService.queryUsersByConditionService(new User(id));
+        if (RpcCommonUtil.isEmpty(userList)) {
+            log.warn("===>frozen controller, id:{} not exist", id);
+            return RpcResponse.error(ErrorCode.USER_NOTEXIT_ERROR);
+        }
+        if (false == Status.NORMAL.getValue().equals(userList.get(0).getStatus())) {
+            log.warn("===>frozen id:{} fail, status error", id);
+            return RpcResponse.error(ErrorCode.FROZEN_USER_ERROR);
+        }
+        try {
+            id = userService.frozenUserByIdService(id);
+        } catch (Exception e) {
+            log.error("===>frozen controller error:{}", e.getMessage());
+            return RpcResponse.error(ErrorCode.SYSTEM_ERROR);
+        }
+        if (RpcCommonUtil.isEmpty(id)) {
+            log.warn("===>frozen id:{} fail", id);
+            return RpcResponse.error(ErrorCode.FROZEN_USER_ERROR);
+        }
+        log.info("===>frozen id:{} success", id);
+        return RpcResponse.success(id);
+    }
+
+    /**
+     * 解冻用户账户接口
+     *
+     * @param id 待解冻用户Id
+     * @return 解冻结果：解冻用户账户的Id
+     */
+    @RequestMapping("/unfrozen")
+    public RpcResponse unfrozen(Long id) {
+        if (RpcCommonUtil.isEmpty(id)) {
+            log.warn("===>unfrozen controller params error");
+            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
+        }
+        List<User> userList = userService.queryUsersByConditionService(new User(id));
+        if (RpcCommonUtil.isEmpty(userList)) {
+            log.warn("===>unfrozen controller, id:{} not exist", id);
+            return RpcResponse.error(ErrorCode.USER_NOTEXIT_ERROR);
+        }
+        if (false == Status.FROZEN.getValue().equals(userList.get(0).getStatus())) {
+            log.warn("===>unfrozen id:{} fail, status error", id);
+            return RpcResponse.error(ErrorCode.UNFROZEN_USER_ERROR);
+        }
+        try {
+            id = userService.unfrozenUserByIdService(id);
+        } catch (Exception e) {
+            log.error("===>unfrozen controller error:{}", e.getMessage());
+            return RpcResponse.error(ErrorCode.SYSTEM_ERROR);
+        }
+        if (RpcCommonUtil.isEmpty(id)) {
+            log.warn("===>unfrozen id:{} fail", id);
+            return RpcResponse.error(ErrorCode.UNFROZEN_USER_ERROR);
+        }
+        log.info("===>unfrozen id:{} success", id);
+        return RpcResponse.success(id);
+    }
 //
 //    /**
 //     * 测试RabbitMq的接口

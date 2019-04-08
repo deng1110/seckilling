@@ -11,8 +11,8 @@ import lombok.Getter;
 public enum Sex implements BaseEnum {
 
     //性别枚举值
-    MALE(1, "male", "男"),
-    FEMALE(2, "female", "女");
+    MALE(1, DefaultValue.SEX_VALUE_MALE, "男"),
+    FEMALE(2, DefaultValue.SEX_VALUE_FEMALE, "女");
 
     @Getter
     private Integer code;
@@ -23,7 +23,7 @@ public enum Sex implements BaseEnum {
     @Getter
     private String desc;
 
-    Sex(Integer code, String value, String desc) {
+    private Sex(Integer code, String value, String desc) {
         this.code = code;
         this.value = value;
         this.desc = desc;

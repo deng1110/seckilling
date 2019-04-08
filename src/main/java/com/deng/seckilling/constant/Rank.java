@@ -23,7 +23,7 @@ public enum Rank implements BaseEnum {
     @Getter
     private String desc;
 
-    Rank(Integer code, String value, String desc) {
+    private Rank(Integer code, String value, String desc) {
         this.code = code;
         this.value = value;
         this.desc = desc;

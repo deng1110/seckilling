@@ -43,6 +43,7 @@ public interface UserMapper {
     @UpdateProvider(type = UserSqlProvider.class, method = "updateUser")
     int updateUser(User user);
 
+
     /**
      * 根据条件查询用户账户状态normal的用户组
      *
@@ -51,5 +52,4 @@ public interface UserMapper {
      */
     @SelectProvider(type = UserSqlProvider.class, method = "listUser")
     List<User> listUser(User user);
-
 }

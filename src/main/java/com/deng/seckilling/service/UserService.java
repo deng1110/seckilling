@@ -1,6 +1,7 @@
 package com.deng.seckilling.service;
 
 import com.deng.seckilling.constant.Rank;
+import com.deng.seckilling.constant.Sex;
 import com.deng.seckilling.constant.Status;
 import com.deng.seckilling.dao.UserMapper;
 import com.deng.seckilling.po.User;
@@ -36,13 +37,10 @@ public class UserService {
      * @return 当前用户信息
      */
     public User verifyUserService(String userName, String passWord) {
-        List<User> userList = new ArrayList<User>();
-        userList = userMapper.listUser(new User(userName, RpcCommonUtil.encryptMd5(passWord)));
+        List<User> userList = userMapper.listUser(new User(userName, RpcCommonUtil.encryptMd5(passWord)));
         if (RpcCommonUtil.isEmpty(userList)) {
-            log.warn("===>execute sql and get null data");
             return null;
         }
-        log.info("===>execute sql and get {} pieces of data", userList.size());
         return userList.get(0);
     }
 
@@ -56,10 +54,8 @@ public class UserService {
         user.setPassWord(RpcCommonUtil.encryptMd5(user.getPassWord()));
         List<User> userList = userMapper.listUser(user);
         if (RpcCommonUtil.isEmpty(userList)) {
-            log.warn("===>execute sql and get null data");
             return null;
         }
-        log.info("===>execute sql and get {} pieces of data", userList.size());
         return userList;
     }
 
@@ -88,13 +84,10 @@ public class UserService {
      * @return 注册成功的用户信息
      */
     public User registerUserService(User user) {
-        if (isExist(user.getUserName())) {
-            log.warn("===>name:{} already exist", user.getUserName());
-            return null;
-        }
         user.setPassWord(RpcCommonUtil.encryptMd5(user.getPassWord()));
         user.setStatus(RpcCommonUtil.getEnumValueByCode(Status.class, 1));
         user.setRank(RpcCommonUtil.getEnumValueByCode(Rank.class, 2));
+        user.setSex(RpcCommonUtil.getEnumValueByCode(Sex.class,Integer.parseInt(user.getSex())));
         int result = userMapper.insertUser(user);
         if (1 == result) {
             return user;
@@ -132,10 +125,6 @@ public class UserService {
      * @return 作废成功的用户账户Id
      */
     public Long invalidUserByIdService(Long id) {
-        if (false == isExist(id)) {
-            log.warn("===>id:{} not exist", id);
-            return null;
-        }
         User user = new User(id);
         user.setStatus(RpcCommonUtil.getEnumValueByCode(Status.class, 3));
         int result = userMapper.updateUser(user);
@@ -201,7 +190,7 @@ public class UserService {
      * @param id 用户Id
      * @return boolean:是否存在
      */
-    private boolean isExist(Long id) {
+    public boolean isExist(Long id) {
         if (RpcCommonUtil.isEmpty(id)) {
             return false;
         }
@@ -218,7 +207,7 @@ public class UserService {
      * @param name 用户name
      * @return boolean:是否存在
      */
-    private boolean isExist(String name) {
+    public boolean isExist(String name) {
         if (RpcCommonUtil.isEmpty(name)) {
             return true;
         }

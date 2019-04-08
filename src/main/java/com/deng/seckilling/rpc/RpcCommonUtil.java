@@ -8,6 +8,7 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -58,7 +59,6 @@ public class RpcCommonUtil {
      */
     public static <T> boolean isEmpty(T target) {
         if (null == target) {
-            log.warn("===>rpc util params empty===");
             return true;
         }
         Field[] fields = target.getClass().getDeclaredFields();
@@ -87,10 +87,65 @@ public class RpcCommonUtil {
      */
     public static <S, T> void entityTransform(S source, T target) {
         if (isEmpty(source)) {
-            log.warn("===>util params empty===");
             return;
         }
         BeanUtils.copyProperties(source, target);
+    }
+
+    /**
+     * List实体之间的同名且同类型属性的相互转化（DO->VO  or  VO->DO）
+     *
+     * @param sourceList 源对象List
+     * @param targetList 目标对象List
+     * @param <S>        源对象泛型
+     * @param <T>        目标对象泛型
+     */
+    public static <S, T> void listEntityTransform(List<S> sourceList, List<T> targetList, Class<T> clzz) {
+        if (isEmpty(sourceList)) {
+            return;
+        }
+        try {
+            for (int i = 0; i < sourceList.size(); i++) {
+                T t = clzz.newInstance();
+                entityTransform(sourceList.get(i), t);
+                targetList.add(t);
+            }
+        } catch (Exception e) {
+            log.error("===> rpc util error:{}===", e.getMessage());
+            targetList.clear();
+            return;
+        }
+    }
+
+    /**
+     * 获取List实体中的某个属性值List
+     *
+     * @param tList    实体List
+     * @param property 实体中的某个属性名
+     * @param <R>      实体中属性的泛型
+     * @param <T>      实体的泛型
+     * @return 某个属性的List
+     */
+    public static <R, T> List<R> getListProperty(List<T> tList, String property, Class<R> clazz) {
+        if (isEmpty(tList) || isEmpty(property)) {
+            return null;
+        }
+        List<R> rList = new ArrayList<R>();
+        try {
+            for (T t : tList) {
+                Field[] fields = t.getClass().getDeclaredFields();
+                for (Field field : fields) {
+                    field.setAccessible(true);
+                    if (field.getName().equals(property)) {
+                        rList.add((R) field.get(t));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("===> rpc util error:{}===", e.getMessage());
+            return null;
+        }
+        return rList;
     }
 
     /**
@@ -103,7 +158,6 @@ public class RpcCommonUtil {
      */
     public static <T extends BaseEnum> boolean isEnumCode(Class<T> enumClzz, Integer code) {
         if (isEmpty(code)) {
-            log.warn("===>rpc util params empty===");
             return false;
         }
         for (T t : enumClzz.getEnumConstants()) {
@@ -124,7 +178,6 @@ public class RpcCommonUtil {
      */
     public static <T extends BaseEnum> String getEnumValueByCode(Class<T> enumClzz, Integer code) {
         if (isEmpty(code)) {
-            log.warn("===>rpc util params empty===");
             return null;
         }
         for (T t : enumClzz.getEnumConstants()) {
@@ -140,21 +193,19 @@ public class RpcCommonUtil {
      *
      * @param str 待加密字符串
      * @return 加密后的字符串
-     * @throws Exception 会抛出异常调用方处理
      */
     public static String encryptMd5(String str) {
         if (isEmpty(str)) {
-            log.warn("===>rpc util params empty===");
             return null;
         }
         MessageDigest md = null;
         try {
             md = MessageDigest.getInstance("MD5");
+            md.update(str.getBytes());
         } catch (NoSuchAlgorithmException e) {
             log.info("===>unreachable line===");
             return null;
         }
-        md.update(str.getBytes());
         return new BigInteger(1, md.digest()).toString(16);
     }
 
