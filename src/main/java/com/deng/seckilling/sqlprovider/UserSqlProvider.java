@@ -1,6 +1,7 @@
 package com.deng.seckilling.sqlprovider;
 
 import com.deng.seckilling.po.User;
+import com.deng.seckilling.rpc.RpcCommonUtil;
 
 /**
  * 用户相关的用来根据复杂业务需求动态生成sql的类
@@ -43,7 +44,13 @@ public class UserSqlProvider {
     }
 
     public String listUser(User user) {
-        String sql = "select * from user_info where status = 'normal' ";
+        String sql = "select * from user_info where 1=1 ";
+        if (RpcCommonUtil.isEmpty(user)) {
+            sql += " and 1 = 0 ";
+        }
+        if (false == (null == user.getStatus())) {
+            sql += "and status = #{status} ";
+        }
         if (false == (null == user.getId())) {
             sql += "and id = #{id} ";
         }

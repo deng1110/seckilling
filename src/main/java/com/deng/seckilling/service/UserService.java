@@ -4,6 +4,7 @@ import com.deng.seckilling.constant.Rank;
 import com.deng.seckilling.constant.Sex;
 import com.deng.seckilling.constant.Status;
 import com.deng.seckilling.dao.UserMapper;
+import com.deng.seckilling.dto.BaseUserInfoDTO;
 import com.deng.seckilling.po.User;
 import com.deng.seckilling.rpc.RpcCommonUtil;
 import com.github.pagehelper.PageHelper;
@@ -37,7 +38,7 @@ public class UserService {
      * @return 当前用户信息
      */
     public User verifyUserService(String userName, String passWord) {
-        List<User> userList = userMapper.listUser(new User(userName, RpcCommonUtil.encryptMd5(passWord)));
+        List<User> userList = userMapper.listUser(new User(userName, RpcCommonUtil.encryptMd5(passWord), Status.NORMAL.getValue()));
         if (RpcCommonUtil.isEmpty(userList)) {
             return null;
         }
@@ -78,16 +79,18 @@ public class UserService {
     }
 
     /**
-     * 用户基础信息注册service,用户名不可重复
+     * 用户基础信息注册service
      *
-     * @param user 参数实体
+     * @param baseUserInfoDTO 参数实体
      * @return 注册成功的用户信息
      */
-    public User registerUserService(User user) {
-        user.setPassWord(RpcCommonUtil.encryptMd5(user.getPassWord()));
-        user.setStatus(RpcCommonUtil.getEnumValueByCode(Status.class, 1));
-        user.setRank(RpcCommonUtil.getEnumValueByCode(Rank.class, 2));
-        user.setSex(RpcCommonUtil.getEnumValueByCode(Sex.class,Integer.parseInt(user.getSex())));
+    public User registerUserService(BaseUserInfoDTO baseUserInfoDTO) {
+        baseUserInfoDTO.setPassWord(RpcCommonUtil.encryptMd5(baseUserInfoDTO.getPassWord()));
+        User user = new User();
+        RpcCommonUtil.entityTransform(baseUserInfoDTO, user);
+        user.setStatus(Status.NORMAL.getValue());
+        user.setRank(RpcCommonUtil.getEnumValueByCode(Rank.class, baseUserInfoDTO.getRank()));
+        user.setSex(RpcCommonUtil.getEnumValueByCode(Sex.class, baseUserInfoDTO.getSex()));
         int result = userMapper.insertUser(user);
         if (1 == result) {
             return user;

@@ -9,6 +9,7 @@ server:
 mybatis:
  configuration:
   map-underscore-to-camel-case: true
+#  log-impl: org.apache.ibatis.logging.stdout.StdOutImpl   #若是想调试sql以及查看sql语句请把这个配置打开
 
 logging:
   config: classpath:logback-spring.xml

@@ -34,9 +34,10 @@ public class User {
 
     private String status;
 
-    public User(String userName, String passWord) {
+    public User(String userName, String passWord, String status) {
         this.userName = userName;
         this.passWord = passWord;
+        this.status = status;
     }
 
     public User(String userName) {

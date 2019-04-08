@@ -4,11 +4,12 @@ import com.deng.seckilling.constant.DefaultValue;
 import com.deng.seckilling.constant.ErrorCode;
 import com.deng.seckilling.constant.Sex;
 import com.deng.seckilling.constant.Status;
+import com.deng.seckilling.dto.BaseUserInfoDTO;
 import com.deng.seckilling.po.User;
 import com.deng.seckilling.rpc.RpcCommonUtil;
 import com.deng.seckilling.rpc.RpcResponse;
 import com.deng.seckilling.service.UserService;
-import com.deng.seckilling.util.CommonUtils;
+import com.deng.seckilling.util.SeckillingUtil;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,6 +38,42 @@ public class UserController {
     UserService userService;
 
     /**
+     * 用户注册接口
+     * 基本信息[必填项]:（用户名，密码，性别【1:男;2:女】，手机号,角色【2:买家；3：卖家】）
+     *
+     * @param baseUserInfoDTO 承载注册信息的载体
+     * @return 用户ID
+     */
+    @RequestMapping("/register")
+    public RpcResponse register(BaseUserInfoDTO baseUserInfoDTO) {
+        if (RpcCommonUtil.isEmpty(baseUserInfoDTO.getUserName()) || RpcCommonUtil.isEmpty(baseUserInfoDTO.getPassWord()) ||
+                RpcCommonUtil.isEmpty(baseUserInfoDTO.getSex()) || RpcCommonUtil.isEmpty(baseUserInfoDTO.getPhoneNumber()) ||
+                RpcCommonUtil.isEmpty(baseUserInfoDTO.getRank()) || false == RpcCommonUtil.isEnumCode(Sex.class, baseUserInfoDTO.getSex()) ||
+                false == SeckillingUtil.isCommonRank(baseUserInfoDTO.getRank())) {
+            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
+        }
+
+        if (userService.isExist(baseUserInfoDTO.getUserName())) {
+            return RpcResponse.error(ErrorCode.USERNAME_EXIT_ERROR);
+        }
+
+        User userResult = null;
+        try {
+            userResult = userService.registerUserService(baseUserInfoDTO);
+        } catch (Exception e) {
+            log.error("===>register controller error:{}", e.getMessage());
+            return RpcResponse.error(ErrorCode.SYSTEM_ERROR);
+        }
+
+        if (null == userResult) {
+            log.warn("===>register controller name:{}; fail", baseUserInfoDTO.getUserName());
+            return RpcResponse.error(ErrorCode.REGISTER_FAIL_ERROR);
+        }
+
+        return RpcResponse.success(userResult.getId());
+    }
+
+    /**
      * 用户登录接口
      *
      * @param userName 用户名
@@ -46,9 +83,9 @@ public class UserController {
     @PostMapping("/login")
     public RpcResponse login(HttpServletRequest request, HttpServletResponse response, String userName, String passWord) {
         if (RpcCommonUtil.isEmpty(userName) || RpcCommonUtil.isEmpty(passWord)) {
-            log.warn("===>login controller params error");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
+
         User user = null;
         try {
             user = userService.verifyUserService(userName, passWord);
@@ -56,12 +93,12 @@ public class UserController {
             log.error("===>login controller error:{}", e.getMessage());
             return RpcResponse.error(ErrorCode.SYSTEM_ERROR);
         }
+
         if (null == user) {
-            log.info("===>login controller username:{};password:{};login fail", userName, passWord);
             return RpcResponse.error(ErrorCode.USERLOGIN_FAIL_ERROR);
         }
+
         request.getSession().setAttribute(DefaultValue.SESSION_KEY_VALUE, user.getId());
-        log.info("===>login controller username:{};password:{};login success", userName, passWord);
         return RpcResponse.success(user.getId());
     }
 
@@ -121,41 +158,6 @@ public class UserController {
             return RpcResponse.error(ErrorCode.SYSTEM_ERROR);
         }
         return RpcResponse.success(pageInfo);
-    }
-
-    /**
-     * 用户注册接口
-     * （只需要基本信息即可注册，基本信息[必填项]如下： ）
-     * （用户名，密码，性别，手机号,角色）
-     *
-     * @param user 承载注册信息的载体
-     * @return RpcResponse注册用户信息
-     */
-    @RequestMapping("/register")
-    public RpcResponse register(User user) {
-        if (RpcCommonUtil.isEmpty(user) || RpcCommonUtil.isEmpty(user.getUserName()) ||
-                RpcCommonUtil.isEmpty(user.getPassWord()) || RpcCommonUtil.isEmpty(user.getSex()) ||
-                RpcCommonUtil.isEmpty(user.getPhoneNumber()) || false == RpcCommonUtil.isEnumCode(Sex.class, Integer.parseInt(user.getSex()))) {
-            log.warn("===>register controller params error");
-            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
-        }
-        if (userService.isExist(user.getUserName())) {
-            log.warn("===>register controller, name:{} already exist", user.getUserName());
-            return RpcResponse.error(ErrorCode.USERNAME_EXIT_ERROR);
-        }
-        User userResult = null;
-        try {
-            userResult = userService.registerUserService(user);
-        } catch (Exception e) {
-            log.error("===>register controller error:{}", e.getMessage());
-            return RpcResponse.error(ErrorCode.SYSTEM_ERROR);
-        }
-        if (null == userResult) {
-            log.warn("===>register controller fail, register message:{}", user.toString());
-            return RpcResponse.error(ErrorCode.REGISTER_FAIL_ERROR);
-        }
-        log.info("===>register controller success, register message:{}", userResult.toString());
-        return RpcResponse.success(userResult);
     }
 
     /**
