@@ -1,5 +1,6 @@
 package com.deng.seckilling.rpc.util;
 
+import com.deng.seckilling.rpc.exception.RpcUtilException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 
@@ -27,7 +28,7 @@ public class DataUtils {
      */
     public static <S, T> void entityTransform(S source, T target) {
         if (CheckDataUtils.isEmpty(source)) {
-            throw new RuntimeException("source can not be null");
+            throw new RpcUtilException("source can not be null");
         }
         BeanUtils.copyProperties(source, target);
     }
@@ -43,10 +44,10 @@ public class DataUtils {
      */
     public static <S, T> void listEntityTransform(List<S> sourceList, List<T> targetList, Class<T> clzz) {
         if (CheckDataUtils.isEmpty(sourceList)) {
-            throw new RuntimeException("sourceList can not be null and can not be empty");
+            throw new RpcUtilException("sourceList can not be null and can not be empty");
         }
         if (null == targetList) {
-            throw new RuntimeException("targetList can not be null");
+            throw new RpcUtilException("targetList can not be null");
         }
         targetList.clear();
         try {

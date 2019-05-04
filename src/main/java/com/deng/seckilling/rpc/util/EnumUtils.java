@@ -1,6 +1,7 @@
 package com.deng.seckilling.rpc.util;
 
 import com.deng.seckilling.rpc.constant.BaseEnum;
+import com.deng.seckilling.rpc.exception.RpcUtilException;
 
 /**
  * RPC-枚举工具类
@@ -21,10 +22,10 @@ public class EnumUtils {
      */
     public static <T extends BaseEnum> boolean isEnumCode(Class<T> enumClzz, Integer code) {
         if (null == enumClzz) {
-            throw new RuntimeException("target class type can not be null");
+            throw new RpcUtilException("target class type can not be null");
         }
         if (CheckDataUtils.isEmpty(code)) {
-            throw new RuntimeException("target code can not be null and value must be greater than zero ");
+            throw new RpcUtilException("target code can not be null and value must be greater than zero ");
         }
         for (T t : enumClzz.getEnumConstants()) {
             if (t.getCode().equals(code)) {
@@ -44,10 +45,10 @@ public class EnumUtils {
      */
     public static <T extends BaseEnum> boolean isEnumValue(Class<T> enumClzz, String value) {
         if (null == enumClzz) {
-            throw new RuntimeException("target class type can not be null");
+            throw new RpcUtilException("target class type can not be null");
         }
         if (CheckDataUtils.isEmpty(value)) {
-            throw new RuntimeException("target value can not be null");
+            throw new RpcUtilException("target value can not be null");
         }
         for (T t : enumClzz.getEnumConstants()) {
             if (t.getValue().equals(value)) {
@@ -67,10 +68,10 @@ public class EnumUtils {
      */
     public static <T extends BaseEnum> String getEnumValueByCode(Class<T> enumClzz, Integer code) {
         if (null == enumClzz) {
-            throw new RuntimeException("target class type can not be null");
+            throw new RpcUtilException("target class type can not be null");
         }
         if (CheckDataUtils.isEmpty(code)) {
-            throw new RuntimeException("target code can not be null and value must be greater than zero ");
+            throw new RpcUtilException("target code can not be null and value must be greater than zero ");
         }
         for (T t : enumClzz.getEnumConstants()) {
             if (t.getCode().equals(code)) {
@@ -90,10 +91,10 @@ public class EnumUtils {
      */
     public static <T extends BaseEnum> Integer getEnumCodeByValue(Class<T> enumClzz, String value) {
         if (null == enumClzz) {
-            throw new RuntimeException("target class type can not be null");
+            throw new RpcUtilException("target class type can not be null");
         }
         if (CheckDataUtils.isEmpty(value)) {
-            throw new RuntimeException("target value can not be null");
+            throw new RpcUtilException("target value can not be null");
         }
         for (T t : enumClzz.getEnumConstants()) {
             if (t.getValue().equals(value)) {
