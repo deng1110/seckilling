@@ -1,7 +1,7 @@
-package com.deng.seckilling.rpc;
+package com.deng.seckilling.rpc.constant;
 
 /**
- * 枚举类型接口
+ * RPC-枚举类型接口
  *
  * @author: dengjunbing
  * @version: v1.0

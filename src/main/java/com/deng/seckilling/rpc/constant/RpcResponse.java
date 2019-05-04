@@ -1,4 +1,4 @@
-package com.deng.seckilling.rpc;
+package com.deng.seckilling.rpc.constant;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
@@ -7,7 +7,7 @@ import lombok.Setter;
 import java.io.Serializable;
 
 /**
- * Rpc返回值
+ * RPC-返回值
  *
  * @author: dengjunbing
  * @version: v1.0
