@@ -1,4 +1,4 @@
-package com.deng.seckilling.rpc.config;
+package com.deng.seckilling.rpc.redis;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

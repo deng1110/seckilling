@@ -1,6 +1,5 @@
 package com.deng.seckilling.rpc.redis;
 
-import com.deng.seckilling.rpc.config.RedisConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
