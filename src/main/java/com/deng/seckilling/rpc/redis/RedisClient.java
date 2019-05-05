@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.Transaction;
 
 /**
  * RPC-reids客户端
@@ -28,7 +27,7 @@ public class RedisClient {
     private static final int DEFAULT_EXPIRESECONDS = 60 * 60 * 24;
 
     /**
-     * String类型的set
+     * String类型的set,如果key已存在则替换value,并赋24小时过期时间
      *
      * @param key   键
      * @param value 值
@@ -36,22 +35,30 @@ public class RedisClient {
      */
     public boolean set(String key, String value) {
         checkKeyEmpty(key);
+        return set(key, value, DEFAULT_EXPIRESECONDS);
+    }
+
+    /**
+     * String类型的set，当key已存在则替换value，并赋过期时间
+     *
+     * @param key           键
+     * @param value         值
+     * @param expireSeconds 过期时间，单位秒
+     * @return set是否成功
+     */
+    public boolean set(String key, String value, int expireSeconds) {
+        checkKeyEmpty(key);
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
-            String res = jedis.set(key, value);
-            if (SUCCESS_STR.equals(res)) {
-                jedis.expire(key, DEFAULT_EXPIRESECONDS);
-                return true;
-            }
-            return false;
+            return SUCCESS_STR.equals(jedis.setex(key, expireSeconds, value));
         } finally {
             returnToPool(jedis);
         }
     }
 
     /**
-     * String类型的set，当key不存在的时候set
+     * String类型的set，当key不存在的时候set,并赋24小时过期时间
      *
      * @param key   键
      * @param value 值
@@ -59,14 +66,23 @@ public class RedisClient {
      */
     public boolean setnx(String key, String value) {
         checkKeyEmpty(key);
+        return setnx(key, value, DEFAULT_EXPIRESECONDS);
+    }
+
+    /**
+     * String类型的set，当key不存在的时候set,并赋过期时间
+     *
+     * @param key           键
+     * @param value         值
+     * @param expireSeconds 过期时间，单位秒
+     * @return set是否成功
+     */
+    public boolean setnx(String key, String value, int expireSeconds) {
+        checkKeyEmpty(key);
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
-            if (jedis.setnx(key, value) > 0) {
-                jedis.expire(key, DEFAULT_EXPIRESECONDS);
-                return true;
-            }
-            return false;
+            return SUCCESS_STR.equals(jedis.set(key, value, "NX", "EX", expireSeconds));
         } finally {
             returnToPool(jedis);
         }
