@@ -1,6 +1,6 @@
 package com.deng.seckilling.constant;
 
-import com.deng.seckilling.rpc.ErrorInfo;
+import com.deng.seckilling.rpc.constant.ErrorInfo;
 
 /**
  * ErrorCode常量表

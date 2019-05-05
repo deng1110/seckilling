@@ -1,9 +1,11 @@
 package com.deng.seckilling.constant;
 
-import com.deng.seckilling.rpc.BaseEnum;
+import com.deng.seckilling.rpc.constant.BaseEnum;
 import lombok.Getter;
 
 /**
+ * 权限枚举类
+ *
  * @author: dengjunbing
  * @version: v1.0
  * @since: 2019/3/24 17:34

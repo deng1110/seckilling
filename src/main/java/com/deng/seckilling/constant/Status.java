@@ -1,6 +1,6 @@
 package com.deng.seckilling.constant;
 
-import com.deng.seckilling.rpc.BaseEnum;
+import com.deng.seckilling.rpc.constant.BaseEnum;
 import lombok.Getter;
 
 /**
