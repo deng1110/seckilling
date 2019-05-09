@@ -23,7 +23,6 @@ public class LoginInterceptor implements HandlerInterceptor {
             return true;
         }
         if (request.getSession().getAttribute(DefaultValue.SESSION_KEY_VALUE) == null) {
-//            log.error("==>not login error===");
             return true;
         }
         return true;
