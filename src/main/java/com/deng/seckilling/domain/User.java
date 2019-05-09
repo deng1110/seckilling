@@ -1,4 +1,4 @@
-package com.deng.seckilling.po;
+package com.deng.seckilling.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

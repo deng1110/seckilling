@@ -1,30 +1,27 @@
-package com.deng.seckilling.po;
+package com.deng.seckilling.domain;
 
 import lombok.Data;
 
 import java.sql.Timestamp;
 
 /**
- * 商品子系统——Spu-规格关联实体
+ * 商品子系统——分类实体
  *
  * @author: dengjunbing
  * @version: v1.0
- * @since: 2019/3/10 15:58
+ * @since: 2019/3/10 12:45
  */
 @Data
-public class SpuSpec {
+public class Category {
 
     private Long id;
 
-    private Long spuId;
-
     /**
-     * 规格Id
+     * 分类名称
      */
-    private Long specId;
+    private String categoryName;
 
     private Timestamp createTime;
 
     private Timestamp updateTime;
-
 }

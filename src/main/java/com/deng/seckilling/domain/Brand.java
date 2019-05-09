@@ -1,27 +1,25 @@
-package com.deng.seckilling.po;
+package com.deng.seckilling.domain;
 
 import lombok.Data;
 
 import java.sql.Timestamp;
 
 /**
- * 商品子系统——Sku-规格值关联实体
+ * 商品子系统——品牌实体
  *
  * @author: dengjunbing
  * @version: v1.0
- * @since: 2019/3/10 16:05
+ * @since: 2019/3/10 12:39
  */
 @Data
-public class SkuSpecValue {
+public class Brand {
 
     private Long id;
 
-    private Long spuId;
-
     /**
-     * 规格值Id
+     * 品牌名称
      */
-    private Long specValueId;
+    private String brandName;
 
     private Timestamp createTime;
 

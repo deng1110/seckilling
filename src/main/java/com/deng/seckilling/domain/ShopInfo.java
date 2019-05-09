@@ -1,25 +1,25 @@
-package com.deng.seckilling.po;
+package com.deng.seckilling.domain;
 
 import lombok.Data;
 
 import java.sql.Timestamp;
 
 /**
- * 商品子系统——分类实体
+ * 商品子系统——店铺信息实体
  *
  * @author: dengjunbing
  * @version: v1.0
- * @since: 2019/3/10 12:45
+ * @since: 2019/3/10 12:52
  */
 @Data
-public class Category {
+public class ShopInfo {
 
     private Long id;
 
     /**
-     * 分类名称
+     * 店铺名称
      */
-    private String categoryName;
+    private Long shopName;
 
     private Timestamp createTime;
 
