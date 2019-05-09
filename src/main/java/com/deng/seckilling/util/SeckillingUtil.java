@@ -1,8 +1,7 @@
 package com.deng.seckilling.util;
 
 import com.deng.seckilling.constant.Rank;
-import com.deng.seckilling.constant.Status;
-import com.deng.seckilling.rpc.RpcCommonUtil;
+import com.deng.seckilling.rpc.util.CheckDataUtils;
 
 /**
  * Seckilling工具类
@@ -14,10 +13,10 @@ import com.deng.seckilling.rpc.RpcCommonUtil;
 public class SeckillingUtil {
 
     public static boolean isCommonRank(Integer rank) {
-        if (RpcCommonUtil.isEmpty(rank)) {
+        if (CheckDataUtils.isEmpty(rank)) {
             return false;
         }
-        return rank == Rank.BUYER.getCode() || rank == Rank.SELLER.getCode();
+        return Rank.BUYER.getCode().equals(rank) || Rank.SELLER.getCode().equals(rank);
     }
 
 }

@@ -1,6 +1,6 @@
 package com.deng.seckilling.util;
 
-import com.deng.seckilling.po.User;
+import com.deng.seckilling.domain.User;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import java.lang.reflect.Field;
 
