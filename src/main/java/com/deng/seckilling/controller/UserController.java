@@ -5,9 +5,10 @@ import com.deng.seckilling.constant.ErrorCode;
 import com.deng.seckilling.constant.Sex;
 import com.deng.seckilling.constant.Status;
 import com.deng.seckilling.dto.BaseUserInfoDTO;
-import com.deng.seckilling.po.User;
-import com.deng.seckilling.rpc.RpcCommonUtil;
-import com.deng.seckilling.rpc.RpcResponse;
+import com.deng.seckilling.domain.User;
+import com.deng.seckilling.rpc.constant.RpcResponse;
+import com.deng.seckilling.rpc.util.CheckDataUtils;
+import com.deng.seckilling.rpc.util.EnumUtils;
 import com.deng.seckilling.service.UserService;
 import com.deng.seckilling.util.SeckillingUtil;
 import com.github.pagehelper.PageInfo;
@@ -35,7 +36,7 @@ import java.util.List;
 public class UserController {
 
     @Resource
-    UserService userService;
+    private UserService userService;
 
     /**
      * 用户注册接口
@@ -46,9 +47,9 @@ public class UserController {
      */
     @RequestMapping("/register")
     public RpcResponse register(BaseUserInfoDTO baseUserInfoDTO) {
-        if (RpcCommonUtil.isEmpty(baseUserInfoDTO.getUserName()) || RpcCommonUtil.isEmpty(baseUserInfoDTO.getPassWord()) ||
-                RpcCommonUtil.isEmpty(baseUserInfoDTO.getSex()) || RpcCommonUtil.isEmpty(baseUserInfoDTO.getPhoneNumber()) ||
-                RpcCommonUtil.isEmpty(baseUserInfoDTO.getRank()) || false == RpcCommonUtil.isEnumCode(Sex.class, baseUserInfoDTO.getSex()) ||
+        if (CheckDataUtils.isEmpty(baseUserInfoDTO.getUserName()) || CheckDataUtils.isEmpty(baseUserInfoDTO.getPassWord()) ||
+                CheckDataUtils.isEmpty(baseUserInfoDTO.getSex()) || CheckDataUtils.isEmpty(baseUserInfoDTO.getPhoneNumber()) ||
+                CheckDataUtils.isEmpty(baseUserInfoDTO.getRank()) || false == EnumUtils.isEnumCode(Sex.class, baseUserInfoDTO.getSex()) ||
                 false == SeckillingUtil.isCommonRank(baseUserInfoDTO.getRank())) {
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
@@ -60,14 +61,12 @@ public class UserController {
         User userResult = null;
         try {
             userResult = userService.registerUserService(baseUserInfoDTO);
+            if (null == userResult) {
+                throw new RuntimeException("register user false");
+            }
         } catch (Exception e) {
             log.error("===>register controller error:{}", e.getMessage());
             return RpcResponse.error(ErrorCode.SYSTEM_ERROR);
-        }
-
-        if (null == userResult) {
-            log.warn("===>register controller name:{}; fail", baseUserInfoDTO.getUserName());
-            return RpcResponse.error(ErrorCode.REGISTER_FAIL_ERROR);
         }
 
         return RpcResponse.success(userResult.getId());
@@ -82,7 +81,7 @@ public class UserController {
      */
     @PostMapping("/login")
     public RpcResponse login(HttpServletRequest request, HttpServletResponse response, String userName, String passWord) {
-        if (RpcCommonUtil.isEmpty(userName) || RpcCommonUtil.isEmpty(passWord)) {
+        if (CheckDataUtils.isEmpty(userName) || CheckDataUtils.isEmpty(passWord)) {
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
 
@@ -111,11 +110,11 @@ public class UserController {
     @RequestMapping("/querybycondition")
     public RpcResponse queryUsersByCondition(HttpServletRequest request, HttpServletResponse response, User user) {
         Object sessionValue = request.getSession().getAttribute(DefaultValue.SESSION_KEY_VALUE);
-        if (null == sessionValue || false == (DefaultValue.SESSION_VALUE_VALUE == Long.parseLong(sessionValue.toString()))) {
+        if (null == sessionValue || false == (DefaultValue.SESSION_ROOT_VALUE == Long.parseLong(sessionValue.toString()))) {
             log.warn("===>query user controller Permission denied error");
             return RpcResponse.error(ErrorCode.PERMISSION_DENIED_ERROR);
         }
-        if (RpcCommonUtil.isEmpty(user)) {
+        if (CheckDataUtils.isEmpty(user)) {
             log.warn("===>query user controller params error");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
@@ -142,11 +141,11 @@ public class UserController {
     @RequestMapping("/querybycondition/{pageNum}")
     public RpcResponse queryUsersByCondition(@PathVariable Integer pageNum, HttpServletRequest request, HttpServletResponse response, User user) {
         Object sessionValue = request.getSession().getAttribute(DefaultValue.SESSION_KEY_VALUE);
-        if (null == sessionValue || false == (DefaultValue.SESSION_VALUE_VALUE == Long.parseLong(sessionValue.toString()))) {
+        if (null == sessionValue || false == (DefaultValue.SESSION_ROOT_VALUE == Long.parseLong(sessionValue.toString()))) {
             log.warn("===>query user controller Permission denied error");
             return RpcResponse.error(ErrorCode.PERMISSION_DENIED_ERROR);
         }
-        if (RpcCommonUtil.isEmpty(user) || RpcCommonUtil.isEmpty(pageNum)) {
+        if (CheckDataUtils.isEmpty(user) || CheckDataUtils.isEmpty(pageNum)) {
             log.warn("===>query user controller params error");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
@@ -169,13 +168,9 @@ public class UserController {
      */
     @RequestMapping("/complete")
     public RpcResponse complete(User user) {
-        if (RpcCommonUtil.isEmpty(user.getId())) {
+        if (CheckDataUtils.isEmpty(user.getId())) {
             log.warn("===>complete controller params error");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
-        }
-        if (false == userService.isExist(user.getId())) {
-            log.warn("===>complete controller, id:{} not exist", user.getId());
-            return RpcResponse.error(ErrorCode.USER_NOTEXIT_ERROR);
         }
         User userResult = null;
         try {
@@ -185,41 +180,10 @@ public class UserController {
             return RpcResponse.error(ErrorCode.SYSTEM_ERROR);
         }
         if (userResult == null) {
-            log.warn("===>complete controller fail, complete message:{}", userResult.toString());
+            log.warn("===>complete controller fail, complete message:{}", user.toString());
             return RpcResponse.error(ErrorCode.COMPLETE_USERINFO_ERROR);
         }
-        log.info("===>complete controller success, complete message:{}", userResult.toString());
-        return RpcResponse.success(userResult);
-    }
-
-    /**
-     * 作废用户账户接口
-     *
-     * @param id 待作废用户Id
-     * @return 作废结果：作废用户账户的Id
-     */
-    @RequestMapping("/invalid")
-    public RpcResponse invalid(Long id) {
-        if (RpcCommonUtil.isEmpty(id)) {
-            log.warn("===>invalid controller params error");
-            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
-        }
-        if (false == userService.isExist(id)) {
-            log.warn("===>invalid controller, id:{} not exist", id);
-            return RpcResponse.error(ErrorCode.USER_NOTEXIT_ERROR);
-        }
-        try {
-            id = userService.invalidUserByIdService(id);
-        } catch (Exception e) {
-            log.error("===>invalid controller error:{}", e.getMessage());
-            return RpcResponse.error(ErrorCode.SYSTEM_ERROR);
-        }
-        if (RpcCommonUtil.isEmpty(id)) {
-            log.warn("===>invalid id:{} fail", id);
-            return RpcResponse.error(ErrorCode.INVALID_USER_ERROR);
-        }
-        log.info("===>invalid id:{} success", id);
-        return RpcResponse.success(id);
+        return RpcResponse.success(userResult.getId());
     }
 
     /**
@@ -230,18 +194,18 @@ public class UserController {
      */
     @RequestMapping("/frozen")
     public RpcResponse frozen(Long id) {
-        if (RpcCommonUtil.isEmpty(id)) {
+        if (CheckDataUtils.isEmpty(id)) {
             log.warn("===>frozen controller params error");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
         List<User> userList = userService.queryUsersByConditionService(new User(id));
-        if (RpcCommonUtil.isEmpty(userList)) {
+        if (CheckDataUtils.isEmpty(userList)) {
             log.warn("===>frozen controller, id:{} not exist", id);
             return RpcResponse.error(ErrorCode.USER_NOTEXIT_ERROR);
         }
         if (false == Status.NORMAL.getValue().equals(userList.get(0).getStatus())) {
-            log.warn("===>frozen id:{} fail, status error", id);
-            return RpcResponse.error(ErrorCode.FROZEN_USER_ERROR);
+            log.warn("===>frozen id:{} fail, not {} status error", Status.NORMAL.getValue(), id);
+            return RpcResponse.error(ErrorCode.NOTNORMALUSER_CANNOT_FROZEN);
         }
         try {
             id = userService.frozenUserByIdService(id);
@@ -249,7 +213,7 @@ public class UserController {
             log.error("===>frozen controller error:{}", e.getMessage());
             return RpcResponse.error(ErrorCode.SYSTEM_ERROR);
         }
-        if (RpcCommonUtil.isEmpty(id)) {
+        if (CheckDataUtils.isEmpty(id)) {
             log.warn("===>frozen id:{} fail", id);
             return RpcResponse.error(ErrorCode.FROZEN_USER_ERROR);
         }
@@ -265,18 +229,18 @@ public class UserController {
      */
     @RequestMapping("/unfrozen")
     public RpcResponse unfrozen(Long id) {
-        if (RpcCommonUtil.isEmpty(id)) {
+        if (CheckDataUtils.isEmpty(id)) {
             log.warn("===>unfrozen controller params error");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
         List<User> userList = userService.queryUsersByConditionService(new User(id));
-        if (RpcCommonUtil.isEmpty(userList)) {
+        if (CheckDataUtils.isEmpty(userList)) {
             log.warn("===>unfrozen controller, id:{} not exist", id);
             return RpcResponse.error(ErrorCode.USER_NOTEXIT_ERROR);
         }
         if (false == Status.FROZEN.getValue().equals(userList.get(0).getStatus())) {
-            log.warn("===>unfrozen id:{} fail, status error", id);
-            return RpcResponse.error(ErrorCode.UNFROZEN_USER_ERROR);
+            log.warn("===>unfrozen id:{} fail, not {} status error", Status.FROZEN.getValue(), id);
+            return RpcResponse.error(ErrorCode.NOTFROZENUSER_CANNOT_UNFROXEN);
         }
         try {
             id = userService.unfrozenUserByIdService(id);
@@ -284,33 +248,43 @@ public class UserController {
             log.error("===>unfrozen controller error:{}", e.getMessage());
             return RpcResponse.error(ErrorCode.SYSTEM_ERROR);
         }
-        if (RpcCommonUtil.isEmpty(id)) {
+        if (CheckDataUtils.isEmpty(id)) {
             log.warn("===>unfrozen id:{} fail", id);
             return RpcResponse.error(ErrorCode.UNFROZEN_USER_ERROR);
         }
         log.info("===>unfrozen id:{} success", id);
         return RpcResponse.success(id);
     }
-//
-//    /**
-//     * 测试RabbitMq的接口
-//     */
-//    @Autowired
-//    UserSenderMq userSenderMq;
-//
-//    @RequestMapping("/test")
-//    public RpcResponse test() {
-//        userSenderMq.sendMsg("sendUser.direct", "sendUserRoutingKey", "hello");
-//        return RpcResponse.success();
-//    }
-//
-//    @RequestMapping("/setsession")
-//    public RpcResponse setSess(HttpServletRequest request, String name) {
-//        return RpcResponse.success(SessionUtils.setSession(request, name));
-//    }
-//
-//    @RequestMapping("/getsession")
-//    public RpcResponse getSess(HttpServletRequest request, String sessionId) {
-//        return RpcResponse.success(SessionUtils.getSession(request, sessionId));
-//    }
+
+    /**
+     * 作废用户账户接口
+     *
+     * @param id 待作废用户Id
+     * @return 作废结果：作废用户账户的Id
+     */
+    @RequestMapping("/invalid")
+    public RpcResponse invalid(Long id) {
+        if (CheckDataUtils.isEmpty(id)) {
+            log.warn("===>invalid controller params error");
+            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
+        }
+        List<User> userList = userService.queryUsersByConditionService(new User(id));
+        if (CheckDataUtils.isEmpty(userList)) {
+            log.warn("===>invalid controller, id:{} not exist", id);
+            return RpcResponse.error(ErrorCode.USER_NOTEXIT_ERROR);
+        }
+        try {
+            id = userService.invalidUserByIdService(id);
+        } catch (Exception e) {
+            log.error("===>invalid controller error:{}", e.getMessage());
+            return RpcResponse.error(ErrorCode.SYSTEM_ERROR);
+        }
+        if (CheckDataUtils.isEmpty(id)) {
+            log.warn("===>invalid id:{} fail", id);
+            return RpcResponse.error(ErrorCode.INVALID_USER_ERROR);
+        }
+        log.info("===>invalid id:{} success", id);
+        return RpcResponse.success(id);
+    }
+
 }

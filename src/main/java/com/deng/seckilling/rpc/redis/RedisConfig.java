@@ -20,13 +20,19 @@ public class RedisConfig {
 
     private Integer port;
 
-    private Integer timeout;//秒
+    /**
+     * 秒
+     */
+    private Integer timeout;
 
     private Integer poolMaxTotal;
 
     private Integer poolMaxldle;
 
-    private Integer poolMaxWait;//秒
+    /**
+     * 秒
+     */
+    private Integer poolMaxWait;
 
     public String getHost() {
         return host;
