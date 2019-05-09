@@ -1,6 +1,6 @@
 package com.deng.seckilling.dao;
 
-import com.deng.seckilling.po.User;
+import com.deng.seckilling.domain.User;
 import com.deng.seckilling.sqlprovider.UserSqlProvider;
 import org.apache.ibatis.annotations.*;
 
