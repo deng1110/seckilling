@@ -85,7 +85,7 @@ public class UserController {
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
 
-        User user = null;
+        User user;
         try {
             user = userService.verifyUserService(userName, passWord);
         } catch (Exception e) {
