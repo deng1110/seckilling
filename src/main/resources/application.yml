@@ -24,7 +24,7 @@ mybatis:
     type-aliases-package: com.deng.seckilling.domain
     configuration:
         map-underscore-to-camel-case: true
-        log-impl: org.apache.ibatis.logging.stdout.StdOutImpl   #若是想调试sql以及查看sql语句请把这个配置打开
+#        log-impl: org.apache.ibatis.logging.stdout.StdOutImpl   #若是想调试sql以及查看sql语句请把这个配置打开
         default-fetch-size: 100
         default-statement-timeout: 3000
 

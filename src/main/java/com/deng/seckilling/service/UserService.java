@@ -74,7 +74,9 @@ public class UserService {
      * @return RpcResponse 查询到的用户集合
      */
     public List<User> queryUsersByConditionService(User user) {
-        user.setPassWord(Md5Utils.encryptMd5(user.getPassWord()));
+        if (!CheckDataUtils.isEmpty(user.getPassWord())) {
+            user.setPassWord(Md5Utils.encryptMd5(user.getPassWord()));
+        }
         return userMapper.listUser(user);
     }
 
@@ -98,12 +100,7 @@ public class UserService {
      * @return 完善成功的用户信息
      */
     public User completeUserInfoService(User user) {
-        List<User> userList = queryUsersByConditionService(new User(user.getId()));
-        if (CheckDataUtils.isEmpty(userList)) {
-            log.warn("===>id:{} not exist", user.getId());
-            return null;
-        }
-        if (false == CheckDataUtils.isEmpty(user.getPassWord())) {
+        if (!CheckDataUtils.isEmpty(user.getPassWord())) {
             user.setPassWord(Md5Utils.encryptMd5(user.getPassWord()));
         }
         user.setUserName(null);
