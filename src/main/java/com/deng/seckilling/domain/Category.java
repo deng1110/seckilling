@@ -1,6 +1,6 @@
 package com.deng.seckilling.domain;
 
-import lombok.Data;
+import lombok.*;
 
 import java.sql.Timestamp;
 
@@ -11,7 +11,10 @@ import java.sql.Timestamp;
  * @version: v1.0
  * @since: 2019/3/10 12:45
  */
-@Data
+@Setter
+@Getter
+@ToString
+@NoArgsConstructor
 public class Category {
 
     private Long id;
@@ -20,8 +23,4 @@ public class Category {
      * 分类名称
      */
     private String categoryName;
-
-    private Timestamp createTime;
-
-    private Timestamp updateTime;
 }

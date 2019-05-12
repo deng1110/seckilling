@@ -1,6 +1,6 @@
 package com.deng.seckilling.domain;
 
-import lombok.Data;
+import lombok.*;
 
 import java.sql.Timestamp;
 
@@ -11,7 +11,10 @@ import java.sql.Timestamp;
  * @version: v1.0
  * @since: 2019/3/10 15:30
  */
-@Data
+@Setter
+@Getter
+@ToString
+@NoArgsConstructor
 public class Sku {
 
     private Long id;
@@ -45,9 +48,4 @@ public class Sku {
      * 所属spuId
      */
     private Long spuId;
-
-    private Timestamp createTime;
-
-    private Timestamp updateTime;
-
 }

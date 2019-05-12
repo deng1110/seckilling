@@ -1,6 +1,6 @@
 package com.deng.seckilling.domain;
 
-import lombok.Data;
+import lombok.*;
 
 import java.sql.Timestamp;
 
@@ -11,7 +11,10 @@ import java.sql.Timestamp;
  * @version: v1.0
  * @since: 2019/3/10 15:55
  */
-@Data
+@Setter
+@Getter
+@ToString
+@NoArgsConstructor
 public class SpecValue {
 
     private Long id;
@@ -25,9 +28,4 @@ public class SpecValue {
      * 规格值
      */
     private String specValue;
-
-    private Timestamp createTime;
-
-    private Timestamp updateTime;
-
 }

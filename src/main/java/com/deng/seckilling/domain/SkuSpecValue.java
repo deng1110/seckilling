@@ -1,6 +1,6 @@
 package com.deng.seckilling.domain;
 
-import lombok.Data;
+import lombok.*;
 
 import java.sql.Timestamp;
 
@@ -11,7 +11,10 @@ import java.sql.Timestamp;
  * @version: v1.0
  * @since: 2019/3/10 16:05
  */
-@Data
+@Setter
+@Getter
+@ToString
+@NoArgsConstructor
 public class SkuSpecValue {
 
     private Long id;
@@ -22,8 +25,4 @@ public class SkuSpecValue {
      * 规格值Id
      */
     private Long specValueId;
-
-    private Timestamp createTime;
-
-    private Timestamp updateTime;
 }

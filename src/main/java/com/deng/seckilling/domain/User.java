@@ -1,8 +1,6 @@
 package com.deng.seckilling.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.sql.Date;
 
@@ -11,8 +9,10 @@ import java.sql.Date;
  * @version: v1.0
  * @since: 2019/2/1 14:14
  */
-@Data
 @AllArgsConstructor
+@Setter
+@Getter
+@ToString
 @NoArgsConstructor
 public class User {
 

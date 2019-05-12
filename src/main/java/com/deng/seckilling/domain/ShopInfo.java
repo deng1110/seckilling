@@ -1,6 +1,6 @@
 package com.deng.seckilling.domain;
 
-import lombok.Data;
+import lombok.*;
 
 import java.sql.Timestamp;
 
@@ -11,7 +11,10 @@ import java.sql.Timestamp;
  * @version: v1.0
  * @since: 2019/3/10 12:52
  */
-@Data
+@Setter
+@Getter
+@ToString
+@NoArgsConstructor
 public class ShopInfo {
 
     private Long id;
@@ -19,9 +22,13 @@ public class ShopInfo {
     /**
      * 店铺名称
      */
-    private Long shopName;
+    private String shopName;
 
-    private Timestamp createTime;
+    public ShopInfo(String shopName) {
+        this.shopName = shopName;
+    }
 
-    private Timestamp updateTime;
+    public ShopInfo(Long id) {
+        this.id = id;
+    }
 }
