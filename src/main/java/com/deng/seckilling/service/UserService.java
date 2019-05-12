@@ -30,7 +30,7 @@ import java.util.List;
 public class UserService {
 
     @Resource
-    UserMapper userMapper;
+    private UserMapper userMapper;
 
     /**
      * 用户基础信息注册service

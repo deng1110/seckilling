@@ -14,28 +14,28 @@ public class UserSqlProvider {
 
     public String updateUser(User user) {
         String sql = "update user_info set id = #{id} ";
-        if (false == (null == user.getUserName())) {
+        if (null != user.getUserName()) {
             sql += ",user_name = #{userName}";
         }
-        if (false == (null == user.getPassWord())) {
+        if (null != user.getPassWord()) {
             sql += ",pass_word = #{passWord} ";
         }
-        if (false == (null == user.getSex())) {
+        if (null != user.getSex()) {
             sql += ",sex = #{sex} ";
         }
-        if (false == (null == user.getPhoneNumber())) {
+        if (null != user.getPhoneNumber()) {
             sql += ",phone_number = #{phoneNumber} ";
         }
-        if (false == (null == user.getIdentityCardId())) {
+        if (null != user.getIdentityCardId()) {
             sql += ",identity_card_id = #{identityCardId} ";
         }
-        if (false == (null == user.getBirthday())) {
+        if (null != user.getBirthday()) {
             sql += ",birthday = #{birthday} ";
         }
-        if (false == (null == user.getStatus())) {
+        if (null != user.getStatus()) {
             sql += ",status = #{status}";
         }
-        if (false == (null == user.getRank())) {
+        if (null != user.getRank()) {
             sql += ",rank = #{rank}";
         }
         sql += " where id = #{id}";
@@ -46,32 +46,33 @@ public class UserSqlProvider {
         String sql = "select * from user_info where 1=1 ";
         if (null == user) {
             sql += " and 1 = 0 ";
+            return sql;
         }
-        if (false == (null == user.getStatus())) {
+        if (null != user.getStatus()) {
             sql += "and status = #{status} ";
         }
-        if (false == (null == user.getId())) {
+        if (null != user.getId()) {
             sql += "and id = #{id} ";
         }
-        if (false == (null == user.getUserName())) {
+        if (null != user.getUserName()) {
             sql += "and user_name = #{userName} ";
         }
-        if (false == (null == user.getPassWord())) {
+        if (null != user.getPassWord()) {
             sql += "and pass_word = #{passWord} ";
         }
-        if (false == (null == user.getSex())) {
+        if (null != user.getSex()) {
             sql += "and sex = #{sex} ";
         }
-        if (false == (null == user.getPhoneNumber())) {
+        if (null != user.getPhoneNumber()) {
             sql += "and phone_number = #{phoneNumber} ";
         }
-        if (false == (null == user.getIdentityCardId())) {
+        if (null != user.getIdentityCardId()) {
             sql += "and identity_card_id = #{identityCardId} ";
         }
-        if (false == (null == user.getBirthday())) {
+        if (null != user.getBirthday()) {
             sql += "and birthday = #{birthday} ";
         }
-        if (false == (null == user.getRank())) {
+        if (null != user.getRank()) {
             sql += "and rank = #{rank} ";
         }
         return sql;
