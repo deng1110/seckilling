@@ -5,8 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * RPC-数据处理工具类
@@ -92,4 +91,21 @@ public class DataUtils {
         }
         return rList;
     }
+
+    /**
+     * Map中的key值变为全部小写
+     */
+    public static <T> Map<String, T> dealMapKeyToLowerCase(Map<String, T> dataRangeMap) {
+        if (CheckDataUtils.isEmpty(dataRangeMap)) {
+            return null;
+        }
+        Map<String, T> newDataRangeMap = new HashMap<>();
+        Iterator<Map.Entry<String, T>> iterator = dataRangeMap.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, T> entry = iterator.next();
+            newDataRangeMap.put(entry.getKey().toLowerCase(), entry.getValue());
+        }
+        return newDataRangeMap;
+    }
+
 }

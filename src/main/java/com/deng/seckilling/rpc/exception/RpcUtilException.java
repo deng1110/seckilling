@@ -16,4 +16,12 @@ public class RpcUtilException extends RuntimeException {
     public RpcUtilException(String message) {
         super(message);
     }
+
+    public RpcUtilException(Throwable e) {
+        super(e);
+    }
+
+    public RpcUtilException(String message, Throwable e) {
+        super(message, e);
+    }
 }
