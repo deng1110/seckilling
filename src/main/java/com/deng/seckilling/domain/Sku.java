@@ -17,6 +17,10 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 public class Sku {
 
+    public Sku(Long id) {
+        this.id = id;
+    }
+
     private Long id;
 
     /**
@@ -32,12 +36,17 @@ public class Sku {
     /**
      * 单价
      */
-    private double price;
+    private Double price;
 
     /**
      * 库存
      */
-    private int stock;
+    private Integer stock;
+
+    /**
+     * 是否在架
+     */
+    private Integer isSale;
 
     /**
      * 所属商家Id

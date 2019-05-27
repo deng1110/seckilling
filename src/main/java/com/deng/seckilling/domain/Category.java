@@ -23,4 +23,12 @@ public class Category {
      * 分类名称
      */
     private String categoryName;
+
+    public Category(Long id) {
+        this.id = id;
+    }
+
+    public Category(String categoryName) {
+        this.categoryName = categoryName;
+    }
 }

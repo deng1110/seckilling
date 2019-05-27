@@ -17,6 +17,14 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 public class Specification {
 
+    public Specification(Long id) {
+        this.id = id;
+    }
+
+    public Specification(String specName) {
+        this.specName = specName;
+    }
+
     private Long id;
 
     /**

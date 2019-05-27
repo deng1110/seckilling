@@ -17,6 +17,10 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 public class SpecValue {
 
+    public SpecValue(Long id) {
+        this.id = id;
+    }
+
     private Long id;
 
     /**

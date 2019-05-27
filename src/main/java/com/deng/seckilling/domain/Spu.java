@@ -17,6 +17,10 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 public class Spu {
 
+    public Spu(Long id) {
+        this.id = id;
+    }
+
     private Long id;
 
     private Long spuNo;

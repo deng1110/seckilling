@@ -19,7 +19,7 @@ public class SkuSpecValue {
 
     private Long id;
 
-    private Long spuId;
+    private Long skuId;
 
     /**
      * 规格值Id
