@@ -1,5 +1,8 @@
 package com.deng.seckilling.constant;
 
+import com.deng.seckilling.rpc.util.Md5Utils;
+import com.deng.seckilling.rpc.util.UUIDUtils;
+
 /**
  * 默认值类
  *
@@ -27,9 +30,19 @@ public class DefaultValue {
     public static final String REGISTER_URI_VALUE = "/user/register";
 
     /**
-     * 获取session中数据的key
+     * Token
      */
-    public static final String SESSION_KEY_VALUE = "sessionId";
+    public static final String TOKEN = Md5Utils.encryptMd5(UUIDUtils.uuid());
+
+    /**
+     * cookie名
+     */
+    public static final String COOKIE_NAME = "seckilling_cookie_name";
+
+    /**
+     * cookie过期时间,无操作三小时，cookie失效
+     */
+    public static final int COOKIE_EXPIRE_TIME = 60 * 60 * 3;
 
     /**
      * 超级管理员的用户的ID

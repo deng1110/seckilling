@@ -16,6 +16,7 @@ public class ErrorCode {
     public static final ErrorInfo SECKILLING_PARAMS_ERROR = new ErrorInfo(1001, "入参不能为空或格式错误");
     public static final ErrorInfo USERLOGIN_FAIL_ERROR = new ErrorInfo(1002, "用户名或者密码错误");
     public static final ErrorInfo QUERYUSER_NULL_ERROR = new ErrorInfo(1003, "查询成功，但查出零条数据");
+    public static final ErrorInfo SHOPNAME_EXIST_ERROR = new ErrorInfo(1004, "已存在相同店铺名称");
     public static final ErrorInfo USERNAME_EXIT_ERROR = new ErrorInfo(1005, "用户名已存在");
     public static final ErrorInfo USER_NOTEXIT_ERROR = new ErrorInfo(1006, "该用户不存在");
     public static final ErrorInfo COMPLETE_USERINFO_ERROR = new ErrorInfo(1007, "完善个人信息失败");
@@ -23,6 +24,9 @@ public class ErrorCode {
     public static final ErrorInfo FROZEN_USER_ERROR = new ErrorInfo(1010, "冻结用户账户失败");
     public static final ErrorInfo NOTNORMALUSER_CANNOT_FROZEN = new ErrorInfo(1011, "用户账户状态非正常不允许冻结");
     public static final ErrorInfo NOTFROZENUSER_CANNOT_UNFROXEN = new ErrorInfo(1012, "用户账户之前非冻结状态不允许解冻");
+    public static final ErrorInfo SAVE_SHOPINFO_ERROR = new ErrorInfo(1013, "保存商铺信息失败");
+    public static final ErrorInfo MODIFYSHOPNAME_SAME_ERROR = new ErrorInfo(1014,"您所修改的店铺名称和之前的相同");
     public static final ErrorInfo UNFROZEN_USER_ERROR = new ErrorInfo(1015, "解冻用户失败");
-
+    public static final ErrorInfo SHOPINFO_NOTEXIST_ERROR = new ErrorInfo(1016,"该店铺ID不存在");
+    public static final ErrorInfo REGIEST_FAIL_ERROR = new ErrorInfo(1017,"注册失败");
 }
