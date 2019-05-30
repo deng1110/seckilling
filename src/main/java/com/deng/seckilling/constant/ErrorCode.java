@@ -25,8 +25,11 @@ public class ErrorCode {
     public static final ErrorInfo NOTNORMALUSER_CANNOT_FROZEN = new ErrorInfo(1011, "用户账户状态非正常不允许冻结");
     public static final ErrorInfo NOTFROZENUSER_CANNOT_UNFROXEN = new ErrorInfo(1012, "用户账户之前非冻结状态不允许解冻");
     public static final ErrorInfo SAVE_SHOPINFO_ERROR = new ErrorInfo(1013, "保存商铺信息失败");
-    public static final ErrorInfo MODIFYSHOPNAME_SAME_ERROR = new ErrorInfo(1014,"您所修改的店铺名称和之前的相同");
+    public static final ErrorInfo MODIFYSHOPNAME_SAME_ERROR = new ErrorInfo(1014, "您所修改的店铺名称和之前的相同");
     public static final ErrorInfo UNFROZEN_USER_ERROR = new ErrorInfo(1015, "解冻用户失败");
-    public static final ErrorInfo SHOPINFO_NOTEXIST_ERROR = new ErrorInfo(1016,"该店铺ID不存在");
-    public static final ErrorInfo REGIEST_FAIL_ERROR = new ErrorInfo(1017,"注册失败");
+    public static final ErrorInfo SHOPINFO_NOTEXIST_ERROR = new ErrorInfo(1016, "该店铺ID不存在");
+    public static final ErrorInfo REGIEST_FAIL_ERROR = new ErrorInfo(1017, "注册失败");
+    public static final ErrorInfo NOT_LOGIN_ERROR = new ErrorInfo(1018, "请先登录");
+
+
 }
