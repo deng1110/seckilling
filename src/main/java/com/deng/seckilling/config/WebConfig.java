@@ -19,18 +19,7 @@ import java.util.List;
 public class WebConfig implements WebMvcConfigurer {
 
     @Autowired
-    private LoginInterceptor interceptor;
-
-    @Autowired
     private UserArgumentResolver userArgumentResolver;
-
-    /**
-     * 添加拦截器拦截范围
-     */
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(interceptor).addPathPatterns("/**");
-    }
 
     /**
      * 给接口增加直接获取的参数

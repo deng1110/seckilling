@@ -14,6 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
+ * 增加ArgumentResolver
+ *
  * @author: dengjunbing
  * @version: v1.0
  * @since: 2019/5/27 11:03
@@ -35,6 +37,7 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
         HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
         HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
         String token = userService.getCookieValue(request);
-        return userService.getUserByToken(response, token);
+        User user = userService.getUserByToken(response, token);
+        return user == null ? new User() : user;
     }
 }
