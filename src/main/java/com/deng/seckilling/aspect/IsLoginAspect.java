@@ -1,8 +1,12 @@
 package com.deng.seckilling.aspect;
 
 import com.deng.seckilling.annotation.IsLogin;
+import com.deng.seckilling.constant.ErrorCode;
 import com.deng.seckilling.constant.Rank;
-import com.deng.seckilling.domain.User;
+import com.deng.seckilling.domain.UserCookie;
+import com.deng.seckilling.rpc.constant.ErrorInfo;
+import com.deng.seckilling.rpc.constant.RpcResponse;
+import com.deng.seckilling.rpc.util.CheckDataUtils;
 import com.deng.seckilling.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -39,31 +43,69 @@ public class IsLoginAspect {
     @Around("isLogin()")
     public Object isLogin(ProceedingJoinPoint joinPoint) throws Throwable {
         IsLogin isLogin = getIsLogin(joinPoint);
+        UserCookie userCookie = userService.getUserFromRequest();
         if (!isLogin.required()) {
             return joinPoint.proceed();
         }
-        Object[] params = joinPoint.getArgs();
-        for (Object param : params) {
-            if (User.class.equals(param.getClass())) {
-                User user = (User) param;
-                if (null == user.getId()) {
-                    //未登录跳转登录界面
-                    return isLogin.toUrl();
-                }
-                if (isLogin.requiredRoot()) {
-                    if (!Rank.ADMIN.getValue().equals(user.getRank())) {
-                        //不是管理员，尝试非法访问踢下线
-                        userService.logOutService();
-                        log.error("===>userId:" + user.getId() + ", userName:" + user.getUserName() + "; illegal access, and then compel logout");
-                        return isLogin.toUrl();
-                    }
-                    return joinPoint.proceed();
-                } else {
-                    return joinPoint.proceed();
-                }
+        if (isLogin.requiredController()) {
+            return forController(joinPoint, isLogin, userCookie);
+        } else {
+            return forHtml(joinPoint, isLogin, userCookie);
+        }
+    }
+
+    /**
+     * 业务处理类的controller验证
+     */
+    public Object forController(ProceedingJoinPoint joinPoint, IsLogin isLogin, UserCookie userCookie) throws Throwable {
+        if (CheckDataUtils.isEmpty(userCookie) || null == userCookie.getId()) {
+            //未登录返回错误信息
+            return forControllerReturn(isLogin);
+        }
+        if (isLogin.requiredRoot()) {
+            if (!Rank.ADMIN.getValue().equals(userCookie.getRank())) {
+                //不是管理员，尝试非法访问踢下线，返回错误信息
+                userService.logOutService();
+                log.error("===>userId:" + userCookie.getId() + ", userName:" + userCookie.getUserName() + "; illegal access, and then compel logout");
+                return forControllerReturn(isLogin);
+            } else {
+                return joinPoint.proceed();
             }
         }
-        return isLogin.toUrl();
+        return joinPoint.proceed();
+    }
+
+
+    /**
+     * 页面跳转类的controller验证
+     */
+    public Object forHtml(ProceedingJoinPoint joinPoint, IsLogin isLogin, UserCookie userCookie) throws Throwable {
+        if (CheckDataUtils.isEmpty(userCookie) || null == userCookie.getId()) {
+            //未登录跳转指定界面
+            return isLogin.toUrl();
+        }
+        if (isLogin.requiredRoot()) {
+            if (!Rank.ADMIN.getValue().equals(userCookie.getRank())) {
+                //不是管理员，尝试非法访问踢下线，跳转指定界面
+                userService.logOutService();
+                log.error("===>userId:" + userCookie.getId() + ", userName:" + userCookie.getUserName() + "; illegal access, and then compel logout");
+                return isLogin.toUrl();
+            } else {
+                return joinPoint.proceed();
+            }
+        }
+        return joinPoint.proceed();
+    }
+
+    /**
+     * controller的返回信息
+     */
+    public RpcResponse forControllerReturn(IsLogin isLogin) {
+        if (CheckDataUtils.isEmpty(isLogin.errorMessage())) {
+            return RpcResponse.error(ErrorCode.NOT_LOGIN_ERROR);
+        } else {
+            return RpcResponse.error(new ErrorInfo(ErrorCode.NOT_LOGIN_ERROR.getCode(), isLogin.errorMessage()));
+        }
     }
 
     /**

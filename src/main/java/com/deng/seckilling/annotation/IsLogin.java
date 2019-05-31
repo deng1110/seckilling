@@ -23,6 +23,18 @@ public @interface IsLogin {
      */
     String toUrl() default "login";
 
+    /**
+     * 是否需要验证管理员身份
+     */
     boolean requiredRoot() default false;
 
+    /**
+     * 是否是验证处理类controller的
+     */
+    boolean requiredController() default false;
+
+    /**
+     * 自定义返回错误提示信息
+     */
+    String errorMessage() default "";
 }
