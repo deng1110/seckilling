@@ -10,6 +10,7 @@ import redis.clients.jedis.JedisPool;
 
 /**
  * RPC-reids客户端
+ * (请关闭你的redis所在linux的防火墙)
  *
  * @author: dengjunbing
  * @version: v1.0
@@ -152,6 +153,34 @@ public class RedisClient {
         try {
             jedis = jedisPool.getResource();
             return jedis.expire(key, seconds) > 0;
+        } finally {
+            returnToPool(jedis);
+        }
+    }
+
+    /**
+     * 将key中存储的数字值加1
+     *
+     * @param key 键
+     * @return
+     */
+    public Long incr(String key) {
+        checkKeyEmpty(key);
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            return jedis.incr(key);
+        } finally {
+            returnToPool(jedis);
+        }
+    }
+
+    public Long decr(String key) {
+        checkKeyEmpty(key);
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            return jedis.decr(key);
         } finally {
             returnToPool(jedis);
         }

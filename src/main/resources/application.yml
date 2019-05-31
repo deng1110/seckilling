@@ -22,6 +22,27 @@ spring:
    password: smile
    driver-class-name: com.mysql.jdbc.Driver
    type: com.alibaba.druid.pool.DruidDataSource
+ rabbitmq:
+   addresses: 127.0.0.1
+   username: guest
+   password: guest
+   port: 5672
+   virtual-host: /
+   listener:
+     simple:
+       concurrency: 10 #消费线程数
+       max-concurrency: 10 #最大消费线程数
+       prefetch: 2 #消费者统一批次获取的消息数
+       auto-startup: true #消费者自动消费
+       default-requeue-rejected: true
+   template:
+     retry:
+       enabled: true
+       initial-interval: 1000
+       max-attempts: 3
+       max-interval: 10000
+       multiplier: 1.0
+
 
 #mybatis
 mybatis:

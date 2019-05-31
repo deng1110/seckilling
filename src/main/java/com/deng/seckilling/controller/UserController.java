@@ -1,21 +1,25 @@
 package com.deng.seckilling.controller;
 
-import com.deng.seckilling.constant.DefaultValue;
-import com.deng.seckilling.constant.ErrorCode;
-import com.deng.seckilling.constant.Sex;
-import com.deng.seckilling.constant.Status;
+import com.deng.seckilling.annotation.IsLogin;
+import com.deng.seckilling.constant.*;
+import com.deng.seckilling.domain.UserCookie;
 import com.deng.seckilling.dto.BaseUserInfoDTO;
 import com.deng.seckilling.domain.User;
 import com.deng.seckilling.rpc.constant.RpcResponse;
 import com.deng.seckilling.rpc.util.CheckDataUtils;
+import com.deng.seckilling.rpc.util.DataUtils;
 import com.deng.seckilling.rpc.util.EnumUtils;
 import com.deng.seckilling.service.UserService;
 import com.deng.seckilling.util.SeckillingUtil;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -25,13 +29,37 @@ import java.util.List;
  * @version: v1.0
  * @since: 2019/2/1 14:14
  */
-@RestController
+@Controller
 @RequestMapping("/user")
 @Slf4j
 public class UserController {
 
     @Resource
     private UserService userService;
+
+    @RequestMapping("/to_register")
+    public String register() {
+        return "register";
+    }
+
+    @RequestMapping("/to_login")
+    public String login() {
+        return "login";
+    }
+
+    @RequestMapping("/to_root")
+    @IsLogin(requiredRoot = true)
+    public String root(Model model, UserCookie userCookie) {
+        model.addAttribute("user", userCookie);
+        return "root";
+    }
+
+    @RequestMapping("to_common")
+    @IsLogin
+    public String common(Model model, UserCookie userCookie) {
+        model.addAttribute("user", userCookie);
+        return "common";
+    }
 
     /**
      * 用户注册接口
@@ -40,7 +68,8 @@ public class UserController {
      * @param baseUserInfoDTO 承载注册信息的载体
      * @return 用户ID
      */
-    @PostMapping("/register")
+    @PostMapping("/do_register")
+    @ResponseBody
     public RpcResponse register(BaseUserInfoDTO baseUserInfoDTO) {
         if (CheckDataUtils.isEmpty(baseUserInfoDTO.getUserName()) || CheckDataUtils.isEmpty(baseUserInfoDTO.getPassWord()) ||
                 CheckDataUtils.isEmpty(baseUserInfoDTO.getSex()) || CheckDataUtils.isEmpty(baseUserInfoDTO.getPhoneNumber()) ||
@@ -70,10 +99,11 @@ public class UserController {
      *
      * @param userName 用户名
      * @param passWord 密码
-     * @return RpcResponse 登录返回结果
+     * @return RpcResponse 用户信息
      */
-    @PostMapping("/login")
-    public RpcResponse login(String userName, String passWord) {
+    @PostMapping("/do_login")
+    @ResponseBody
+    public RpcResponse login(HttpServletResponse response, String userName, String passWord) {
         if (CheckDataUtils.isEmpty(userName) || CheckDataUtils.isEmpty(passWord)) {
             log.warn("===>login controller params error");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
@@ -86,7 +116,10 @@ public class UserController {
         }
 
         log.info("===>login controller success, message:{}", user.toString());
-        return RpcResponse.success(user.getId());
+        UserCookie userCookie = new UserCookie(new Date());
+        DataUtils.entityTransform(user,userCookie);
+        userService.setCookie(response, userCookie);
+        return RpcResponse.success(user);
     }
 
     /**
@@ -96,6 +129,8 @@ public class UserController {
      * @return 满足要求的用户集合
      */
     @GetMapping("/querybycondition")
+    @ResponseBody
+    @IsLogin(requiredRoot = true, requiredController = true, errorMessage = "权限不足，只有管理员可操作")
     public RpcResponse queryUsersByCondition(User user) {
         if (CheckDataUtils.isEmpty(user)) {
             log.warn("===>query user controller params error");
@@ -119,6 +154,8 @@ public class UserController {
      * @return 满足要求的用户集合
      */
     @GetMapping("/querybycondition/{pageNum}")
+    @ResponseBody
+    @IsLogin(requiredRoot = true, requiredController = true, errorMessage = "权限不足，只有管理员可操作")
     public RpcResponse queryUsersByCondition(@PathVariable Integer pageNum, Integer pageSize, User user) {
         if (CheckDataUtils.isEmpty(user) || CheckDataUtils.isEmpty(pageNum)) {
             log.warn("===>query user controller params error");
@@ -137,12 +174,14 @@ public class UserController {
      * @return 完善用户的Id
      */
     @PostMapping("/complete")
+    @ResponseBody
+    @IsLogin(requiredController = true)
     public RpcResponse complete(User user) {
         if (CheckDataUtils.isEmpty(user.getId())) {
             log.warn("===>complete controller params error");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
-
+        userService.isLoginOrRoot(user.getId());
         List<User> userList = userService.queryUsersByConditionService(new User(user.getId()));
         if (CheckDataUtils.isEmpty(userList)) {
             log.warn("===>complete controller id:{} not exist", user.getId());
@@ -166,12 +205,15 @@ public class UserController {
      * @return 冻结结果：冻结用户账户的Id
      */
     @PostMapping("/frozen")
+    @ResponseBody
+    @IsLogin(requiredController = true)
     public RpcResponse frozen(Long id) {
         if (CheckDataUtils.isEmpty(id)) {
             log.warn("===>frozen controller params error");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
 
+        userService.isLoginOrRoot(id);
         List<User> userList = userService.queryUsersByConditionService(new User(id));
         if (CheckDataUtils.isEmpty(userList)) {
             log.warn("===>frozen controller, id:{} not exist", id);
@@ -200,12 +242,15 @@ public class UserController {
      * @return 解冻结果：解冻用户账户的Id
      */
     @PostMapping("/unfrozen")
+    @ResponseBody
+    @IsLogin(requiredController = true)
     public RpcResponse unfrozen(Long id) {
         if (CheckDataUtils.isEmpty(id)) {
             log.warn("===>unfrozen controller params error");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
 
+        userService.isLoginOrRoot(id);
         List<User> userList = userService.queryUsersByConditionService(new User(id));
         if (CheckDataUtils.isEmpty(userList)) {
             log.warn("===>unfrozen controller, id:{} not exist", id);
@@ -234,12 +279,15 @@ public class UserController {
      * @return 作废结果：作废用户账户的Id
      */
     @PostMapping("/invalid")
+    @ResponseBody
+    @IsLogin(requiredController = true)
     public RpcResponse invalid(Long id) {
         if (CheckDataUtils.isEmpty(id)) {
             log.warn("===>invalid controller params error");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
 
+        userService.isLoginOrRoot(id);
         List<User> userList = userService.queryUsersByConditionService(new User(id));
         if (CheckDataUtils.isEmpty(userList)) {
             log.warn("===>invalid controller, id:{} not exist", id);

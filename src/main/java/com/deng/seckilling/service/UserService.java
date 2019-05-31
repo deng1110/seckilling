@@ -1,21 +1,27 @@
 package com.deng.seckilling.service;
 
-import com.deng.seckilling.constant.Rank;
-import com.deng.seckilling.constant.Sex;
-import com.deng.seckilling.constant.Status;
+import com.deng.seckilling.constant.*;
 import com.deng.seckilling.dao.UserMapper;
+import com.deng.seckilling.domain.UserCookie;
 import com.deng.seckilling.dto.BaseUserInfoDTO;
 import com.deng.seckilling.domain.User;
-import com.deng.seckilling.rpc.util.CheckDataUtils;
-import com.deng.seckilling.rpc.util.DataUtils;
-import com.deng.seckilling.rpc.util.EnumUtils;
-import com.deng.seckilling.rpc.util.Md5Utils;
+import com.deng.seckilling.rpc.constant.RpcResponse;
+import com.deng.seckilling.rpc.exception.ExecuteException;
+import com.deng.seckilling.rpc.exception.RpcBizException;
+import com.deng.seckilling.rpc.redis.RedisClient;
+import com.deng.seckilling.rpc.util.*;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Resource;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -31,6 +37,9 @@ public class UserService {
 
     @Resource
     private UserMapper userMapper;
+
+    @Resource
+    private RedisClient redisClient;
 
     /**
      * 用户基础信息注册service
@@ -60,7 +69,7 @@ public class UserService {
      * @return 当前用户信息
      */
     public User verifyUserService(String userName, String passWord) {
-        List<User> userList = userMapper.listUser(new User(userName, Md5Utils.encryptMd5(passWord), Status.NORMAL.getValue()));
+        List<User> userList = userMapper.listUser(new User(userName, passWord, Status.NORMAL.getValue()));
         if (CheckDataUtils.isEmpty(userList)) {
             return null;
         }
@@ -78,6 +87,13 @@ public class UserService {
             user.setPassWord(Md5Utils.encryptMd5(user.getPassWord()));
         }
         return userMapper.listUser(user);
+    }
+
+    /**
+     * 用户踢下线
+     */
+    public void logOutService() {
+        redisClient.del(DefaultValue.TOKEN);
     }
 
     /**
@@ -159,4 +175,75 @@ public class UserService {
         List<User> userList = queryUsersByConditionService(new User(name));
         return false == CheckDataUtils.isEmpty(userList);
     }
+
+    /**
+     * 验证登录者身份
+     */
+    public void isLoginOrRoot(Long id) {
+        UserCookie userCookie = getUserFromRequest();
+        if (CheckDataUtils.isEmpty(userCookie)) {
+            throw new ExecuteException("not login.");
+        }
+        if (!Rank.ADMIN.getValue().equals(userCookie.getRank())) {
+            if (!id.equals(userCookie.getId())) {
+                throw new ExecuteException("Insufficient permissions");
+            }
+        }
+    }
+
+    /**
+     * 从request读出User信息
+     */
+    public UserCookie getUserFromRequest() {
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+        String token = getCookieValue(request);
+        UserCookie userCookie = getUserByToken(response, token);
+        return userCookie;
+    }
+
+    /**
+     * 向response中增加cookie
+     */
+    public void setCookie(HttpServletResponse response, UserCookie userCookie) {
+        String token = DefaultValue.TOKEN;
+        userCookie.setLoginTimen(new Date());
+        redisClient.set(token, JsonUtils.toJson(userCookie));
+        Cookie cookie = new Cookie(DefaultValue.COOKIE_NAME, token);
+        cookie.setMaxAge(DefaultValue.COOKIE_EXPIRE_TIME);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+    }
+
+    /**
+     * 获取出request中的cookie中的token
+     */
+    private String getCookieValue(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        for (Cookie cookie : cookies) {
+            if (DefaultValue.COOKIE_NAME.equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 根据Token从redis中取对应user实体，如果存在则延长cookie有效期
+     */
+    private UserCookie getUserByToken(HttpServletResponse response, String token) {
+        if (CheckDataUtils.isEmpty(token)) {
+            return null;
+        }
+        String userStr = redisClient.get(token);
+        if (CheckDataUtils.isEmpty(userStr)) {
+            return null;
+        }
+        UserCookie userCookie = JsonUtils.toObject(userStr, UserCookie.class);
+
+        //延长cookie有效期
+        setCookie(response, userCookie);
+        return userCookie;
+    }
+
 }

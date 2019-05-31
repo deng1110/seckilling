@@ -1,6 +1,7 @@
 package com.deng.seckilling.rpc.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -23,17 +24,7 @@ public class Md5Utils {
      * @return 加密后的字符串
      */
     public static String encryptMd5(String str) {
-        if (CheckDataUtils.isEmpty(str)) {
-            return null;
-        }
-        MessageDigest md = null;
-        try {
-            md = MessageDigest.getInstance("MD5");
-            md.update(str.getBytes());
-        } catch (NoSuchAlgorithmException e) {
-            log.info("===>unreachable line===");
-            return null;
-        }
-        return new BigInteger(1, md.digest()).toString(16);
+        return DigestUtils.md5Hex(str);
     }
+
 }

@@ -144,6 +144,8 @@
                 }
             },
             error: function () {
+                layer.msg("服务器繁忙");
+                layer.setTimeout(2000);
                 layer.closeAll();
             }
         });

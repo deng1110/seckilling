@@ -54,7 +54,9 @@
             <button class="btn btn-primary btn-block" type="submit" onclick="login()">登录</button>
         </div>
         <div class="col-md-2">
-            <button class="btn btn-primary btn-block" type="submit" onclick="window.location.href = '/user/to_register'">去注册</button>
+            <button class="btn btn-primary btn-block" type="submit"
+                    onclick="window.location.href = '/user/to_register'">去注册
+            </button>
         </div>
     </div>
 
@@ -88,12 +90,22 @@
                 layer.closeAll();
                 if (data.code == 0) {
                     layer.msg("成功");
-                    window.location.href = "/goods/to_list";
+                    //拿到后端传回的Array数据，即userArr = RpcResponse.getData();
+                    var userArr = data.data;
+                    if (userArr["rank"] == "admin") {
+                        //是管理员跳转到管理员界面
+                        window.location.href = "/user/to_root";
+                    } else {
+                        //非管理员跳转到正常用户界面
+                        window.location.href = "/user/to_hello";
+                    }
                 } else {
                     layer.msg(data.msg);
                 }
             },
             error: function () {
+                layer.msg("服务器繁忙");
+                layer.setTimeout(2000);
                 layer.closeAll();
             }
         });
