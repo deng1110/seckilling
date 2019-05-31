@@ -23,4 +23,8 @@ public class Brand {
      * 品牌名称
      */
     private String brandName;
+
+    public Brand(String brandName) {
+        this.brandName = brandName;
+    }
 }
