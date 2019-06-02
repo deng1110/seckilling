@@ -36,6 +36,8 @@ public class UserCookie {
 
     private Date loginTimen;
 
+    private String token;
+
     public UserCookie(Date date) {
         this.loginTimen = date;
     }

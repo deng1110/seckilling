@@ -21,6 +21,11 @@ public class Spu {
         this.id = id;
     }
 
+    public Spu(Long id, Double lowPrice) {
+        this.id = id;
+        this.lowPrice = lowPrice;
+    }
+
     private Long id;
 
     private Long spuNo;
