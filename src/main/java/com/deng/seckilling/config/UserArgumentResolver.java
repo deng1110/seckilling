@@ -1,6 +1,5 @@
 package com.deng.seckilling.config;
 
-import com.deng.seckilling.domain.User;
 import com.deng.seckilling.domain.UserCookie;
 import com.deng.seckilling.service.UserService;
 import org.springframework.core.MethodParameter;
@@ -34,6 +33,6 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
         UserCookie userCookie = userService.getUserFromRequest();
-        return userCookie == null ? new User() : userCookie;
+        return userCookie == null ? new UserCookie() : userCookie;
     }
 }
