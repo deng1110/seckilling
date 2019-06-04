@@ -4,6 +4,8 @@ import com.deng.seckilling.dao.GoodsMapper;
 import com.deng.seckilling.domain.*;
 import com.deng.seckilling.rpc.redis.RedisClient;
 import com.deng.seckilling.rpc.util.CheckDataUtils;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -48,6 +50,15 @@ public class GoodsServcie {
     }
 
     /**
+     * @param shopInfo
+     * @return
+     */
+    public PageInfo<ShopInfo> listShopInfo(Integer page, Integer size, ShopInfo shopInfo) {
+        PageHelper.startPage(page, size);
+        return new PageInfo<ShopInfo>(goodsMapper.listShopInfo(shopInfo));
+    }
+
+    /**
      * 验证店铺名是否已存在
      *
      * @param shopName 店铺名
@@ -81,40 +92,14 @@ public class GoodsServcie {
     }
 
     /**
-     * 验证分类ID是否存在
-     *
-     * @param id 分类ID
-     * @return 如果存在返回分类信息
-     */
-    public Category isExistCategoryServcie(Long id) {
-        List<Category> categoryList = goodsMapper.listCategory(new Category(id));
-        return CheckDataUtils.isEmpty(categoryList) ? null : categoryList.get(0);
-    }
-
-    /**
      * 验证分类名称是否存在
      *
      * @param categoryName 分类名称
-     * @return
+     * @return 如果存在返回分类信息
      */
     public Category isExistCategoryServcie(String categoryName) {
         List<Category> categoryList = goodsMapper.listCategory(new Category(categoryName));
         return CheckDataUtils.isEmpty(categoryList) ? null : categoryList.get(0);
-    }
-
-    /**
-     * 修改分类信息
-     *
-     * @param category 分类信息
-     * @return 分类信息ID
-     */
-    public Long modifyCategoryInfoServcie(Category category) {
-        Category isExistCategory = isExistCategoryServcie(category.getId());
-        if (CheckDataUtils.isEmpty(isExistCategory)) {
-            return null;
-        }
-        goodsMapper.updateGoodsCategory(category);
-        return category.getId();
     }
 
     /**
@@ -129,14 +114,14 @@ public class GoodsServcie {
     }
 
     /**
-     * 更新品牌信息
+     * 验证品牌名称是否存在
      *
-     * @param brand 品牌信息
-     * @return 品牌信息ID
+     * @param brandName 品牌名称
+     * @return 如果存在返回品牌信息
      */
-    public Long updateBrandService(Brand brand) {
-        goodsMapper.updateBrand(brand);
-        return brand.getId();
+    public Brand isExistBrandService(String brandName) {
+        List<Brand> brandList = goodsMapper.listBrand(new Brand(brandName));
+        return CheckDataUtils.isEmpty(brandList) ? null : brandList.get(0);
     }
 
     /**
@@ -145,7 +130,7 @@ public class GoodsServcie {
      * @param specification 规格信息
      * @return 规格信息ID
      */
-    public Long saveSpecificationService(Specification specification) {
+    public Long saveSpecService(Specification specification) {
         goodsMapper.insertSpecification(specification);
         return specification.getId();
     }
@@ -156,19 +141,8 @@ public class GoodsServcie {
      * @param specificationName 规格名
      * @return 如果存在返回规格信息
      */
-    public Specification isExistSpecification(String specificationName) {
+    public Specification isExistSpecService(String specificationName) {
         List<Specification> specificationList = goodsMapper.listSpecification(new Specification(specificationName));
-        return CheckDataUtils.isEmpty(specificationList) ? null : specificationList.get(0);
-    }
-
-    /**
-     * 验证规格ID是否存在
-     *
-     * @param id 规格ID
-     * @return 如果存在返回规格实体
-     */
-    public Specification isExistSpecification(Long id) {
-        List<Specification> specificationList = goodsMapper.listSpecification(new Specification(id));
         return CheckDataUtils.isEmpty(specificationList) ? null : specificationList.get(0);
     }
 
@@ -190,11 +164,7 @@ public class GoodsServcie {
      * @return Spu信息ID
      */
     public Long updateSpuService(Spu spu) {
-        spu.setSpuNo(null);
-        spu.setGoodsName(null);
-        spu.setBrandId(null);
-        spu.setCategoryId(null);
-        goodsMapper.updateSpuInfo(spu);
+        goodsMapper.updateSpuInfo(new Spu(spu.getId(), spu.getLowPrice()));
         return spu.getId();
     }
 
@@ -204,7 +174,7 @@ public class GoodsServcie {
      * @param id
      * @return
      */
-    public Spu isExistSpu(Long id) {
+    public Spu isExistSpuService(Long id) {
         List<Spu> spuList = goodsMapper.listSpuInfo(new Spu(id));
         return CheckDataUtils.isEmpty(spuList) ? null : spuList.get(0);
     }

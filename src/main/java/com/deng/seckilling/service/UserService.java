@@ -5,9 +5,7 @@ import com.deng.seckilling.dao.UserMapper;
 import com.deng.seckilling.domain.UserCookie;
 import com.deng.seckilling.dto.BaseUserInfoDTO;
 import com.deng.seckilling.domain.User;
-import com.deng.seckilling.rpc.constant.RpcResponse;
 import com.deng.seckilling.rpc.exception.ExecuteException;
-import com.deng.seckilling.rpc.exception.RpcBizException;
 import com.deng.seckilling.rpc.redis.RedisClient;
 import com.deng.seckilling.rpc.util.*;
 import com.github.pagehelper.PageHelper;
@@ -92,8 +90,8 @@ public class UserService {
     /**
      * 用户踢下线
      */
-    public void logOutService() {
-        redisClient.del(DefaultValue.TOKEN);
+    public void logOutService(String token) {
+        redisClient.del(token);
     }
 
     /**
@@ -205,10 +203,10 @@ public class UserService {
     /**
      * 向response中增加cookie
      */
-    public void setCookie(HttpServletResponse response, UserCookie userCookie) {
-        String token = DefaultValue.TOKEN;
-        userCookie.setLoginTimen(new Date());
-        redisClient.set(token, JsonUtils.toJson(userCookie));
+    public void setCookie(String token, HttpServletResponse response, UserCookie userCookie) {
+        userCookie.setLoginTime(new Date());
+        userCookie.setToken(token);
+        redisClient.set(token, JsonUtils.toJson(userCookie), DefaultValue.COOKIE_EXPIRE_TIME);
         Cookie cookie = new Cookie(DefaultValue.COOKIE_NAME, token);
         cookie.setMaxAge(DefaultValue.COOKIE_EXPIRE_TIME);
         cookie.setPath("/");
@@ -216,9 +214,19 @@ public class UserService {
     }
 
     /**
+     * 如果是重复登录前一个用户下线
+     */
+    public void perUserLogout(HttpServletRequest request) {
+        String oldToken = getCookieValue(request);
+        if(!CheckDataUtils.isEmpty(oldToken)){
+            logOutService(oldToken);
+        }
+    }
+
+    /**
      * 获取出request中的cookie中的token
      */
-    private String getCookieValue(HttpServletRequest request) {
+    public String getCookieValue(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         for (Cookie cookie : cookies) {
             if (DefaultValue.COOKIE_NAME.equals(cookie.getName())) {
@@ -242,7 +250,7 @@ public class UserService {
         UserCookie userCookie = JsonUtils.toObject(userStr, UserCookie.class);
 
         //延长cookie有效期
-        setCookie(response, userCookie);
+        setCookie(token, response, userCookie);
         return userCookie;
     }
 
