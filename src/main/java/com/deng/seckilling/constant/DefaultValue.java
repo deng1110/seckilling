@@ -24,15 +24,15 @@ public class DefaultValue {
     public static final Integer FENYE_PAGESIZE_VALUE = 10;
 
     /**
+     * 分页中的首页
+     */
+    public static final Integer FENYE_FIRSTPAGE_VALUE = 1;
+
+    /**
      * 拦截器中所用URI
      */
     public static final String LONGIN_URI_VALUE = "/user/login";
     public static final String REGISTER_URI_VALUE = "/user/register";
-
-    /**
-     * Token
-     */
-    public static final String TOKEN = Md5Utils.encryptMd5(UUIDUtils.uuid());
 
     /**
      * cookie名
