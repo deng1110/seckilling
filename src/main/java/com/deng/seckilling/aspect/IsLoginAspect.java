@@ -65,7 +65,7 @@ public class IsLoginAspect {
         if (isLogin.requiredRoot()) {
             if (!Rank.ADMIN.getValue().equals(userCookie.getRank())) {
                 //不是管理员，尝试非法访问踢下线，返回错误信息
-                userService.logOutService();
+                userService.logOutService(userCookie.getToken());
                 log.error("===>userId:" + userCookie.getId() + ", userName:" + userCookie.getUserName() + "; illegal access, and then compel logout");
                 return forControllerReturn(isLogin);
             } else {
@@ -87,7 +87,7 @@ public class IsLoginAspect {
         if (isLogin.requiredRoot()) {
             if (!Rank.ADMIN.getValue().equals(userCookie.getRank())) {
                 //不是管理员，尝试非法访问踢下线，跳转指定界面
-                userService.logOutService();
+                userService.logOutService(userCookie.getToken());
                 log.error("===>userId:" + userCookie.getId() + ", userName:" + userCookie.getUserName() + "; illegal access, and then compel logout");
                 return isLogin.toUrl();
             } else {
