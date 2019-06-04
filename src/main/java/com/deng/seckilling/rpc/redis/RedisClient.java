@@ -10,7 +10,7 @@ import redis.clients.jedis.JedisPool;
 
 /**
  * RPC-reids客户端
- * (请关闭你的redis所在linux的防火墙)
+ * (请关闭你的redis所在linux的防火墙：service iptables stop)
  *
  * @author: dengjunbing
  * @version: v1.0
