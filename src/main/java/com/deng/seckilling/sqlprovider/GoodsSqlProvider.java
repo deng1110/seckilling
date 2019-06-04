@@ -171,50 +171,65 @@ public class GoodsSqlProvider {
         return sql;
     }
 
-    public String listSku(Sku sku){
+    public String listSku(Sku sku) {
         String sql = "select * from goods_sku where 1=1 ";
-        if(sku == null){
+        if (sku == null) {
             sql += " and 1=0 ";
             return sql;
         }
-        if(sku.getId() != null){
+        if (sku.getId() != null) {
             sql += " and id = #{id} ";
         }
-        if(sku.getSkuNo() != null){
+        if (sku.getSkuNo() != null) {
             sql += " and sku_no = #{skuNo} ";
         }
-        if(sku.getSkuName() != null){
+        if (sku.getSkuName() != null) {
             sql += " and sku_name = #{skuName} ";
         }
-        if(sku.getShopId() != null){
+        if (sku.getShopId() != null) {
             sql += " and shop_id = #{shopId}";
         }
-        if(sku.getSpuId() != null){
+        if (sku.getSpuId() != null) {
             sql += " and spu_id = #{spuId}";
         }
-        if(sku.getPrice() != null){
+        if (sku.getPrice() != null) {
             sql += " and price = #{price} ";
         }
-        if(sku.getStock() != null){
+        if (sku.getStock() != null) {
             sql += " and stock = #{stock} ";
         }
-        if(sku.getIsSale() != null){
+        if (sku.getIsSale() != null) {
             sql += " and issale = #{issale} ";
         }
         return sql;
     }
 
-    public String listCategory(Category category){
+    public String listCategory(Category category) {
         String sql = "select * from goods_category ";
-        if(category == null){
+        if (category == null) {
             sql += " and 1=0 ";
             return sql;
         }
-        if(category.getId() != null){
+        if (category.getId() != null) {
             sql += " and id = #{id} ";
         }
-        if(category.getCategoryName() != null){
+        if (category.getCategoryName() != null) {
             sql += " and category_name = {#categoryName} ";
+        }
+        return sql;
+    }
+
+    public String listBrand(Brand brand) {
+        String sql = "select * from goods_brand ";
+        if (brand == null) {
+            sql += " and 1=0 ";
+            return sql;
+        }
+        if (brand.getId() != null) {
+            sql += " and id = #{id} ";
+        }
+        if (brand.getBrandName() != null) {
+            sql += " and brand_name = #{brandName} ";
         }
         return sql;
     }
