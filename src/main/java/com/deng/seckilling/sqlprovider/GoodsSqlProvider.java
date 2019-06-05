@@ -108,8 +108,40 @@ public class GoodsSqlProvider {
         return sql;
     }
 
+    public String listSpuVO(Spu spu) {
+        String sql = "SELECT s.id,s.spu_no,s.goods_name,s.low_price,b.brand_name,c.category_name,s.create_time,s.update_time " +
+                " from goods_spu s LEFT JOIN goods_brand b " +
+                " on s.brand_id = b.id " +
+                " LEFT JOIN goods_category c " +
+                " on s.category_id = c.id " +
+                "where  1=1 ";
+        if (spu == null) {
+            sql += " and 1=0 ";
+            return sql;
+        }
+        if (spu.getId() != null) {
+            sql += " and id = #{id} ";
+        }
+        if (spu.getSpuNo() != null) {
+            sql += " and spu_no = #{spuNo} ";
+        }
+        if (spu.getGoodsName() != null) {
+            sql += " and goods_name = #{goodsName} ";
+        }
+        if (spu.getLowPrice() != null) {
+            sql += " and low_price = #{lowPrice} ";
+        }
+        if (spu.getBrandId() != null) {
+            sql += " and brand_id = #{brandId} ";
+        }
+        if (spu.getCategoryId() != null) {
+            sql += " and category_id = #{categoryId} ";
+        }
+        return sql;
+    }
+
     public String listSpuInfo(Spu spu) {
-        String sql = "select * from goods_spu where 1=1 ";
+        String sql = "SELECT * from goods_spu where 1=1 ";
         if (spu == null) {
             sql += " and 1=0 ";
             return sql;
@@ -205,7 +237,7 @@ public class GoodsSqlProvider {
     }
 
     public String listCategory(Category category) {
-        String sql = "select * from goods_category ";
+        String sql = "select * from goods_category where 1=1 ";
         if (category == null) {
             sql += " and 1=0 ";
             return sql;
@@ -214,13 +246,13 @@ public class GoodsSqlProvider {
             sql += " and id = #{id} ";
         }
         if (category.getCategoryName() != null) {
-            sql += " and category_name = {#categoryName} ";
+            sql += " and category_name = #{categoryName} ";
         }
         return sql;
     }
 
     public String listBrand(Brand brand) {
-        String sql = "select * from goods_brand ";
+        String sql = "select * from goods_brand where 1=1 ";
         if (brand == null) {
             sql += " and 1=0 ";
             return sql;

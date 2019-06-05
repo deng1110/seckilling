@@ -6,9 +6,7 @@ import com.deng.seckilling.domain.UserCookie;
 import com.deng.seckilling.dto.BaseUserInfoDTO;
 import com.deng.seckilling.domain.User;
 import com.deng.seckilling.rpc.constant.RpcResponse;
-import com.deng.seckilling.rpc.util.CheckDataUtils;
-import com.deng.seckilling.rpc.util.DataUtils;
-import com.deng.seckilling.rpc.util.EnumUtils;
+import com.deng.seckilling.rpc.util.*;
 import com.deng.seckilling.service.UserService;
 import com.deng.seckilling.util.SeckillingUtil;
 import com.github.pagehelper.PageInfo;
@@ -18,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.List;
@@ -51,14 +50,14 @@ public class UserController {
     @IsLogin(requiredRoot = true)
     public String root(Model model, UserCookie userCookie) {
         model.addAttribute("user", userCookie);
-        return "root";
+        return "root/root";
     }
 
     @RequestMapping("to_common")
     @IsLogin
     public String common(Model model, UserCookie userCookie) {
         model.addAttribute("user", userCookie);
-        return "common";
+        return "common/common";
     }
 
     /**
@@ -103,7 +102,7 @@ public class UserController {
      */
     @PostMapping("/do_login")
     @ResponseBody
-    public RpcResponse login(HttpServletResponse response, String userName, String passWord) {
+    public RpcResponse login(HttpServletRequest request, HttpServletResponse response, String userName, String passWord) {
         if (CheckDataUtils.isEmpty(userName) || CheckDataUtils.isEmpty(passWord)) {
             log.warn("===>login controller params error");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
@@ -116,10 +115,24 @@ public class UserController {
         }
 
         log.info("===>login controller success, message:{}", user.toString());
+        userService.perUserLogout(request);
+
         UserCookie userCookie = new UserCookie(new Date());
-        DataUtils.entityTransform(user,userCookie);
-        userService.setCookie(response, userCookie);
+        DataUtils.entityTransform(user, userCookie);
+        userService.setCookie(Md5Utils.encryptMd5(UUIDUtils.uuid()), response, userCookie);
         return RpcResponse.success(user);
+    }
+
+    @PostMapping("/logout")
+    @IsLogin(requiredController = true)
+    @ResponseBody
+    public RpcResponse logOut() {
+        UserCookie userCookie = userService.getUserFromRequest();
+        if (CheckDataUtils.isEmpty(userCookie)) {
+            RpcResponse.error(ErrorCode.NOT_LOGIN_ERROR);
+        }
+        userService.logOutService(userCookie.getToken());
+        return RpcResponse.success(userCookie.getId());
     }
 
     /**

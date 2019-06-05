@@ -17,7 +17,6 @@ public class FenyeUtils {
      *
      */
     public static <T> void setFenyeValue(Model model, PageInfo<T> pageInfo) {
-        model.addAttribute("data", pageInfo.getList());
         model.addAttribute("totalPage", pageInfo.getPages());
         model.addAttribute("totalData", pageInfo.getTotal());
         model.addAttribute("pageNum", pageInfo.getPageNum());

@@ -30,6 +30,12 @@ public class ErrorCode {
     public static final ErrorInfo SHOPINFO_NOTEXIST_ERROR = new ErrorInfo(1016, "该店铺ID不存在");
     public static final ErrorInfo REGIEST_FAIL_ERROR = new ErrorInfo(1017, "注册失败");
     public static final ErrorInfo NOT_LOGIN_ERROR = new ErrorInfo(1018, "请先登录");
-
-
+    public static final ErrorInfo BRAND_NOTEXIST_ERROR = new ErrorInfo(1019, "该品牌不存在");
+    public static final ErrorInfo CATEGORY_NOTEXIST_ERROR = new ErrorInfo(1020, "该分类不存在 ");
+    public static final ErrorInfo SPUNO_EXIST_ERROR = new ErrorInfo(1021, "SPU编号已存在");
+    public static final ErrorInfo SAVE_SPU_ERROR = new ErrorInfo(1022, "新增Spu失败");
+    public static final ErrorInfo CATEGORY_EXIST_ERROR = new ErrorInfo(1021, "该分类名称已存在 ");
+    public static final ErrorInfo SAVE_CATEGORY_ERROR = new ErrorInfo(1022,"增加分类失败");
+    public static final ErrorInfo BRAND_EXIST_ERROR = new ErrorInfo(1023, "该品牌名称已存在");
+    public static final ErrorInfo SAVE_BRAND_ERROR = new ErrorInfo(1024,"保存品牌名称失败");
 }

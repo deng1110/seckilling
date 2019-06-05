@@ -34,11 +34,11 @@ public class UserCookie {
 
     private String status;
 
-    private Date loginTimen;
+    private Date loginTime;
 
     private String token;
 
     public UserCookie(Date date) {
-        this.loginTimen = date;
+        this.loginTime = date;
     }
 }

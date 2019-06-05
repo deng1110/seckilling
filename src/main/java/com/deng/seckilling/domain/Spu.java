@@ -2,8 +2,6 @@ package com.deng.seckilling.domain;
 
 import lombok.*;
 
-import java.sql.Timestamp;
-
 /**
  * 商品子系统——Spu实体
  *
@@ -17,8 +15,8 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 public class Spu {
 
-    public Spu(Long id) {
-        this.id = id;
+    public Spu(String spuNo) {
+        this.spuNo = spuNo;
     }
 
     public Spu(Long id, Double lowPrice) {
@@ -26,9 +24,14 @@ public class Spu {
         this.lowPrice = lowPrice;
     }
 
+    public Spu(Long categoryId, Long brandId) {
+        this.categoryId = categoryId;
+        this.brandId = brandId;
+    }
+
     private Long id;
 
-    private Long spuNo;
+    private String spuNo;
 
     private String goodsName;
 

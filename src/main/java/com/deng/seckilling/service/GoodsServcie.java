@@ -4,6 +4,7 @@ import com.deng.seckilling.dao.GoodsMapper;
 import com.deng.seckilling.domain.*;
 import com.deng.seckilling.rpc.redis.RedisClient;
 import com.deng.seckilling.rpc.util.CheckDataUtils;
+import com.deng.seckilling.vo.SpuVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
@@ -50,8 +51,7 @@ public class GoodsServcie {
     }
 
     /**
-     * @param shopInfo
-     * @return
+     * 分页展示店铺
      */
     public PageInfo<ShopInfo> listShopInfo(Integer page, Integer size, ShopInfo shopInfo) {
         PageHelper.startPage(page, size);
@@ -86,9 +86,26 @@ public class GoodsServcie {
      * @param category 分类信息
      * @return 分类信息ID
      */
-    public Long saveCategoryInfoServcie(Category category) {
+    public Long saveCategoryInfoService(Category category) {
+        category.setId(null);
         goodsMapper.insertGoodsCategory(category);
         return category.getId();
+    }
+
+    /**
+     * 分页展示分类信息
+     */
+    public PageInfo<Category> listCategoryService(Integer page, Integer size, Category category) {
+        PageHelper.startPage(page, size);
+        return new PageInfo<Category>(goodsMapper.listCategory(category));
+    }
+
+    /**
+     * 分页展示品牌信息
+     */
+    public PageInfo<Brand> listBrandService(Integer page, Integer size, Brand brand) {
+        PageHelper.startPage(page, size);
+        return new PageInfo<Brand>(goodsMapper.listBrand(brand));
     }
 
     /**
@@ -169,13 +186,18 @@ public class GoodsServcie {
     }
 
     /**
-     * 验证SpuId是否存在
-     *
-     * @param id
-     * @return
+     * 分页展示SPU
      */
-    public Spu isExistSpuService(Long id) {
-        List<Spu> spuList = goodsMapper.listSpuInfo(new Spu(id));
+    public PageInfo<SpuVO> listSpuVO(Integer page, Integer size, Spu spu) {
+        PageHelper.startPage(page, size);
+        return new PageInfo<SpuVO>(goodsMapper.listSpuVO(spu));
+    }
+
+    /**
+     * 验证SpuNo是否存在
+     */
+    public Spu isExistSpuService(String spuNo) {
+        List<Spu> spuList = goodsMapper.listSpuInfo(new Spu(spuNo));
         return CheckDataUtils.isEmpty(spuList) ? null : spuList.get(0);
     }
 
