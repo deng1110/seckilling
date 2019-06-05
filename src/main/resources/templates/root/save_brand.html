@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>注册店铺</title>
+    <title>增加品牌</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 
     <!-- jquery -->
@@ -21,16 +21,16 @@
 
 </head>
 <body>
+<div th:include="root/root_header :: header"></div>
+<form name="saveBrandForm" id="saveBrandForm" method="post" style="width:50%; margin:0 auto">
 
-<form name="saveShopForm" id="saveShopForm" method="post" style="width:50%; margin:0 auto">
-
-    <h2 style="text-align:center; margin-bottom: 20px">注册店铺</h2>
+    <h2 style="text-align:center; margin-bottom: 20px">增加品牌</h2>
 
     <div class="form-group">
         <div class="row" style="display: flex;flex-direction: row;justify-content: center;">
-            <label class="form-label col-md-1">店铺名称</label>
+            <label class="form-label col-md-1">品牌名称</label>
             <div class="col-md-5">
-                <input id="shopName" name="shopName" class="form-control" type="text" placeholder="店铺名称" required="true"
+                <input id="brandName" name="brandName" class="form-control" type="text" placeholder="品牌名称" required="true"
                        minlength="2" maxlength="10"/>
             </div>
         </div>
@@ -41,49 +41,48 @@
             <button class="btn btn-primary btn-block" type="reset" onclick="reset()">重置</button>
         </div>
         <div class="col-md-2">
-            <button class="btn btn-primary btn-block" type="submit" onclick="saveShop()">注册店铺</button>
-        </div>
-        <div class="col-md-2">
-            <button class="btn btn-primary btn-block" type="submit"
-                    onclick="window.location.href = '/user/to_register'">去注册
-            </button>
+            <button class="btn btn-primary btn-block" type="submit" onclick="saveBrand()">增加品牌</button>
         </div>
     </div>
 
 </form>
 </body>
 <script>
-    function saveShop() {
-        $("#saveShopForm").validate({
+    function saveBrand() {
+        $("#saveBrandForm").validate({
             submitHandler: function (form) {
-                doSaveShop();
+                doSaveBrand();
             }
         });
     }
 
-    function doSaveShop() {
+    function doSaveBrand() {
         g_showLoading();
 
-        var shopName = $("#shopName").val();
+        var brandName = $("#brandName").val();
 
 
         $.ajax({
-            url: "/goods/saveshop",
+            url: "/goods/savebrand",
             type: "POST",
             data: {
-                shopName: shopName
+                brandName: brandName
             },
             success: function (data) {
                 layer.closeAll();
                 if (data.code == 0) {
-                    layer.msg("注册店铺成功,正在跳转商品列表页");
+                    layer.msg("增加品牌成功");
                     setTimeout(() => {
-                        window.location.href = "/goods/to_goods_list2";
-                    },
-                        2000
-                    )
+                        window.location.href = "/goods/to_list_brand";
+                },
+                    600
+                )
                 } else {
-                    layer.msg(data.msg);
+                    if (data.code == -1) {
+                        layer.msg("服务器繁忙");
+                    } else {
+                        layer.msg(data.msg);
+                    }
                 }
             },
             error: function () {

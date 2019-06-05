@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>登录</title>
+    <title>增加分类</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 
     <!-- jquery -->
@@ -21,27 +21,17 @@
 
 </head>
 <body>
+<div th:include="root/root_header :: header"></div>
+<form name="saveCategoryForm" id="saveCategoryForm" method="post" style="width:50%; margin:0 auto">
 
-<form name="loginForm" id="loginForm" method="post" style="width:50%; margin:0 auto">
-
-    <h2 style="text-align:center; margin-bottom: 20px">用户登录</h2>
-
-    <div class="form-group">
-        <div class="row" style="display: flex;flex-direction: row;justify-content: center;">
-            <label class="form-label col-md-1">账号</label>
-            <div class="col-md-5">
-                <input id="userName" name="userName" class="form-control" type="text" placeholder="账号" required="true"
-                       minlength="4" maxlength="20"/>
-            </div>
-        </div>
-    </div>
+    <h2 style="text-align:center; margin-bottom: 20px">增加分类</h2>
 
     <div class="form-group">
         <div class="row" style="display: flex;flex-direction: row;justify-content: center;">
-            <label class="form-label col-md-1">密码</label>
+            <label class="form-label col-md-1">分类名称</label>
             <div class="col-md-5">
-                <input id="password" name="password" class="form-control" type="password" placeholder="密码"
-                       required="true" minlength="4" maxlength="16"/>
+                <input id="categoryName" name="categoryName" class="form-control" type="text" placeholder="分类名称" required="true"
+                       minlength="2" maxlength="10"/>
             </div>
         </div>
     </div>
@@ -51,53 +41,42 @@
             <button class="btn btn-primary btn-block" type="reset" onclick="reset()">重置</button>
         </div>
         <div class="col-md-2">
-            <button class="btn btn-primary btn-block" type="submit" onclick="login()">登录</button>
-        </div>
-        <div class="col-md-2">
-            <button class="btn btn-primary btn-block" type="submit"
-                    onclick="window.location.href = '/user/to_register'">去注册
-            </button>
+            <button class="btn btn-primary btn-block" type="submit" onclick="saveCategory()">增加分类</button>
         </div>
     </div>
 
 </form>
 </body>
 <script>
-    function login() {
-        $("#loginForm").validate({
+    function saveCategory() {
+        $("#saveCategoryForm").validate({
             submitHandler: function (form) {
-                doLogin();
+                doSaveCategory();
             }
         });
     }
 
-    function doLogin() {
+    function doSaveCategory() {
         g_showLoading();
 
-        var inputPass = $("#password").val();
-        // var salt = g_passsword_salt;
-        // var str = ""+salt.charAt(0)+salt.charAt(2) + inputPass +salt.charAt(5) + salt.charAt(4);
-        var password = md5(inputPass);
+        var categoryName = $("#categoryName").val();
+
 
         $.ajax({
-            url: "/user/do_login",
+            url: "/goods/savecategory",
             type: "POST",
             data: {
-                userName: $("#userName").val(),
-                passWord: password
+                categoryName: categoryName
             },
             success: function (data) {
                 layer.closeAll();
                 if (data.code == 0) {
-                    //拿到后端传回的Array数据，即userArr = RpcResponse.getData();
-                    var userArr = data.data;
-                    if (userArr["rank"] == "admin") {
-                        //是管理员跳转到管理员界面
-                        window.location.href = "/user/to_root";
-                    } else {
-                        //非管理员跳转到正常用户界面
-                        window.location.href = "/user/to_common";
-                    }
+                    layer.msg("增加分类成功成功");
+                    setTimeout(() => {
+                        window.location.href = "/goods/to_list_category";
+                    },
+                        600
+                    )
                 } else {
                     if (data.code == -1) {
                         layer.msg("服务器繁忙");

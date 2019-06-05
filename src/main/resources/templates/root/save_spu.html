@@ -1,0 +1,145 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>增加SPU</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    <!-- jquery -->
+    <script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+    <!-- bootstrap -->
+    <link rel="stylesheet" type="text/css" th:href="@{/bootstrap/css/bootstrap.min.css}"/>
+    <script type="text/javascript" th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+    <!-- jquery-validator -->
+    <script type="text/javascript" th:src="@{/jquery-validation/jquery.validate.min.js}"></script>
+    <script type="text/javascript" th:src="@{/jquery-validation/localization/messages_zh.min.js}"></script>
+    <!-- layer -->
+    <script type="text/javascript" th:src="@{/layer/layer.js}"></script>
+    <!-- md5.js -->
+    <script type="text/javascript" th:src="@{/js/md5.min.js}"></script>
+    <!-- common.js -->
+    <script type="text/javascript" th:src="@{/js/common.js}"></script>
+
+</head>
+<body>
+<div th:include="root/root_header :: header"></div>
+<form name="saveSpuForm" id="saveSpuForm" method="post" style="width:50%; margin:0 auto">
+
+    <h2 style="text-align:center; margin-bottom: 20px">增加SPU</h2>
+
+    <div class="form-group">
+        <div class="row" style="display: flex;flex-direction: row;justify-content: center;">
+            <label class="form-label col-md-1">SPU编号</label>
+            <div class="col-md-5">
+                <input id="spuNo" name="spuNo" class="form-control" type="text" placeholder="SPU编号" required="true"
+                       minlength="2" maxlength="20"/>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="row" style="display: flex;flex-direction: row;justify-content: center;">
+            <label class="form-label col-md-1">SPU名称</label>
+            <div class="col-md-5">
+                <input id="spuName" name="spuName" class="form-control" type="text" placeholder="SPU名称" required="true"
+                       minlength="2" maxlength="10"/>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="row" style="display: flex;flex-direction: row;justify-content: center;">
+            <label class="form-label col-md-1">最低价格</label>
+            <div class="col-md-5">
+                <input id="lowPrice" name="lowPrice" class="form-control" type="text" placeholder="最低价格" required="true"
+                       minlength="1" maxlength="10"/>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="row" style="display: flex;flex-direction: row;justify-content: center;">
+            <label class="form-label col-md-1">所属分类</label>
+            <div class="col-md-5">
+                <input id="categoryName" name="categoryName" class="form-control" type="text" placeholder="所属分类"
+                       required="true"
+                       minlength="2" maxlength="10"/>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="row" style="display: flex;flex-direction: row;justify-content: center;">
+            <label class="form-label col-md-1">所属品牌</label>
+            <div class="col-md-5">
+                <input id="brandName" name="brandName" class="form-control" type="text" placeholder="所属品牌"
+                       required="true"
+                       minlength="2" maxlength="10"/>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" style="display: flex;flex-direction: row;justify-content: center;">
+        <div class="col-md-2">
+            <button class="btn btn-primary btn-block" type="reset" onclick="reset()">重置</button>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary btn-block" type="submit" onclick="saveSpu()">增加SPU</button>
+        </div>
+    </div>
+
+</form>
+</body>
+<script>
+    function saveSpu() {
+        $("#saveSpuForm").validate({
+            submitHandler: function (form) {
+                doSaveSpu();
+            }
+        });
+    }
+
+    function doSaveSpu() {
+        g_showLoading();
+
+        var spuNo = $("#spuNo").val();
+        var goodsName = $("#spuName").val();
+        var lowPrice = $("#lowPrice").val();
+        var categoryName = $("#categoryName").val();
+        var brandName = $("#brandName").val();
+
+        $.ajax({
+            url: "/goods/savespu",
+            type: "POST",
+            data: {
+                spuNo: spuNo,
+                goodsName:goodsName,
+                lowPrice:lowPrice,
+                categoryName:categoryName,
+                brandName:brandName
+            },
+            success: function (data) {
+                layer.closeAll();
+                if (data.code == 0) {
+                    layer.msg("增加SPU成功");
+                    setTimeout(() => {
+                        window.location.href = "/goods/to_list_spu";
+                },
+                    600
+                )
+                } else {
+                    if (data.code == -1) {
+                        layer.msg("服务器繁忙");
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                }
+            },
+            error: function () {
+                layer.msg("服务器繁忙");
+                layer.setTimeout(2000);
+                layer.closeAll();
+            }
+        });
+    }
+</script>
+</html>
