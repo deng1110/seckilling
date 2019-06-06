@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -53,12 +52,50 @@ public class UserController {
         return "root/root";
     }
 
+    @RequestMapping("to_frozen_user")
+    @IsLogin(requiredRoot = true)
+    public String to_frozen(Model model, UserCookie userCookie) {
+        model.addAttribute("user", userCookie);
+        return "root/frozen_user";
+    }
+
+    @RequestMapping("to_unfrozen_user")
+    @IsLogin(requiredRoot = true)
+    public String to_unfrozen(Model model, UserCookie userCookie) {
+        model.addAttribute("user", userCookie);
+        return "root/unfrozen_user";
+    }
+
+    @RequestMapping("to_invalid_user")
+    @IsLogin(requiredRoot = true)
+    public String to_invalid(Model model, UserCookie userCookie) {
+        model.addAttribute("user", userCookie);
+        return "root/invalid_user";
+    }
+
+    @RequestMapping("to_list_user")
+    @IsLogin(requiredRoot = true)
+    public String to_list_user(Model model, UserCookie userCookie, Integer page, Integer size) {
+        model.addAttribute("user", userCookie);
+        page = CheckDataUtils.isEmpty(page) ? DefaultValue.FENYE_FIRSTPAGE_VALUE : page;
+        size = CheckDataUtils.isEmpty(size) ? DefaultValue.FENYE_PAGESIZE_VALUE : size;
+        PageInfo<User> userPageInfo = userService.queryUsersByConditionService(page, size, new User());
+        model.addAttribute("data", userPageInfo.getList());
+        model.addAttribute("url", "/user/to_list_user");
+        FenyeUtils.setFenyeValue(model, userPageInfo);
+        return "root/list_user";
+    }
+
     @RequestMapping("to_common")
     @IsLogin
     public String common(Model model, UserCookie userCookie) {
         model.addAttribute("user", userCookie);
         return "common/common";
     }
+
+    /**
+     * -----------------------------------------------------------------------------------------------------------------
+     */
 
     /**
      * 用户注册接口
@@ -72,8 +109,8 @@ public class UserController {
     public RpcResponse register(BaseUserInfoDTO baseUserInfoDTO) {
         if (CheckDataUtils.isEmpty(baseUserInfoDTO.getUserName()) || CheckDataUtils.isEmpty(baseUserInfoDTO.getPassWord()) ||
                 CheckDataUtils.isEmpty(baseUserInfoDTO.getSex()) || CheckDataUtils.isEmpty(baseUserInfoDTO.getPhoneNumber()) ||
-                CheckDataUtils.isEmpty(baseUserInfoDTO.getRank()) || false == EnumUtils.isEnumCode(Sex.class, baseUserInfoDTO.getSex()) ||
-                false == SeckillingUtil.isCommonRank(baseUserInfoDTO.getRank())) {
+                CheckDataUtils.isEmpty(baseUserInfoDTO.getRank()) || !EnumUtils.isEnumCode(Sex.class, baseUserInfoDTO.getSex()) ||
+                !SeckillingUtil.isCommonRank(baseUserInfoDTO.getRank())) {
             log.warn("===>register  controller params error");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
@@ -109,7 +146,7 @@ public class UserController {
         }
 
         User user = userService.verifyUserService(userName, passWord);
-        if (null == user) {
+        if (CheckDataUtils.isEmpty(user)) {
             log.warn("===>login controller fail, username:{}; password:{}", userName, passWord);
             return RpcResponse.error(ErrorCode.USERLOGIN_FAIL_ERROR);
         }
@@ -117,9 +154,7 @@ public class UserController {
         log.info("===>login controller success, message:{}", user.toString());
         userService.perUserLogout(request);
 
-        UserCookie userCookie = new UserCookie(new Date());
-        DataUtils.entityTransform(user, userCookie);
-        userService.setCookie(Md5Utils.encryptMd5(UUIDUtils.uuid()), response, userCookie);
+        userService.setCookie(Md5Utils.encryptMd5(UUIDUtils.uuid()), response, user);
         return RpcResponse.success(user);
     }
 
@@ -136,7 +171,7 @@ public class UserController {
     }
 
     /**
-     * 根据条件查询符合要求的用户集合接口(超级管理员)
+     * 根据条件查询符合要求的用户集合接口
      *
      * @param user 参数实体
      * @return 满足要求的用户集合
@@ -151,11 +186,6 @@ public class UserController {
         }
 
         List<User> userList = userService.queryUsersByConditionService(user);
-        if (CheckDataUtils.isEmpty(userList)) {
-            log.warn("===>query user controller by condition:{}, get null data", user.toString());
-            return RpcResponse.error(ErrorCode.QUERYUSER_NULL_ERROR);
-        }
-
         return RpcResponse.success(userList);
     }
 
@@ -227,14 +257,15 @@ public class UserController {
         }
 
         userService.isLoginOrRoot(id);
+
         List<User> userList = userService.queryUsersByConditionService(new User(id));
         if (CheckDataUtils.isEmpty(userList)) {
             log.warn("===>frozen controller, id:{} not exist", id);
             return RpcResponse.error(ErrorCode.USER_NOTEXIT_ERROR);
         }
 
-        if (false == Status.NORMAL.getValue().equals(userList.get(0).getStatus())) {
-            log.warn("===>frozen id:{} fail, not {} status error", Status.NORMAL.getValue(), id);
+        if (!Status.NORMAL.getValue().equals(userList.get(0).getStatus())) {
+            log.warn("===>frozen id:{} fail, not {} status error", id, Status.NORMAL.getValue());
             return RpcResponse.error(ErrorCode.NOTNORMALUSER_CANNOT_FROZEN);
         }
 
@@ -264,6 +295,7 @@ public class UserController {
         }
 
         userService.isLoginOrRoot(id);
+
         List<User> userList = userService.queryUsersByConditionService(new User(id));
         if (CheckDataUtils.isEmpty(userList)) {
             log.warn("===>unfrozen controller, id:{} not exist", id);
@@ -271,7 +303,7 @@ public class UserController {
         }
 
         if (false == Status.FROZEN.getValue().equals(userList.get(0).getStatus())) {
-            log.warn("===>unfrozen id:{} fail, not {} status error", Status.FROZEN.getValue(), id);
+            log.warn("===>unfrozen id:{} fail, not {} status error", id, Status.FROZEN.getValue());
             return RpcResponse.error(ErrorCode.NOTFROZENUSER_CANNOT_UNFROXEN);
         }
 
