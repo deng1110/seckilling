@@ -183,7 +183,7 @@ public class UserService {
             throw new ExecuteException("not login.");
         }
         if (!Rank.ADMIN.getValue().equals(userCookie.getRank())) {
-            if (!id.equals(userCookie.getId())) {
+            if (!userCookie.getId().equals(id)) {
                 throw new ExecuteException("Insufficient permissions");
             }
         }
@@ -214,11 +214,20 @@ public class UserService {
     }
 
     /**
+     * 向response中增加cookie
+     */
+    public void setCookie(String token, HttpServletResponse response, User user) {
+        UserCookie userCookie = new UserCookie(new Date());
+        DataUtils.entityTransform(user, userCookie);
+        setCookie(token, response, userCookie);
+    }
+
+    /**
      * 如果是重复登录前一个用户下线
      */
     public void perUserLogout(HttpServletRequest request) {
         String oldToken = getCookieValue(request);
-        if(!CheckDataUtils.isEmpty(oldToken)){
+        if (!CheckDataUtils.isEmpty(oldToken)) {
             logOutService(oldToken);
         }
     }
