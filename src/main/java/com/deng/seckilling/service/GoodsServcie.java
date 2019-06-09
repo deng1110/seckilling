@@ -155,12 +155,52 @@ public class GoodsServcie {
     /**
      * 验证规格名是否存在
      *
-     * @param specificationName 规格名
+     * @param specName 规格名
      * @return 如果存在返回规格信息
      */
-    public Specification isExistSpecService(String specificationName) {
-        List<Specification> specificationList = goodsMapper.listSpecification(new Specification(specificationName));
+    public Specification isExistSpecService(String specName) {
+        List<Specification> specificationList = goodsMapper.listSpecification(new Specification(specName));
         return CheckDataUtils.isEmpty(specificationList) ? null : specificationList.get(0);
+    }
+
+    /**
+     * 验证规格ID是否存在
+     *
+     * @param specId 规格ID
+     * @return 如果存在返回规格信息
+     */
+    public Specification isExistSpecService(Long specId) {
+        List<Specification> specificationList = goodsMapper.listSpecification(new Specification(specId));
+        return CheckDataUtils.isEmpty(specificationList) ? null : specificationList.get(0);
+    }
+
+    /**
+     * 验证规格编号是否存在
+     *
+     * @param specNo 规格编号
+     * @return 如果存在返回规格信息
+     */
+    public Specification isExistSpecService2(String specNo) {
+        Specification specification = new Specification();
+        specification.setSpecNo(specNo);
+        List<Specification> specificationList = goodsMapper.listSpecification(specification);
+        return CheckDataUtils.isEmpty(specificationList) ? null : specificationList.get(0);
+    }
+
+    /**
+     * 分页展示规格信息
+     */
+    public PageInfo<Specification> listSpecService(Integer page, Integer size, Specification specification) {
+        PageHelper.startPage(page, size);
+        return new PageInfo<Specification>(goodsMapper.listSpecification(specification));
+    }
+
+    /**
+     * 分页展示SPU和规格关联信息
+     */
+    public PageInfo<SpuSpec> listSpuSpecService(Integer page, Integer size, SpuSpec spuSpec) {
+        PageHelper.startPage(page, size);
+        return new PageInfo<SpuSpec>(goodsMapper.listSpuSpec(spuSpec));
     }
 
     /**
@@ -198,6 +238,14 @@ public class GoodsServcie {
      */
     public Spu isExistSpuService(String spuNo) {
         List<Spu> spuList = goodsMapper.listSpuInfo(new Spu(spuNo));
+        return CheckDataUtils.isEmpty(spuList) ? null : spuList.get(0);
+    }
+
+    /**
+     * 验证SpuNo是否存在
+     */
+    public Spu isExistSpuService(Long spuId) {
+        List<Spu> spuList = goodsMapper.listSpuInfo(new Spu(spuId));
         return CheckDataUtils.isEmpty(spuList) ? null : spuList.get(0);
     }
 

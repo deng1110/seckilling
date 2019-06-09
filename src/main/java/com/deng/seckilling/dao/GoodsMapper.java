@@ -57,6 +57,9 @@ public interface GoodsMapper {
     @SelectProvider(type = GoodsSqlProvider.class,method = "listSpecification")
     List<Specification> listSpecification(Specification specification);
 
+    @SelectProvider(type = GoodsSqlProvider.class,method = "listSpuSpec")
+    List<SpuSpec> listSpuSpec(SpuSpec spuSpec);
+
     @Insert("insert into goods_spu (spu_no, goods_name, low_price, category_id, brand_id) values(#{spuNo}, #{goodsName}, #{lowPrice}, #{categoryId}, #{brandId})")
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     int insertSpuInfo(Spu spu);

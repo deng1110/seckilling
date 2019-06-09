@@ -25,12 +25,17 @@ public class Specification {
         this.specName = specName;
     }
 
+    public Specification(String specNo, String specName) {
+        this.specNo = specNo;
+        this.specName = specName;
+    }
+
     private Long id;
 
     /**
      * 规格编号
      */
-    private Long specNo;
+    private String specNo;
 
     /**
      * 规格名称

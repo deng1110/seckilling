@@ -29,6 +29,10 @@ public class Spu {
         this.brandId = brandId;
     }
 
+    public Spu(Long id) {
+        this.id = id;
+    }
+
     private Long id;
 
     private String spuNo;

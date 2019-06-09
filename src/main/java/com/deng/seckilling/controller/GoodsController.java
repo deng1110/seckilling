@@ -123,6 +123,46 @@ public class GoodsController {
         return "root/list_brand";
     }
 
+    @RequestMapping("to_save_spec")
+    @IsLogin(requiredRoot = true)
+    public String to_save_spec(Model model, UserCookie userCookie) {
+        model.addAttribute("user", userCookie);
+        return "root/save_spec";
+    }
+
+    @RequestMapping("to_list_spec")
+    @IsLogin(requiredRoot = true)
+    public String to_list_spec(Model model, UserCookie userCookie, Integer page, Integer size) {
+        model.addAttribute("user", userCookie);
+        page = CheckDataUtils.isEmpty(page) ? DefaultValue.FENYE_FIRSTPAGE_VALUE : page;
+        size = CheckDataUtils.isEmpty(size) ? DefaultValue.FENYE_PAGESIZE_VALUE : size;
+        PageInfo<Specification> specificationPageInfo = goodsServcie.listSpecService(page, size, new Specification());
+        model.addAttribute("data", specificationPageInfo.getList());
+        model.addAttribute("url", "/goods/to_list_spec");
+        FenyeUtils.setFenyeValue(model, specificationPageInfo);
+        return "root/list_spec";
+    }
+
+    @RequestMapping("to_save_spu_spec")
+    @IsLogin(requiredRoot = true)
+    public String to_save_spu_spec(Model model, UserCookie userCookie) {
+        model.addAttribute("user", userCookie);
+        return "root/save_spu_spec";
+    }
+
+    @RequestMapping("to_list_spu_spec")
+    @IsLogin(requiredRoot = true)
+    public String to_list_spu_spec(Model model, UserCookie userCookie, Integer page, Integer size) {
+        model.addAttribute("user", userCookie);
+        page = CheckDataUtils.isEmpty(page) ? DefaultValue.FENYE_FIRSTPAGE_VALUE : page;
+        size = CheckDataUtils.isEmpty(size) ? DefaultValue.FENYE_PAGESIZE_VALUE : size;
+        PageInfo<SpuSpec> spuSpecPageInfo = goodsServcie.listSpuSpecService(page, size, new SpuSpec());
+        model.addAttribute("data", spuSpecPageInfo.getList());
+        model.addAttribute("url", "/goods/to_list_spec");
+        FenyeUtils.setFenyeValue(model, spuSpecPageInfo);
+        return "root/list_spu_spec";
+    }
+
     @RequestMapping("to_goods_list")
     public String to_goods_list() {
         return "common/goods_list";
@@ -148,17 +188,13 @@ public class GoodsController {
             log.warn("===>saveShopInfo controller params error");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
+
         ShopInfo isExistShopInfo = goodsServcie.isExistShopService(shopName);
         if (!CheckDataUtils.isEmpty(isExistShopInfo)) {
             return RpcResponse.error(ErrorCode.SHOPNAME_EXIST_ERROR);
         }
-        Long shopId;
-        try {
-            shopId = goodsServcie.saveShopService(new ShopInfo(shopName));
-        } catch (Exception e) {
-            log.error("===>saveShopInfo controller error:{}", e.getMessage());
-            return RpcResponse.error(ErrorCode.SYSTEM_ERROR);
-        }
+
+        Long shopId = goodsServcie.saveShopService(new ShopInfo(shopName));
         if (CheckDataUtils.isEmpty(shopId)) {
             log.warn("===>saveShopInfo fail, save message:shopId:{},shopName:{}", shopId, shopName);
             return RpcResponse.error(ErrorCode.SAVE_SHOPINFO_ERROR);
@@ -288,6 +324,78 @@ public class GoodsController {
 
         log.info("===>saveBrand success, save message:{}", brand.toString());
         return RpcResponse.success(brand.getId());
+    }
+
+    /**
+     * 增加规格
+     *
+     * @param specNo   规格编号
+     * @param specName 规格名称
+     * @return 规格ID
+     */
+    @PostMapping("savespec")
+    @ResponseBody
+    @IsLogin(requiredController = true, requiredRoot = true, errorMessage = "权限不足，只有管理员可操作")
+    public RpcResponse saveSpec(String specNo, String specName) {
+        if (CheckDataUtils.isEmpty(specNo) || CheckDataUtils.isEmpty(specName)) {
+            log.warn("===>saveSpec controller params error");
+            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
+        }
+
+        Specification isExistSpec = null;
+        isExistSpec = goodsServcie.isExistSpecService2(specNo);
+        if (!CheckDataUtils.isEmpty(isExistSpec)) {
+            return RpcResponse.error(ErrorCode.SPECNO_EXIST_ERROR);
+        }
+        isExistSpec = goodsServcie.isExistSpecService(specName);
+        if (!CheckDataUtils.isEmpty(isExistSpec)) {
+            return RpcResponse.error(ErrorCode.SPEC_EXIST_ERROR);
+        }
+
+        Long specId = goodsServcie.saveSpecService(new Specification(specNo, specName));
+        if (CheckDataUtils.isEmpty(specId)) {
+            log.warn("===>saveSpec fail, save message:specNo:{},specName:{}", specNo, specName);
+            return RpcResponse.error(ErrorCode.SAVE_SPEC_ERROR);
+        }
+
+        log.warn("===>saveSpec success, save message:specNo:{},specName:{}", specNo, specName);
+        return RpcResponse.success(specId);
+    }
+
+    /**
+     * 增加SPU和规格的关联关系
+     *
+     * @param spuId  SPUID
+     * @param specId 规格ID
+     * @return 关联ID
+     */
+    @PostMapping("savespuspec")
+    @ResponseBody
+    @IsLogin(requiredController = true, requiredRoot = true, errorMessage = "权限不足，只有管理员可操作")
+    public RpcResponse saveSpuSpec(Long spuId, Long specId) {
+        if (CheckDataUtils.isEmpty(spuId) || CheckDataUtils.isEmpty(specId)) {
+            log.warn("===>saveSpuSpec controller params error");
+            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
+        }
+
+        Spu isExistSpu = goodsServcie.isExistSpuService(spuId);
+        if (CheckDataUtils.isEmpty(isExistSpu)) {
+            return RpcResponse.error(ErrorCode.SPUID_NOTEXIST_ERROR);
+        }
+
+        Specification isExistSpeC = goodsServcie.isExistSpecService(specId);
+        if (CheckDataUtils.isEmpty(isExistSpeC)) {
+            return RpcResponse.error(ErrorCode.SPECID_NOTEXIST_ERROR);
+        }
+
+        Long spuSpecId = goodsServcie.saveSpuSpec(new SpuSpec(spuId, specId));
+        if (CheckDataUtils.isEmpty(spuSpecId)) {
+            log.warn("===>saveSpuSpec fail, save message:spuId:{},specId:{}", spuId, specId);
+            return RpcResponse.error(ErrorCode.SAVE_SPUSPEC_ERROR);
+        }
+
+        log.info("===>saveSpuSpec success, save message:spuId:{},specId:{}", spuId, specId);
+        return RpcResponse.success(spuSpecId);
     }
 
 }

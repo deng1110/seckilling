@@ -266,4 +266,22 @@ public class GoodsSqlProvider {
         return sql;
     }
 
+    public String listSpuSpec(SpuSpec spuSpec) {
+        String sql = "select * from goods_spu_spec where 1=1 ";
+        if (spuSpec == null) {
+            sql += " and 1=0 ";
+            return sql;
+        }
+        if (spuSpec.getId() != null) {
+            sql += " and id = #{id} ";
+        }
+        if (spuSpec.getSpecId() != null) {
+            sql += " and spec_id = #{specId} ";
+        }
+        if (spuSpec.getSpuId() != null) {
+            sql += " and spu_id = #{spuId} ";
+        }
+        return sql;
+    }
+
 }

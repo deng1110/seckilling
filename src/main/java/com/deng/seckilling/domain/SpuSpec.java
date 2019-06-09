@@ -25,4 +25,9 @@ public class SpuSpec {
      * 规格Id
      */
     private Long specId;
+
+    public SpuSpec(Long spuId, Long specId) {
+        this.spuId = spuId;
+        this.specId = specId;
+    }
 }

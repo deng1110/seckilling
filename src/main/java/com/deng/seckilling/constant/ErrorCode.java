@@ -35,7 +35,13 @@ public class ErrorCode {
     public static final ErrorInfo SPUNO_EXIST_ERROR = new ErrorInfo(1021, "SPU编号已存在");
     public static final ErrorInfo SAVE_SPU_ERROR = new ErrorInfo(1022, "新增Spu失败");
     public static final ErrorInfo CATEGORY_EXIST_ERROR = new ErrorInfo(1021, "该分类名称已存在 ");
-    public static final ErrorInfo SAVE_CATEGORY_ERROR = new ErrorInfo(1022,"增加分类失败");
+    public static final ErrorInfo SAVE_CATEGORY_ERROR = new ErrorInfo(1022, "增加分类失败");
     public static final ErrorInfo BRAND_EXIST_ERROR = new ErrorInfo(1023, "该品牌名称已存在");
-    public static final ErrorInfo SAVE_BRAND_ERROR = new ErrorInfo(1024,"保存品牌名称失败");
+    public static final ErrorInfo SAVE_BRAND_ERROR = new ErrorInfo(1024, "保存品牌名称失败");
+    public static final ErrorInfo SPEC_EXIST_ERROR = new ErrorInfo(1025, "规格名称已存在");
+    public static final ErrorInfo SPECNO_EXIST_ERROR = new ErrorInfo(1026, "规格编号已存在");
+    public static final ErrorInfo SAVE_SPEC_ERROR = new ErrorInfo(1027,"保存规格失败");
+    public static final ErrorInfo SPUID_NOTEXIST_ERROR = new ErrorInfo(1028,"该SPU不存在");
+    public static final ErrorInfo SPECID_NOTEXIST_ERROR = new ErrorInfo(1029,"该规格不存在");
+    public static final ErrorInfo SAVE_SPUSPEC_ERROR = new ErrorInfo(1030, "保存SPU和规格关联失败");
 }
