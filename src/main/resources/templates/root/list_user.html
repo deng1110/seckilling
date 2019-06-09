@@ -1,0 +1,68 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>用户信息列表</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <!-- jquery -->
+    <script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+    <!-- bootstrap -->
+    <link rel="stylesheet" type="text/css" th:href="@{/bootstrap/css/bootstrap.min.css}"/>
+    <script type="text/javascript" th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+    <!-- jquery-validator -->
+    <script type="text/javascript" th:src="@{/jquery-validation/jquery.validate.min.js}"></script>
+    <script type="text/javascript" th:src="@{/jquery-validation/localization/messages_zh.min.js}"></script>
+    <!-- layer -->
+    <script type="text/javascript" th:src="@{/layer/layer.js}"></script>
+    <!-- md5.js -->
+    <script type="text/javascript" th:src="@{/js/md5.min.js}"></script>
+    <!-- common.js -->
+    <script type="text/javascript" th:src="@{/js/common.js}"></script>
+    <style type="text/css">
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+
+        #shpuList td {
+            border-top: 1px solid #39503f61;
+            width: 10px;
+        }
+    </style>
+</head>
+<body>
+<div th:include="root/root_header :: header"></div>
+<div class="panel panel-default" style="height:62%;background-color:rgba(222,222,222,0.8)">
+
+    <div class="panel-heading">用户信息列表</div>
+
+    <table class="table" id="userList">
+        <tr >
+            <td>用户ID</td>
+            <td>用户名</td>
+            <td>用户生日</td>
+            <td>用户身份证</td>
+            <td>用户手机号</td>
+            <td>用户角色</td>
+            <td>用户账户状态</td>
+        </tr>
+        <tr th:each="userInfo,userStatus : ${data}">
+            <td th:text="${userInfo.getId()}"></td>
+            <td th:text="${userInfo.getUserName()}"></td>
+            <td th:text="${userInfo.getBirthday()}"></td>
+            <td th:text="${userInfo.getIdentityCardId()}"></td>
+            <td th:text="${userInfo.getPhoneNumber()}"></td>
+            <td th:if="'buyer' == ${userInfo.getRank()}" th:text="买家"></td>
+            <td th:if="'seller' == ${userInfo.getRank()}" th:text="卖家"></td>
+            <td th:if="'admin' == ${userInfo.getRank()}" th:text="管理员"></td>
+
+            <td th:if="'normal' == ${userInfo.getStatus()}" th:text="正常状态"></td>
+            <td th:if="'frozen' == ${userInfo.getStatus()}" th:text="已冻结"></td>
+            <td th:if="'invalid' == ${userInfo.getStatus()}" th:text="已作废"></td>
+        </tr>
+
+    </table>
+</div>
+
+<div th:include="fenye :: fenye"></div>
+</body>
+</html>
