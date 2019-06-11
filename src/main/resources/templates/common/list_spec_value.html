@@ -1,0 +1,57 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>展示规格值</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <!-- jquery -->
+    <script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+    <!-- bootstrap -->
+    <link rel="stylesheet" type="text/css" th:href="@{/bootstrap/css/bootstrap.min.css}"/>
+    <script type="text/javascript" th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+    <!-- jquery-validator -->
+    <script type="text/javascript" th:src="@{/jquery-validation/jquery.validate.min.js}"></script>
+    <script type="text/javascript" th:src="@{/jquery-validation/localization/messages_zh.min.js}"></script>
+    <!-- layer -->
+    <script type="text/javascript" th:src="@{/layer/layer.js}"></script>
+    <!-- md5.js -->
+    <script type="text/javascript" th:src="@{/js/md5.min.js}"></script>
+    <!-- common.js -->
+    <script type="text/javascript" th:src="@{/js/common.js}"></script>
+    <style type="text/css">
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+
+        #specValueVOList td {
+            border-top: 1px solid #39503f61;
+            width: 10px;
+        }
+    </style>
+</head>
+<body>
+<div th:include="common/common_header :: header"></div>
+<div class="panel panel-default" style="height:62%;background-color:rgba(222,222,222,0.8)">
+
+    <div class="panel-heading">展示规格值</div>
+
+    <table class="table" id="specValueVOList">
+        <tr >
+            <td>规格ID</td>
+            <td>规格名称</td>
+            <td>规格值ID</td>
+            <td>规格值名称</td>
+        </tr>
+        <tr th:each="specValueVO,brandStatus : ${data}">
+            <td th:text="${specValueVO.getSpecId()}"></td>
+            <td th:text="${specValueVO.getSpecName()}"></td>
+            <td th:text="${specValueVO.getSpecValueId()}"></td>
+            <td th:text="${specValueVO.getSpecValue()}"></td>
+        </tr>
+
+    </table>
+
+</div>
+<div th:include="fenye :: fenye"></div>
+</body>
+</html>

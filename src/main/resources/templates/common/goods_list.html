@@ -1,0 +1,61 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>首页</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <!-- jquery -->
+    <script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+    <!-- bootstrap -->
+    <link rel="stylesheet" type="text/css" th:href="@{/bootstrap/css/bootstrap.min.css}"/>
+    <script type="text/javascript" th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+    <!-- jquery-validator -->
+    <script type="text/javascript" th:src="@{/jquery-validation/jquery.validate.min.js}"></script>
+    <script type="text/javascript" th:src="@{/jquery-validation/localization/messages_zh.min.js}"></script>
+    <!-- layer -->
+    <script type="text/javascript" th:src="@{/layer/layer.js}"></script>
+    <!-- md5.js -->
+    <script type="text/javascript" th:src="@{/js/md5.min.js}"></script>
+    <!-- common.js -->
+    <script type="text/javascript" th:src="@{/js/common.js}"></script>
+    <style type="text/css">
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+
+        body {
+            background: url('/img/bg2.jpg') no-repeat;
+            background-size: 100% 100%;
+        }
+
+        #goodsList td {
+            border-top: 1px solid #39503f61;
+        }
+    </style>
+</head>
+<body>
+<div th:include="common/common_header2 :: header2"></div>
+<div class="panel panel-default" style="height:100%;background-color:rgba(222,222,222,0.8)">
+    <div class="panel-heading">商品</div>
+    <table class="table" id="goodsList">
+        <tr>
+            <td>商品编号</td>
+            <td>商品名称</td>
+            <td>商品原价</td>
+            <td>秒杀价</td>
+            <td>库存数量</td>
+            <td>详情</td>
+        </tr>
+        <tr th:each="goods,goodsStatus : ${data}">
+            <td th:text="${goods.getSpuNo()}"></td>
+            <td th:text="${goods.getSkuName()}"></td>
+            <td th:text="${goods.getPrice()}"></td>
+            <td th:text="${goods.getMiaoshaPrice()}"></td>
+            <td th:text="${goods.getStock()}"></td>
+            <td><a th:href="'/goods/to_goods_detail?skuId='+${goods.getSkuId()}">详情</a></td>
+        </tr>
+    </table>
+</div>
+
+</body>
+</html>
