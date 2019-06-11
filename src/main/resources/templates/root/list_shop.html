@@ -39,10 +39,12 @@
         <tr >
             <td>店铺ID</td>
             <td>店铺名称</td>
+            <td>所属用户ID</td>
         </tr>
         <tr th:each="shop,shopStatus : ${data}">
             <td th:text="${shop.getId()}"></td>
             <td th:text="${shop.getShopName()}"></td>
+            <td th:text="${shop.getUserId()}"></td>
         </tr>
 
     </table>
