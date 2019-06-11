@@ -83,7 +83,7 @@ public class RedisClient {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
-            return SUCCESS_STR.equals(jedis.set(key, value, "NX", "EX", expireSeconds));
+            return SUCCESS_STR.equals(jedis.set(key, value, "NX", "EX", (long)expireSeconds));
         } finally {
             returnToPool(jedis);
         }
