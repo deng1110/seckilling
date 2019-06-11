@@ -94,9 +94,11 @@
                     if (userArr["rank"] == "admin") {
                         //是管理员跳转到管理员界面
                         window.location.href = "/user/to_root";
-                    } else {
+                    } else if(userArr["rank"] == "seller"){
                         //非管理员跳转到正常用户界面
                         window.location.href = "/user/to_common";
+                    } else{
+                        window.location.href = "/goods/to_goods_list";
                     }
                 } else {
                     if (data.code == -1) {

@@ -1,6 +1,7 @@
 package com.deng.seckilling.controller;
 
 import com.deng.seckilling.rpc.redis.RedisClient;
+import com.deng.seckilling.rpc.redis.RedisLocker;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,20 +22,24 @@ import static org.junit.Assert.*;
 @Slf4j
 public class ControllerTest {
 
-    @Resource
-    private RedisClient redisClient;
+//    @Resource
+//    private RedisClient redisClient;
 
+    @Resource
+    private RedisLocker redisLocker;
     @Test
     public void test() {
-        log.info(redisClient.set("key1","value1")+"");
-        log.info(redisClient.set("key2","20")+"");
-        log.info(redisClient.get("key1"));
-        log.info(redisClient.get("key2"));
-//        log.info(redisClient.incr("key1")+"");
-        log.info(redisClient.incr("key2")+"");
-//        log.info(redisClient.decr("key1")+"");
-        log.info(redisClient.decr("key2")+"");
-        log.info(""+redisClient.setnx("key1","value111"));
-        log.info(""+redisClient.get("key1"));
+
+        redisLocker.lock("haha");
+//        log.info(redisClient.set("key1","value1")+"");
+//        log.info(redisClient.setnx("key3","20",10)+"");
+//        log.info(redisClient.get("key1"));
+//        log.info(redisClient.get("key2"));
+////        log.info(redisClient.incr("key1")+"");
+//        log.info(redisClient.incr("key2")+"");
+////        log.info(redisClient.decr("key1")+"");
+//        log.info(redisClient.decr("key2")+"");
+//        log.info(""+redisClient.setnx("key1","value111"));
+
     }
 }
