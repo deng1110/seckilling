@@ -3,13 +3,18 @@ package com.deng.seckilling.controller;
 import com.deng.seckilling.annotation.IsLogin;
 import com.deng.seckilling.constant.DefaultValue;
 import com.deng.seckilling.constant.ErrorCode;
+import com.deng.seckilling.constant.Sale;
 import com.deng.seckilling.domain.*;
+import com.deng.seckilling.dto.SkuDTO;
 import com.deng.seckilling.dto.SpuDTO;
 import com.deng.seckilling.rpc.constant.RpcResponse;
-import com.deng.seckilling.rpc.util.CheckDataUtils;
-import com.deng.seckilling.rpc.util.DataUtils;
-import com.deng.seckilling.rpc.util.FenyeUtils;
+import com.deng.seckilling.rpc.redis.RedisClient;
+import com.deng.seckilling.rpc.redis.RedisLocker;
+import com.deng.seckilling.rpc.util.*;
 import com.deng.seckilling.service.GoodsServcie;
+import com.deng.seckilling.service.UserService;
+import com.deng.seckilling.vo.SkuVO;
+import com.deng.seckilling.vo.SpecValueVO;
 import com.deng.seckilling.vo.SpuVO;
 import com.github.pagehelper.PageInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * 商铺子系统相关接口
@@ -35,6 +41,15 @@ public class GoodsController {
 
     @Resource
     private GoodsServcie goodsServcie;
+
+    @Resource
+    private UserService userService;
+
+    @Resource
+    private RedisClient redisClient;
+
+    @Resource
+    private RedisLocker redisLocker;
 
     @RequestMapping("to_save_shop")
     @IsLogin(requiredRoot = true)
@@ -76,10 +91,10 @@ public class GoodsController {
         model.addAttribute("user", userCookie);
         page = CheckDataUtils.isEmpty(page) ? DefaultValue.FENYE_FIRSTPAGE_VALUE : page;
         size = CheckDataUtils.isEmpty(size) ? DefaultValue.FENYE_PAGESIZE_VALUE : size;
-        PageInfo<SpuVO> spuDTOPageInfo = goodsServcie.listSpuVO(page, size, new Spu());
-        model.addAttribute("data", spuDTOPageInfo.getList());
+        PageInfo<SpuVO> spuVOPageInfo = goodsServcie.listSpuVO(page, size, new Spu());
+        model.addAttribute("data", spuVOPageInfo.getList());
         model.addAttribute("url", "/goods/to_list_spu");
-        FenyeUtils.setFenyeValue(model, spuDTOPageInfo);
+        FenyeUtils.setFenyeValue(model, spuVOPageInfo);
         return "root/list_spu";
     }
 
@@ -163,14 +178,135 @@ public class GoodsController {
         return "root/list_spu_spec";
     }
 
+    @RequestMapping("to_save_spec_value")
+    @IsLogin
+    public String to_save_spec_value(Model model, UserCookie userCookie) {
+        model.addAttribute("user", userCookie);
+        return "common/save_spec_value";
+    }
+
+    @RequestMapping("to_list_spec_value")
+    @IsLogin
+    public String to_list_spec_value(Model model, UserCookie userCookie, Integer page, Integer size) {
+        model.addAttribute("user", userCookie);
+        page = CheckDataUtils.isEmpty(page) ? DefaultValue.FENYE_FIRSTPAGE_VALUE : page;
+        size = CheckDataUtils.isEmpty(size) ? DefaultValue.FENYE_PAGESIZE_VALUE : size;
+        PageInfo<SpecValueVO> specValueVOPageInfo = goodsServcie.listSpecValueVOService(page, size);
+        model.addAttribute("data", specValueVOPageInfo.getList());
+        model.addAttribute("url", "/goods/to_list_spec_value");
+        FenyeUtils.setFenyeValue(model, specValueVOPageInfo);
+        return "common/list_spec_value";
+    }
+
+    @RequestMapping("to_save_sku")
+    @IsLogin
+    public String to_save_sku(Model model, UserCookie userCookie) {
+        model.addAttribute("user", userCookie);
+        return "common/save_sku";
+    }
+
+    @RequestMapping("to_list_sku")
+    @IsLogin
+    public String to_list_sku(Model model, UserCookie userCookie, Integer page, Integer size) {
+        model.addAttribute("user", userCookie);
+        page = CheckDataUtils.isEmpty(page) ? DefaultValue.FENYE_FIRSTPAGE_VALUE : page;
+        size = CheckDataUtils.isEmpty(size) ? DefaultValue.FENYE_PAGESIZE_VALUE : size;
+        PageInfo<SkuVO> skuVOPageInfo = goodsServcie.listSkuVO(page, size, userCookie.getId());
+        model.addAttribute("data", skuVOPageInfo.getList());
+        model.addAttribute("url", "/goods/to_list_sku");
+        FenyeUtils.setFenyeValue(model, skuVOPageInfo);
+        return "common/list_sku";
+    }
+
+    /**
+     * 展示商品列表
+     */
     @RequestMapping("to_goods_list")
-    public String to_goods_list() {
+    @IsLogin
+    public String to_goods_list(Model model, UserCookie userCookie, Integer page, Integer size) {
+        model.addAttribute("user", userCookie);
+        page = CheckDataUtils.isEmpty(page) ? DefaultValue.FENYE_FIRSTPAGE_VALUE : page;
+        size = CheckDataUtils.isEmpty(size) ? DefaultValue.FENYE_PAGESIZE_VALUE : size;
+        PageInfo<SkuVO> skuVOPageInfo = goodsServcie.listSkuVO(page, size);
+        model.addAttribute("data", skuVOPageInfo.getList());
+        model.addAttribute("url", "/goods/to_goods_list");
+        FenyeUtils.setFenyeValue(model, skuVOPageInfo);
         return "common/goods_list";
     }
 
+    /**
+     * 展示某个商品细节
+     * 种缓存，为接下来秒杀削峰，限流做准备
+     */
     @RequestMapping("to_goods_detail")
-    public String to_goods_detail() {
+    @IsLogin
+    public String to_goods_detail(Model model, UserCookie userCookie, Long skuId) {
+        model.addAttribute("user", userCookie);
+        skuId = CheckDataUtils.isEmpty(skuId) ? 0L : skuId;
+
+        SkuVO skuVO = goodsServcie.getSkuVOService(skuId);
+
+        //如果redis缓存有值则信任这个值，认为其是最新的值，从缓存中读
+        Integer stock = Integer.parseInt(redisClient.get(skuId + DefaultValue.STOCK_SUFFIX_VALUE));
+        if (!CheckDataUtils.isEmpty(stock)) {
+            skuVO.setStock(stock);
+        }
+
+        model.addAttribute("goods", skuVO);
+
+        long startAt = DateUtils.strToDate(skuVO.getStartTime()).getTime();
+        long endAt = DateUtils.strToDate(skuVO.getEndTime()).getTime();
+        long now = System.currentTimeMillis();
+
+        int miaoshaStatus = 0;
+        int remainSeconds = 0;
+        if (now < startAt) {//秒杀还没开始，倒计时
+            miaoshaStatus = 0;
+            remainSeconds = (int) ((startAt - now) / 1000);
+        } else if (now > endAt) {//秒杀已经结束
+            miaoshaStatus = 2;
+            remainSeconds = -1;
+        } else {//秒杀进行中
+            miaoshaStatus = 1;
+            remainSeconds = 0;
+        }
+        model.addAttribute("miaoshaStatus", miaoshaStatus);
+        model.addAttribute("remainSeconds", remainSeconds);
+
+        //查看detail的时候商品库存入缓存
+        redisClient.set(skuId + DefaultValue.STOCK_SUFFIX_VALUE, skuVO.getStock().toString());
+
         return "common/goods_detail";
+    }
+
+    /**
+     * 秒杀点，核心！在detail的时候种上缓存了
+     *
+     * @param model
+     * @param userCookie
+     * @param skuId
+     * @return
+     */
+    @PostMapping("/miaosha")
+    @IsLogin
+    public String miaosha(Model model, UserCookie userCookie, Long skuId, Integer number) {
+        if (CheckDataUtils.isEmpty(skuId)) {
+            return "common/miaoshao_fail";
+        }
+        number = CheckDataUtils.isEmpty(number) ? 1 : number;
+        model.addAttribute("user", userCookie);
+        Integer stock = goodsServcie.getSkuStock(skuId);
+        if (CheckDataUtils.isEmpty(stock)) {
+            return "common/miaoshao_fail";
+        }
+
+        //分布式锁
+        redisLocker.lock(userCookie.getUserName());
+        Long orderId = goodsServcie.miaoshaServcie(userCookie, skuId, number);
+        redisLocker.unlock(userCookie.getUserName());
+
+        model.addAttribute("orederId", orderId);
+        return "common/order";
     }
 
 
@@ -183,8 +319,8 @@ public class GoodsController {
     @PostMapping("/saveshop")
     @ResponseBody
     @IsLogin(requiredRoot = true, requiredController = true, errorMessage = "权限不足，只有管理员可操作")
-    public RpcResponse saveShopInfo(String shopName) {
-        if (CheckDataUtils.isEmpty(shopName)) {
+    public RpcResponse saveShopInfo(String shopName, Long userId) {
+        if (CheckDataUtils.isEmpty(shopName) || CheckDataUtils.isEmpty(userId)) {
             log.warn("===>saveShopInfo controller params error");
             return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
         }
@@ -194,7 +330,12 @@ public class GoodsController {
             return RpcResponse.error(ErrorCode.SHOPNAME_EXIST_ERROR);
         }
 
-        Long shopId = goodsServcie.saveShopService(new ShopInfo(shopName));
+        List<User> isExistUser = userService.queryUsersByConditionService(new User(userId));
+        if (CheckDataUtils.isEmpty(isExistUser)) {
+            return RpcResponse.error(ErrorCode.USER_NOTEXIT_ERROR);
+        }
+
+        Long shopId = goodsServcie.saveShopService(new ShopInfo(shopName, userId));
         if (CheckDataUtils.isEmpty(shopId)) {
             log.warn("===>saveShopInfo fail, save message:shopId:{},shopName:{}", shopId, shopName);
             return RpcResponse.error(ErrorCode.SAVE_SHOPINFO_ERROR);
@@ -358,7 +499,7 @@ public class GoodsController {
             return RpcResponse.error(ErrorCode.SAVE_SPEC_ERROR);
         }
 
-        log.warn("===>saveSpec success, save message:specNo:{},specName:{}", specNo, specName);
+        log.info("===>saveSpec success, save message:specNo:{},specName:{}", specNo, specName);
         return RpcResponse.success(specId);
     }
 
@@ -396,6 +537,91 @@ public class GoodsController {
 
         log.info("===>saveSpuSpec success, save message:spuId:{},specId:{}", spuId, specId);
         return RpcResponse.success(spuSpecId);
+    }
+
+    @PostMapping("savespecvalue")
+    @ResponseBody
+    @IsLogin
+    public RpcResponse saveSpecValue(String specNo, String specValue) {
+        if (CheckDataUtils.isEmpty(specNo) || CheckDataUtils.isEmpty(specValue)) {
+            log.warn("===>saveSpec controller params error");
+            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
+        }
+
+        Specification isExistSpec = goodsServcie.isExistSpecService2(specNo);
+        if (CheckDataUtils.isEmpty(isExistSpec)) {
+            return RpcResponse.error(ErrorCode.SPECNO_NOTEXIST_ERROR);
+        }
+
+        SpecValue isExistSpecName = goodsServcie.isExistSpecValue(specValue);
+        if (!CheckDataUtils.isEmpty(isExistSpecName)) {
+            return RpcResponse.error(ErrorCode.SPECVALUE_EXIST_ERROR);
+        }
+
+        Long specValueId = goodsServcie.saveSpecValue(new SpecValue(isExistSpec.getId(), specValue));
+        if (CheckDataUtils.isEmpty(specValueId)) {
+            log.warn("===>saveSpecValue fail, save message:specNo:{},specValue:{}", specNo, specValue);
+            return RpcResponse.error(ErrorCode.SAVE_SPECVALUE_ERROR);
+        }
+        log.warn("===>saveSpecValue success, save message:specNo:{},specValue:{}", specNo, specValue);
+        return RpcResponse.success(specValueId);
+    }
+
+    /**
+     * 保存SKU
+     *
+     * @param skuDTO 保存SKU参数接收实体
+     * @return Sku主键ID
+     */
+    @PostMapping("/savesku")
+    @IsLogin
+    @ResponseBody
+    public RpcResponse saveSku(SkuDTO skuDTO) {
+        if (CheckDataUtils.isEmpty(skuDTO) || CheckDataUtils.isEmpty(skuDTO.getSkuNo()) ||
+                CheckDataUtils.isEmpty(skuDTO.getSpuNo()) || CheckDataUtils.isEmpty(skuDTO.getPrice()) ||
+                CheckDataUtils.isEmpty(skuDTO.getStock()) || CheckDataUtils.isEmpty(skuDTO.getIsSale()) ||
+                CheckDataUtils.isEmpty(skuDTO.getShopName()) || !EnumUtils.isEnumCode(Sale.class, skuDTO.getIsSale()) ||
+                CheckDataUtils.isEmpty(skuDTO.getMiaoshaPrice()) || CheckDataUtils.isEmpty(skuDTO.getStartTime()) ||
+                CheckDataUtils.isEmpty(skuDTO.getEndTime())) {
+            log.warn("===>saveSku controller params error");
+            return RpcResponse.error(ErrorCode.SECKILLING_PARAMS_ERROR);
+        }
+
+        Spu isExistSpu = goodsServcie.isExistSpuService(skuDTO.getSpuNo());
+        if (CheckDataUtils.isEmpty(isExistSpu)) {
+            return RpcResponse.error(ErrorCode.SPUNO_NOTEXIST_ERROR);
+        }
+
+        Sku isExistSku = goodsServcie.isExistSku(skuDTO.getSkuNo());
+        if (!CheckDataUtils.isEmpty(isExistSku)) {
+            return RpcResponse.error(ErrorCode.SKUNO_EXIST_ERROR);
+        }
+
+        if (skuDTO.getPrice() < isExistSpu.getLowPrice()) {
+            return RpcResponse.error(ErrorCode.ILLEGAL_PRICE_ERROR);
+        }
+
+        UserCookie userCookie = userService.getUserFromRequest();
+        if (CheckDataUtils.isEmpty(userCookie)) {
+            return RpcResponse.error(ErrorCode.NOT_LOGIN_ERROR);
+        }
+
+        ShopInfo isExistShop = goodsServcie.isExistShopService(skuDTO.getShopName());
+        if (CheckDataUtils.isEmpty(isExistShop)) {
+            return RpcResponse.error(ErrorCode.SHOPNAME_NOTEXIST_ERROR);
+        }
+        if (!userCookie.getId().equals(isExistShop.getUserId())) {
+            return RpcResponse.error(ErrorCode.ILLEGAL_SHOPNAME_ERROR);
+        }
+
+        Long skuId = goodsServcie.saveSkuDTO(isExistSpu, isExistShop.getId(), skuDTO);
+        if (CheckDataUtils.isEmpty(skuId)) {
+            log.warn("===>saveSku fail, save message:{}", skuDTO.toString());
+            return RpcResponse.error(ErrorCode.SAVE_SKU_ERROR);
+        }
+
+        log.info("===>saveSku success, save message:{}", skuDTO.toString());
+        return RpcResponse.success(skuId);
     }
 
 }

@@ -1,13 +1,21 @@
 package com.deng.seckilling.service;
 
+import com.deng.seckilling.constant.DefaultValue;
 import com.deng.seckilling.dao.GoodsMapper;
 import com.deng.seckilling.domain.*;
+import com.deng.seckilling.dto.SkuDTO;
 import com.deng.seckilling.rpc.redis.RedisClient;
 import com.deng.seckilling.rpc.util.CheckDataUtils;
+import com.deng.seckilling.rpc.util.DataUtils;
+import com.deng.seckilling.rpc.util.DateUtils;
+import com.deng.seckilling.vo.SkuVO;
+import com.deng.seckilling.vo.SpecValueVO;
+import com.deng.seckilling.vo.SpuSpecVO;
 import com.deng.seckilling.vo.SpuVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -196,11 +204,28 @@ public class GoodsServcie {
     }
 
     /**
+     * 展示规格信息
+     *
+     * @return 规格信息组
+     */
+    public List<Specification> listSpecService() {
+        return goodsMapper.listSpecification(new Specification());
+    }
+
+    /**
      * 分页展示SPU和规格关联信息
      */
     public PageInfo<SpuSpec> listSpuSpecService(Integer page, Integer size, SpuSpec spuSpec) {
         PageHelper.startPage(page, size);
         return new PageInfo<SpuSpec>(goodsMapper.listSpuSpec(spuSpec));
+    }
+
+    /**
+     * 展示SPU和规格关联VO
+     */
+    public PageInfo<SpuSpecVO> listSpuSpecVOService(Integer page, Integer size) {
+        PageHelper.startPage(page, size);
+        return new PageInfo<SpuSpecVO>(goodsMapper.listSpuSpecVO());
     }
 
     /**
@@ -231,6 +256,16 @@ public class GoodsServcie {
     public PageInfo<SpuVO> listSpuVO(Integer page, Integer size, Spu spu) {
         PageHelper.startPage(page, size);
         return new PageInfo<SpuVO>(goodsMapper.listSpuVO(spu));
+    }
+
+    /**
+     * 展示规格和规格值VO
+     *
+     * @return
+     */
+    public PageInfo<SpecValueVO> listSpecValueVOService(Integer page, Integer size) {
+        PageHelper.startPage(page, size);
+        return new PageInfo<SpecValueVO>(goodsMapper.listSpecValueVO());
     }
 
     /**
@@ -284,6 +319,17 @@ public class GoodsServcie {
     }
 
     /**
+     * 验证规格值名存不存在
+     *
+     * @param specValue 规格值
+     * @return 如果存在返回规格值信息
+     */
+    public SpecValue isExistSpecValue(String specValue) {
+        List<SpecValue> specValueList = goodsMapper.listSpecValue(new SpecValue(specValue));
+        return CheckDataUtils.isEmpty(specValueList) ? null : specValueList.get(0);
+    }
+
+    /**
      * 增加Sku
      *
      * @param sku Sku信息
@@ -292,6 +338,31 @@ public class GoodsServcie {
     public Long saveSku(Sku sku) {
         goodsMapper.insertSku(sku);
         return sku.getId();
+    }
+
+    public SkuVO getSkuVOService(Long skuId) {
+        return goodsMapper.getSkuVO(skuId);
+    }
+
+    /**
+     * 查找满足要求的SKUVO
+     *
+     * @param userId 用户ID
+     * @return 满足要求的skuVO组
+     */
+    public PageInfo<SkuVO> listSkuVO(Integer page, Integer size, Long userId) {
+        PageHelper.startPage(page, size);
+        return new PageInfo<SkuVO>(goodsMapper.listSkuVO(userId));
+    }
+
+    /**
+     * 查找SKUVO
+     *
+     * @return skuVO组
+     */
+    public PageInfo<SkuVO> listSkuVO(Integer page, Integer size) {
+        PageHelper.startPage(page, size);
+        return new PageInfo<SkuVO>(goodsMapper.listAllSkuVO());
     }
 
     /**
@@ -321,6 +392,41 @@ public class GoodsServcie {
     }
 
     /**
+     * 验证skuNo是否存在
+     *
+     * @param skuNo sku编号
+     * @return 如果存在返回Sku信息
+     */
+    public Sku isExistSku(String skuNo) {
+        List<Sku> skuList = goodsMapper.listSku(new Sku(skuNo));
+        return CheckDataUtils.isEmpty(skuList) ? null : skuList.get(0);
+    }
+
+    @Transactional
+    public Long saveSkuDTO(Spu spu, Long shopId, SkuDTO skuDTO) {
+        Sku sku = new Sku();
+        DataUtils.entityTransform(skuDTO, sku);
+        sku.setSkuName(spu.getGoodsName());
+        sku.setShopId(shopId);
+        sku.setSpuId(spu.getId());
+        Long skuId = saveSku(sku);
+        if (!CheckDataUtils.isEmpty(skuId)) {
+            saveSkuRef(skuId, skuDTO);
+        }
+        return skuId;
+    }
+
+    public Long saveSkuRef(Long skuId, SkuDTO skuDTO) {
+        SkuRef skuRef = new SkuRef();
+        skuRef.setSkuId(skuId);
+        DataUtils.entityTransform(skuDTO, skuRef);
+        skuRef.setStartTime(DateUtils.dateToStr(skuDTO.getStartTime()));
+        skuRef.setEndTime(DateUtils.dateToStr(skuDTO.getEndTime()));
+        goodsMapper.insertSkuRef(skuRef);
+        return skuRef.getId();
+    }
+
+    /**
      * 增加Spu和规格的关联关系
      *
      * @param spuSpec Spu和规格的关联关系信息
@@ -342,4 +448,41 @@ public class GoodsServcie {
         return skuSpecValue.getId();
     }
 
+    @Transactional
+    public Long miaoshaServcie(UserCookie userCookie, Long skuId, Integer number) {
+        //缓存库存减少
+        while (number > 0) {
+            redisClient.decr(skuId + DefaultValue.STOCK_SUFFIX_VALUE);
+            number--;
+        }
+        //发mq让mysql库存减少
+
+        //生成订单
+
+        //返回订单ID
+        return null;
+    }
+
+    /**
+     * 验证库存，先查缓存，
+     *
+     * @param skuId
+     * @return
+     */
+    public Integer getSkuStock(Long skuId) {
+        Integer stock;
+        SkuVO skuVO;
+        try {
+            stock = Integer.parseInt(redisClient.get(skuId + DefaultValue.STOCK_SUFFIX_VALUE));
+            if (null == stock) {
+                skuVO = getSkuVOService(skuId);
+                stock = skuVO.getStock();
+                redisClient.set(skuId + DefaultValue.STOCK_SUFFIX_VALUE, stock.toString());
+            }
+        } catch (Exception e) {
+            skuVO = getSkuVOService(skuId);
+            stock = skuVO.getStock();
+        }
+        return stock;
+    }
 }

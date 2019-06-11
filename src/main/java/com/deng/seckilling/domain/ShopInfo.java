@@ -24,6 +24,13 @@ public class ShopInfo {
      */
     private String shopName;
 
+    private Long userId;
+
+    public ShopInfo(String shopName, Long userId) {
+        this.shopName = shopName;
+        this.userId = userId;
+    }
+
     public ShopInfo(String shopName) {
         this.shopName = shopName;
     }

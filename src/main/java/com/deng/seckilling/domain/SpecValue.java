@@ -21,6 +21,15 @@ public class SpecValue {
         this.id = id;
     }
 
+    public SpecValue(String specValue) {
+        this.specValue = specValue;
+    }
+
+    public SpecValue(Long specId, String specValue) {
+        this.specId = specId;
+        this.specValue = specValue;
+    }
+
     private Long id;
 
     /**

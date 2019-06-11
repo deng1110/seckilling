@@ -21,12 +21,16 @@ public class Sku {
         this.id = id;
     }
 
+    public Sku(String skuNo) {
+        this.skuNo = skuNo;
+    }
+
     private Long id;
 
     /**
      * 商品编号
      */
-    private Long skuNo;
+    private String skuNo;
 
     /**
      * 商品名称

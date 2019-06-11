@@ -186,7 +186,7 @@ public class GoodsSqlProvider {
     }
 
     public String listSpecValue(SpecValue specValue) {
-        String sql = "selct * from goods_spec_value where 1=1 ";
+        String sql = "select * from goods_spec_value where 1=1 ";
         if (specValue == null) {
             sql += " and 1=0 ";
             return sql;
