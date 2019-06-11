@@ -14,7 +14,7 @@ import lombok.*;
 @AllArgsConstructor
 public class SpuDTO {
 
-    private String SpuNo;
+    private String spuNo;
 
     private String goodsName;
 
