@@ -44,4 +44,13 @@ public class ErrorCode {
     public static final ErrorInfo SPUID_NOTEXIST_ERROR = new ErrorInfo(1028,"该SPU不存在");
     public static final ErrorInfo SPECID_NOTEXIST_ERROR = new ErrorInfo(1029,"该规格不存在");
     public static final ErrorInfo SAVE_SPUSPEC_ERROR = new ErrorInfo(1030, "保存SPU和规格关联失败");
+    public static final ErrorInfo SPECNO_NOTEXIST_ERROR = new ErrorInfo(1031, "规格编号不存在");
+    public static final ErrorInfo SPECVALUE_EXIST_ERROR = new ErrorInfo(1032, "规格值已存在");
+    public static final ErrorInfo SAVE_SPECVALUE_ERROR = new ErrorInfo(1033,"增加规格值失败");
+    public static final ErrorInfo SPUNO_NOTEXIST_ERROR = new ErrorInfo(1034, "SPU编号不存在");
+    public static final ErrorInfo SKUNO_EXIST_ERROR = new ErrorInfo(1035,"SKU编号已存在");
+    public static final ErrorInfo ILLEGAL_PRICE_ERROR = new ErrorInfo(1036,"设定价格不允许低于最低价格");
+    public static final ErrorInfo SHOPNAME_NOTEXIST_ERROR = new ErrorInfo(1037, "该店铺名称不存在");
+    public static final ErrorInfo ILLEGAL_SHOPNAME_ERROR = new ErrorInfo(1037, "请填写属于你的店铺名称");
+    public static final ErrorInfo SAVE_SKU_ERROR = new ErrorInfo(1038,"保存SKU失败");
 }

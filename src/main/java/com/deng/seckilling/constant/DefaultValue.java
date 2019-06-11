@@ -48,4 +48,9 @@ public class DefaultValue {
      * 超级管理员的用户的ID
      */
     public static final Long SESSION_ROOT_VALUE = 10000L;
+
+    /**
+     * redis库存缓存后缀
+     */
+    public static final String STOCK_SUFFIX_VALUE = "-STOCK";
 }
