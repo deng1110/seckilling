@@ -5,15 +5,14 @@ import com.deng.seckilling.dao.GoodsMapper;
 import com.deng.seckilling.domain.*;
 import com.deng.seckilling.dto.SkuDTO;
 import com.deng.seckilling.rpc.redis.RedisClient;
-import com.deng.seckilling.rpc.util.CheckDataUtils;
-import com.deng.seckilling.rpc.util.DataUtils;
-import com.deng.seckilling.rpc.util.DateUtils;
+import com.deng.seckilling.rpc.util.*;
 import com.deng.seckilling.vo.SkuVO;
 import com.deng.seckilling.vo.SpecValueVO;
 import com.deng.seckilling.vo.SpuSpecVO;
 import com.deng.seckilling.vo.SpuVO;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +27,7 @@ import java.util.List;
  * @since: 2019/5/9 22:28
  */
 @Service
+@Slf4j
 public class GoodsServcie {
 
     @Resource
@@ -448,19 +448,51 @@ public class GoodsServcie {
         return skuSpecValue.getId();
     }
 
+    /**
+     * 秒杀service加分布式锁，被锁住是安全的，并且是事务，原子性的。
+     *
+     * @param userCookie 用户信息
+     * @param skuId 购买商品skuId
+     * @param number 购买数量
+     * @return 订单唯一标识
+     */
     @Transactional
-    public Long miaoshaServcie(UserCookie userCookie, Long skuId, Integer number) {
-        //缓存库存减少
+    public String miaoshaServcie(UserCookie userCookie, Long skuId, Integer number) {
+        //缓存库存减少(双重检测)，双重检测如果出现不一致，会出现库存余量为1，两个用户同时购买1件，最终都未购买成功。
+        // ---------------------------------------------------
+
+        //第一次检测，检测缓存中的key是否存在，且需要现有库存大于购买数量
+        if (!redisClient.exists(skuId + DefaultValue.STOCK_SUFFIX_VALUE) || number > Integer.parseInt(redisClient.get(skuId + DefaultValue.STOCK_SUFFIX_VALUE))) {
+            log.warn("===>concurrent operation，the current inventory < {}", number);
+            return null;
+        }
+
+        //执行减少库存操作
         while (number > 0) {
+            //用循环的指定键对应的数字值自减是减少库存的最优操作
             redisClient.decr(skuId + DefaultValue.STOCK_SUFFIX_VALUE);
             number--;
         }
-        //发mq让mysql库存减少
 
-        //生成订单
+        //第二次检测，检测缓存中的key是否存在，且需要现有库存大于0
+        if (!redisClient.exists(skuId + DefaultValue.STOCK_SUFFIX_VALUE) || CheckDataUtils.isEmpty(Integer.parseInt(redisClient.get(skuId + DefaultValue.STOCK_SUFFIX_VALUE)))) {
+            //此时在加分布式锁状态下，库存判断在同一把锁的状态中库存量前后不一致了，基本就是分布式锁服务不可用即宕机了，记error日志，并报警干预
+            log.error("===>lock status, Inventory judgment is inconsistent");
+            //TODO:发报警，带参数：skuID，自动化处理或人工干预，修复此处及时修复此处数据。
+            //返回null，保证不会多卖商品，即使故障也可保证，（成交量 <= 秒杀库存量）。不会用我的网站导致赔偿问题。大不了少卖几件，问题不大。
+            return null;
+        }
+
+        //----------------------------------------------------
+
+        //执行到此处，也就是缓存中的库存已经减少，人后发mq让mysql库存减少number
+
+        //发mq生成订单，产生一个唯一标识，用来表示哪个订单，因为异步生成订单，订单ID不可同步拿到。
+        String orderSecretStr = userCookie.getId().toString()+skuId.toString()+UUIDUtils.uuid()+System.currentTimeMillis();
+        String orderSecret = Md5Utils.encryptMd5(orderSecretStr);
 
         //返回订单ID
-        return null;
+        return orderSecret;
     }
 
     /**
@@ -473,13 +505,24 @@ public class GoodsServcie {
         Integer stock;
         SkuVO skuVO;
         try {
-            stock = Integer.parseInt(redisClient.get(skuId + DefaultValue.STOCK_SUFFIX_VALUE));
-            if (null == stock) {
+            //查缓存中对应该skuId的库存，首次进入,如果detail没种上缓存，不依赖缓存。
+            String stockStr = redisClient.get(skuId + DefaultValue.STOCK_SUFFIX_VALUE);
+
+            //验证缓存是否存在。
+            // 1、如果不存在，查库，种上缓存。返回库存量
+            if (CheckDataUtils.isEmpty(stockStr)) {
                 skuVO = getSkuVOService(skuId);
                 stock = skuVO.getStock();
+                //此处种上缓存，之后才只会走缓存不用查库，虽然限流，也要防止穿击穿数据库
                 redisClient.set(skuId + DefaultValue.STOCK_SUFFIX_VALUE, stock.toString());
+            } else {
+                //2、缓存存在，信任缓存，但要保证缓存与数据库的强一致性。返回库存量
+                stock = Integer.parseInt(stockStr);
             }
         } catch (Exception e) {
+            //防御式容错，如果缓存服务不可用即宕机了，不能影响整体服务，即无缓存服务，直接查库。风险很大。记error，发报警
+            log.error("===>redis Exception:{}", e);
+            //TODO:发报警，自动化修复，或者人工干预。
             skuVO = getSkuVOService(skuId);
             stock = skuVO.getStock();
         }

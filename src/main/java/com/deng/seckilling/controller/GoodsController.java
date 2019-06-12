@@ -236,7 +236,7 @@ public class GoodsController {
 
     /**
      * 展示某个商品细节
-     * 种缓存，为接下来秒杀削峰，限流做准备
+     * 种上缓存，为接下来秒杀削峰，限流做准备
      */
     @RequestMapping("to_goods_detail")
     @IsLogin
@@ -247,8 +247,9 @@ public class GoodsController {
         SkuVO skuVO = goodsServcie.getSkuVOService(skuId);
 
         //如果redis缓存有值则信任这个值，认为其是最新的值，从缓存中读
-        Integer stock = Integer.parseInt(redisClient.get(skuId + DefaultValue.STOCK_SUFFIX_VALUE));
-        if (!CheckDataUtils.isEmpty(stock)) {
+        String stockStr = redisClient.get(skuId + DefaultValue.STOCK_SUFFIX_VALUE);
+        if (!CheckDataUtils.isEmpty(stockStr)) {
+            Integer stock = Integer.parseInt(stockStr);
             skuVO.setStock(stock);
         }
 
@@ -282,30 +283,41 @@ public class GoodsController {
     /**
      * 秒杀点，核心！在detail的时候种上缓存了
      *
-     * @param model
-     * @param userCookie
-     * @param skuId
-     * @return
+     * @param model      内嵌模型
+     * @param userCookie 自定义内嵌用户信息
+     * @param skuId      商品skuId
+     * @param number     购买数量
+     * @return 订单ID
      */
     @PostMapping("/miaosha")
     @IsLogin
     public String miaosha(Model model, UserCookie userCookie, Long skuId, Integer number) {
-        if (CheckDataUtils.isEmpty(skuId)) {
+        model.addAttribute("user", userCookie);//供展示界面用户基本信息。
+
+        if (CheckDataUtils.isEmpty(skuId)) {//指定被购买的sku
             return "common/miaoshao_fail";
         }
-        number = CheckDataUtils.isEmpty(number) ? 1 : number;
-        model.addAttribute("user", userCookie);
+
+        number = CheckDataUtils.isEmpty(number) ? 1 : number;//number校验，默认购买一件
+
+        //限流
+        //先在非加锁状态验证库存（较小代价做出最快判断），此处是库存的前置判断，类似于单例的double check双重检查锁
         Integer stock = goodsServcie.getSkuStock(skuId);
-        if (CheckDataUtils.isEmpty(stock)) {
+        if (CheckDataUtils.isEmpty(stock) || stock < number) {
             return "common/miaoshao_fail";
         }
 
         //分布式锁
         redisLocker.lock(userCookie.getUserName());
-        Long orderId = goodsServcie.miaoshaServcie(userCookie, skuId, number);
+        String orderSecret = goodsServcie.miaoshaServcie(userCookie, skuId, number);
         redisLocker.unlock(userCookie.getUserName());
 
-        model.addAttribute("orederId", orderId);
+        if (CheckDataUtils.isEmpty(orderSecret)) {
+            log.error("===>create order fail,message, userName:{}, skuId:{}, purchase number:{}", userCookie.getUserName(), skuId, number);
+            return "common/miaoshao_fail";
+        }
+
+        model.addAttribute("orderSecret", orderSecret);
         return "common/order";
     }
 

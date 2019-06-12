@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * RPC-分布式锁
+ *
  * @author: dengjunbing
  * @version: v1.0
  * @since: 2019/6/11 19:44
