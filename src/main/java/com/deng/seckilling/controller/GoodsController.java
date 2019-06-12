@@ -308,9 +308,9 @@ public class GoodsController {
         }
 
         //分布式锁
-        redisLocker.lock(userCookie.getUserName());
+        redisLocker.lock(skuId.toString());
         String orderSecret = goodsServcie.miaoshaServcie(userCookie, skuId, number);
-        redisLocker.unlock(userCookie.getUserName());
+        redisLocker.unlock(skuId.toString());
 
         if (CheckDataUtils.isEmpty(orderSecret)) {
             log.error("===>create order fail,message, userName:{}, skuId:{}, purchase number:{}", userCookie.getUserName(), skuId, number);

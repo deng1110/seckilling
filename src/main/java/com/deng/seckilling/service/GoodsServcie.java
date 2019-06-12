@@ -4,6 +4,8 @@ import com.deng.seckilling.constant.DefaultValue;
 import com.deng.seckilling.dao.GoodsMapper;
 import com.deng.seckilling.domain.*;
 import com.deng.seckilling.dto.SkuDTO;
+import com.deng.seckilling.rabbitmq.MQSender;
+import com.deng.seckilling.rabbitmq.MessageDTO;
 import com.deng.seckilling.rpc.redis.RedisClient;
 import com.deng.seckilling.rpc.util.*;
 import com.deng.seckilling.vo.SkuVO;
@@ -35,6 +37,9 @@ public class GoodsServcie {
 
     @Resource
     private RedisClient redisClient;
+
+    @Resource
+    private MQSender mqSender;
 
     /**
      * 注册店铺信息
@@ -452,30 +457,29 @@ public class GoodsServcie {
      * 秒杀service加分布式锁，被锁住是安全的，并且是事务，原子性的。
      *
      * @param userCookie 用户信息
-     * @param skuId 购买商品skuId
-     * @param number 购买数量
+     * @param skuId      购买商品skuId
+     * @param number     购买数量
      * @return 订单唯一标识
      */
     @Transactional
     public String miaoshaServcie(UserCookie userCookie, Long skuId, Integer number) {
         //缓存库存减少(双重检测)，双重检测如果出现不一致，会出现库存余量为1，两个用户同时购买1件，最终都未购买成功。
-        // ---------------------------------------------------
 
         //第一次检测，检测缓存中的key是否存在，且需要现有库存大于购买数量
         if (!redisClient.exists(skuId + DefaultValue.STOCK_SUFFIX_VALUE) || number > Integer.parseInt(redisClient.get(skuId + DefaultValue.STOCK_SUFFIX_VALUE))) {
             log.warn("===>concurrent operation，the current inventory < {}", number);
             return null;
         }
-
+        Integer tmp = number;
         //执行减少库存操作
-        while (number > 0) {
+        while (tmp > 0) {
             //用循环的指定键对应的数字值自减是减少库存的最优操作
             redisClient.decr(skuId + DefaultValue.STOCK_SUFFIX_VALUE);
-            number--;
+            tmp--;
         }
 
         //第二次检测，检测缓存中的key是否存在，且需要现有库存大于0
-        if (!redisClient.exists(skuId + DefaultValue.STOCK_SUFFIX_VALUE) || CheckDataUtils.isEmpty(Integer.parseInt(redisClient.get(skuId + DefaultValue.STOCK_SUFFIX_VALUE)))) {
+        if (!redisClient.exists(skuId + DefaultValue.STOCK_SUFFIX_VALUE) || 0 > Integer.parseInt(redisClient.get(skuId + DefaultValue.STOCK_SUFFIX_VALUE))) {
             //此时在加分布式锁状态下，库存判断在同一把锁的状态中库存量前后不一致了，基本就是分布式锁服务不可用即宕机了，记error日志，并报警干预
             log.error("===>lock status, Inventory judgment is inconsistent");
             //TODO:发报警，带参数：skuID，自动化处理或人工干预，修复此处及时修复此处数据。
@@ -483,13 +487,12 @@ public class GoodsServcie {
             return null;
         }
 
-        //----------------------------------------------------
-
-        //执行到此处，也就是缓存中的库存已经减少，人后发mq让mysql库存减少number
-
-        //发mq生成订单，产生一个唯一标识，用来表示哪个订单，因为异步生成订单，订单ID不可同步拿到。
-        String orderSecretStr = userCookie.getId().toString()+skuId.toString()+UUIDUtils.uuid()+System.currentTimeMillis();
+        //执行到此处，也就是缓存中的库存已经减少，然后发mq 减少mysql对应库存以及生成订单
+        //产生一个唯一标识，用来表示哪个订单，因为异步生成订单，订单ID不可同步拿到。
+        String orderSecretStr = userCookie.getId().toString() + skuId.toString() + UUIDUtils.uuid() + System.currentTimeMillis();
         String orderSecret = Md5Utils.encryptMd5(orderSecretStr);
+        MessageDTO messageDTO = new MessageDTO(userCookie.getId(), skuId, orderSecret, number);
+        mqSender.sendMiaoshaMessage(messageDTO);
 
         //返回订单ID
         return orderSecret;
@@ -528,4 +531,5 @@ public class GoodsServcie {
         }
         return stock;
     }
+
 }

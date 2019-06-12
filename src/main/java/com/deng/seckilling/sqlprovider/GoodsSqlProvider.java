@@ -63,48 +63,48 @@ public class GoodsSqlProvider {
     public String updateSpecValue(SpecValue specValue) {
         String sql = "update goods_spec_value set id = #{id} ";
         if (null != specValue.getSpecId()) {
-            sql += " ,spec_id = {#specId} ";
+            sql += " ,spec_id = #{specId} ";
         }
         if (null != specValue.getSpecValue()) {
-            sql += " ,spec_value = {#specValue} ";
+            sql += " ,spec_value = #{specValue} ";
         }
-        sql += " where id = {#id}";
+        sql += " where id = #{id}";
         return sql;
     }
 
     public String updateSkuSpecValue(SkuSpecValue skuSpecValue) {
         String sql = "update goods_sku_spec_value set id = #{id} ";
         if (null != skuSpecValue.getSkuId()) {
-            sql += " ,sku_id = {#skuId} ";
+            sql += " ,sku_id = #{skuId} ";
         }
         if (null != skuSpecValue.getSpecValueId()) {
-            sql += " ,spec_value_id = {#specValueId} ";
+            sql += " ,spec_value_id = #{specValueId} ";
         }
-        sql += " where id = {#id}";
+        sql += " where id = #{id}";
         return sql;
     }
 
     public String updateSku(Sku sku) {
-        String sql = "update sku set id = {#id} ";
+        String sql = "update goods_sku set id = #{id} ";
         if (null != sku.getSkuNo()) {
-            sql += " ,sku_no = {#skuNo} ";
+            sql += " ,sku_no = #{skuNo} ";
         }
         if (null != sku.getSkuName()) {
-            sql += " ,sku_name = {#skuName} ";
+            sql += " ,sku_name = #{skuName} ";
         }
         if (null != sku.getPrice()) {
-            sql += " ,price = {#price} ";
+            sql += " ,price = #{price} ";
         }
         if (null != sku.getStock()) {
-            sql += " ,stock = {#stock} ";
+            sql += " ,stock = #{stock} ";
         }
         if (null != sku.getSpuId()) {
-            sql += " ,spu_id = {#spuId} ";
+            sql += " ,spu_id = #{spuId} ";
         }
         if (null != sku.getShopId()) {
-            sql += " ,shop_id = {#shopId} ";
+            sql += " ,shop_id = #{shopId} ";
         }
-        sql += " where id = {#id}";
+        sql += " where id = #{id}";
         return sql;
     }
 
