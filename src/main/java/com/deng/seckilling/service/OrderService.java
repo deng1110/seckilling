@@ -4,11 +4,15 @@ import com.deng.seckilling.dao.OrderMapper;
 import com.deng.seckilling.domain.Order;
 import com.deng.seckilling.domain.Sku;
 import com.deng.seckilling.rpc.util.CheckDataUtils;
+import com.deng.seckilling.rpc.util.DateUtils;
 import com.deng.seckilling.vo.SkuVO;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.Date;
 
 /**
  * 订单Service
@@ -47,11 +51,12 @@ public class OrderService {
         //生成订单
         Order order = new Order();
         order.setGoodsName(skuVO.getSkuName());
-        order.setMiaoshaoPrice(skuVO.getMiaoshaPrice());
+        order.setMiaoshaPrice(skuVO.getMiaoshaPrice());
         order.setNumber(number);
         order.setUserId(userId);
         order.setOrderSecret(orderSecret);
-        order.setShippingAddress(" ");
+        order.setOrderTime(DateUtils.dateToStr(new Date()));
+        order.setShippingAddress("北京市朝阳区三里屯路19号太古里");
         order.setStatus(0);
         saveOrder(order);
     }
@@ -65,5 +70,28 @@ public class OrderService {
     public Long saveOrder(Order order) {
         orderMapper.insertOrder(order);
         return order.getId();
+    }
+
+    /**
+     * 获取订单详情
+     *
+     * @param orderSecret 订单唯一标识
+     * @return 订单详情
+     */
+    public Order getOrder(String orderSecret){
+        return orderMapper.getOrder(orderSecret);
+    }
+
+    /**
+     * 根据用户ID展示其订单
+     *
+     * @param page 第几页
+     * @param size 每页展示项数
+     * @param userId 用户ID
+     * @return 订单组
+     */
+    public PageInfo<Order> listOrder(Integer page, Integer size,Long userId) {
+        PageHelper.startPage(page,size);
+        return new PageInfo<Order>(orderMapper.listOrder(userId));
     }
 }

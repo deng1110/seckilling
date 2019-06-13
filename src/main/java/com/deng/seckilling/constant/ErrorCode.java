@@ -53,4 +53,6 @@ public class ErrorCode {
     public static final ErrorInfo SHOPNAME_NOTEXIST_ERROR = new ErrorInfo(1037, "该店铺名称不存在");
     public static final ErrorInfo ILLEGAL_SHOPNAME_ERROR = new ErrorInfo(1037, "请填写属于你的店铺名称");
     public static final ErrorInfo SAVE_SKU_ERROR = new ErrorInfo(1038,"保存SKU失败");
+    public static final ErrorInfo SKUID_NOTEXIST_ERROR = new ErrorInfo(1039,"该商品已售罄");
+    public static final ErrorInfo STOCK_NOTENOUGH_ERROR = new ErrorInfo(1040, "该商品库存不足");
 }

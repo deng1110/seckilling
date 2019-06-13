@@ -18,12 +18,12 @@ import java.util.List;
 @Mapper
 public interface OrderMapper {
 
-    @Insert("insert into order_info (order_secret,goods_name,miaosha_price,number,user_id,order_time,shipping_address,status) values(#{orderSecret},#{goodsName},#{miaoshaoPrice},#{number},#{userId},#{orderTime},#{shippingAddress},#{status}) ")
+    @Insert("insert into order_info (order_secret,goods_name,miaosha_price,number,user_id,order_time,shipping_address,status) values(#{orderSecret},#{goodsName},#{miaoshaPrice},#{number},#{userId},#{orderTime},#{shippingAddress},#{status}) ")
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     int insertOrder(Order order);
 
-    @Select("SELECT * FROM order_info where id = #{orderId}")
-    Order getOrder(Long orderId);
+    @Select("SELECT * FROM order_info where order_secret = #{orderSecret}")
+    Order getOrder(String orderSecret);
 
     @Select("SELECT * FROM order_info where user_id = #{userId}")
     List<Order> listOrder(Long userId);

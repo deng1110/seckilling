@@ -55,18 +55,15 @@
         </tr>
         <tr>
             <td>库存数量</td>
-            <td colspan="3" th:id = "stock" th:text="${goods.getStock()}"></td>
+            <td colspan="3" th:id="stock" th:text="${goods.getStock()}"></td>
         </tr>
         <tr>
             <td>购买数量</td>
-            <form id="miaoshaForm" method="post" action="/goods/miaosha">
-                <td><input type="number" name="number" th:value="1"/></td>
-                <td>
-
-                    <button class="btn btn-primary btn-block" type="submit" id="buyButton">立即秒杀</button>
-                    <input type="hidden" name="skuId" th:value="${goods.getSkuId()}"/>
-                </td>
-            </form>
+            <td><input type="number" name="number" id="number" th:value="1"/></td>
+            <td>
+                <input type="hidden" name="skuId" id="skuId" th:value="${goods.getSkuId()}"/>
+                <button class="btn btn-primary btn-block" type="button" onclick="miaosha()" id="buyButton">立即秒杀</button>
+            </td>
         </tr>
     </table>
 </div>
@@ -75,6 +72,82 @@
     $(function () {
         countDown();
     });
+
+    function miaosha() {
+        g_showLoading();
+        var skuId = $("#skuId").val();
+        var number = $("#number").val();
+
+        $.ajax({
+            url: "/goods/miaosha",
+            type: "POST",
+            data: {
+                skuId: skuId,
+                number: number
+            },
+            success: function (data) {
+                if (data.code == 0) {
+                    getResult(data.data);
+                } else {
+                    layer.closeAll();
+                    if (data.code == -1) {
+                        layer.msg("服务器繁忙");
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                }
+            },
+            error: function () {
+                layer.msg("服务器繁忙");
+                layer.setTimeout(2000);
+                layer.closeAll();
+            }
+        });
+
+    }
+
+    function getResult(orderSecret) {
+        $.ajax({
+            url: "/order/getorderdetail",
+            type: "GET",
+            data: {
+                orderSecret: orderSecret,
+            },
+            success: function (data) {
+                if (data.code == 0) {
+                    if (data.data == null) {
+                        setTimeout(function(){
+                            getResult(orderSecret);
+                        }, 200);
+                    } else {
+                        layer.confirm("恭喜你，秒杀成功！查看订单？", {btn:["确定","取消"]},
+                            function(){
+                                var order = data.data;
+                                window.location.href = "/order/to_order_detail?id="+order["id"]+"&orderSecret="+order["orderSecret"]+"&goodsName="+order["goodsName"]+"&miaoshaPrice="+order["miaoshaPrice"]+"&number="+order["number"]+"&userId="+order["userId"]+"&orderTime="+order["orderTime"]+"&shippingAddress="+order["shippingAddress"]+"&status="+order["status"];
+                            },
+                            function(){
+                                window.location.reload();
+                            });
+
+
+                    }
+                } else {
+                    layer.closeAll();
+                    if (data.code == -1) {
+                        layer.msg("服务器繁忙");
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                }
+            },
+            error: function () {
+                layer.msg("服务器繁忙");
+                layer.setTimeout(2000);
+                layer.closeAll();
+            }
+        });
+
+    }
 
     function countDown() {
         var remainSeconds = $("#remainSeconds").val();

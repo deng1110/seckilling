@@ -27,7 +27,7 @@ public class Order {
     /**
      * 秒杀价格
      */
-    private Double miaoshaoPrice;
+    private Double miaoshaPrice;
 
     /**
      * 购买数量

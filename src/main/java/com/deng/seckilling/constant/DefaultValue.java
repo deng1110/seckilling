@@ -52,5 +52,10 @@ public class DefaultValue {
     /**
      * redis库存缓存后缀
      */
-    public static final String STOCK_SUFFIX_VALUE = "-STOCK";
+    public static final String STOCK_SUFFIX_VALUE = "_STOCK";
+
+    /**
+     * 分布式锁前缀
+     */
+    public static final String LOCKER_PREFIX_VALUE = "MIAOSHA_LOCKER_";
 }

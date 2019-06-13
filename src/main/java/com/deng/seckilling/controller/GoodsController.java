@@ -283,19 +283,17 @@ public class GoodsController {
     /**
      * 秒杀点，核心！在detail的时候种上缓存了
      *
-     * @param model      内嵌模型
      * @param userCookie 自定义内嵌用户信息
      * @param skuId      商品skuId
      * @param number     购买数量
      * @return 订单ID
      */
     @PostMapping("/miaosha")
+    @ResponseBody
     @IsLogin
-    public String miaosha(Model model, UserCookie userCookie, Long skuId, Integer number) {
-        model.addAttribute("user", userCookie);//供展示界面用户基本信息。
-
+    public RpcResponse miaosha(UserCookie userCookie, Long skuId, Integer number) {
         if (CheckDataUtils.isEmpty(skuId)) {//指定被购买的sku
-            return "common/miaoshao_fail";
+            return RpcResponse.error(ErrorCode.STOCK_NOTENOUGH_ERROR);
         }
 
         number = CheckDataUtils.isEmpty(number) ? 1 : number;//number校验，默认购买一件
@@ -304,21 +302,20 @@ public class GoodsController {
         //先在非加锁状态验证库存（较小代价做出最快判断），此处是库存的前置判断，类似于单例的double check双重检查锁
         Integer stock = goodsServcie.getSkuStock(skuId);
         if (CheckDataUtils.isEmpty(stock) || stock < number) {
-            return "common/miaoshao_fail";
+            return RpcResponse.error(ErrorCode.STOCK_NOTENOUGH_ERROR);
         }
 
         //分布式锁
-        redisLocker.lock(skuId.toString());
+        redisLocker.lock(DefaultValue.LOCKER_PREFIX_VALUE + skuId);
         String orderSecret = goodsServcie.miaoshaServcie(userCookie, skuId, number);
-        redisLocker.unlock(skuId.toString());
+        redisLocker.unlock(DefaultValue.LOCKER_PREFIX_VALUE + skuId);
 
         if (CheckDataUtils.isEmpty(orderSecret)) {
             log.error("===>create order fail,message, userName:{}, skuId:{}, purchase number:{}", userCookie.getUserName(), skuId, number);
-            return "common/miaoshao_fail";
+            return RpcResponse.error(ErrorCode.STOCK_NOTENOUGH_ERROR);
         }
 
-        model.addAttribute("orderSecret", orderSecret);
-        return "common/order";
+        return RpcResponse.success(orderSecret);
     }
 
 
