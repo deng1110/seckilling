@@ -30,7 +30,7 @@ public interface UserMapper {
      * @param user 待插入数据的载体
      * @return 影响的记录数
      */
-    @Insert("insert into user_info (user_name, pass_word, sex, phone_number) values(#{userName}, #{passWord}, #{sex}, #{phoneNumber})")
+    @Insert("insert into user_info (user_name, pass_word, sex, phone_number, rank) values(#{userName}, #{passWord}, #{sex}, #{phoneNumber}, #{rank})")
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
     int insertUser(User user);
 

@@ -135,10 +135,10 @@
             success: function (data) {
                 layer.closeAll();
                 if (data.code == 0) {
-                    layer.msg("注册成功，2s后跳转登录");
+                    layer.msg("注册成功，正在跳转登录");
                     setTimeout(() => {
                         window.location.href = "/user/to_login";
-                    }, 2000)
+                    }, 600)
                 } else {
                     layer.msg(data.msg);
                 }

@@ -46,7 +46,7 @@ public class UserService {
      * @return 注册成功的用户信息
      */
     public User registerUserService(BaseUserInfoDTO baseUserInfoDTO) {
-        baseUserInfoDTO.setPassWord(Md5Utils.encryptMd5(baseUserInfoDTO.getPassWord()));
+        baseUserInfoDTO.setPassWord(baseUserInfoDTO.getPassWord());
         User user = new User();
         DataUtils.entityTransform(baseUserInfoDTO, user);
         user.setStatus(Status.NORMAL.getValue());
@@ -237,6 +237,9 @@ public class UserService {
      */
     public String getCookieValue(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
+        if(CheckDataUtils.isEmpty(cookies)){
+            return null;
+        }
         for (Cookie cookie : cookies) {
             if (DefaultValue.COOKIE_NAME.equals(cookie.getName())) {
                 return cookie.getValue();

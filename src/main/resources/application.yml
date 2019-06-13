@@ -63,12 +63,12 @@ redis:
   poolMaxWait: 3 #最大等待时间
 
 #rabbitmq
-rabbitmq:
-  host: 127.0.0.1
-  userName: guest
-  passWord: guest
-  port: 5672
-  virtual: seckilling
+#rabbitmq:
+#  host: 127.0.0.1
+#  userName: guest
+#  passWord: guest
+#  port: 5672
+#  virtual: seckilling
 
 #pagehelper分页插件配置
 pagehelper:

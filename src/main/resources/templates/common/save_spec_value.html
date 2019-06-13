@@ -31,7 +31,7 @@
             <label class="form-label col-md-1">规格编号</label>
             <div class="col-md-5">
                 <input id="specNo" name="specNo" class="form-control" type="text" placeholder="规格编号" required="true"
-                       minlength="2" maxlength="10"/>
+                       minlength="2" maxlength="10" th:disabled="${specNo} != null" th:value="${specNo}"/>
             </div>
         </div>
     </div>

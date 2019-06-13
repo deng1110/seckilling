@@ -180,8 +180,9 @@ public class GoodsController {
 
     @RequestMapping("to_save_spec_value")
     @IsLogin
-    public String to_save_spec_value(Model model, UserCookie userCookie) {
+    public String to_save_spec_value(Model model, UserCookie userCookie, String specNo) {
         model.addAttribute("user", userCookie);
+        model.addAttribute("specNo", specNo);
         return "common/save_spec_value";
     }
 
@@ -200,8 +201,9 @@ public class GoodsController {
 
     @RequestMapping("to_save_sku")
     @IsLogin
-    public String to_save_sku(Model model, UserCookie userCookie) {
+    public String to_save_sku(Model model, UserCookie userCookie, String spuNo) {
         model.addAttribute("user", userCookie);
+        model.addAttribute("spuNo", spuNo);
         return "common/save_sku";
     }
 
@@ -217,6 +219,33 @@ public class GoodsController {
         FenyeUtils.setFenyeValue(model, skuVOPageInfo);
         return "common/list_sku";
     }
+
+    @RequestMapping("/to_list_spu_no")
+    @IsLogin
+    public String to_list_spu_no(Model model, UserCookie userCookie, Integer page, Integer size) {
+        model.addAttribute("user", userCookie);
+        page = CheckDataUtils.isEmpty(page) ? DefaultValue.FENYE_FIRSTPAGE_VALUE : page;
+        size = CheckDataUtils.isEmpty(size) ? DefaultValue.FENYE_PAGESIZE_VALUE : size;
+        PageInfo<SpuVO> spuVOPageInfo = goodsServcie.listSpuVO(page, size, new Spu());
+        model.addAttribute("data", spuVOPageInfo.getList());
+        model.addAttribute("url", "/common/to_list_spu_no");
+        FenyeUtils.setFenyeValue(model, spuVOPageInfo);
+        return "common/list_spu_no";
+    }
+
+    @RequestMapping("/to_list_spec_no")
+    @IsLogin
+    public String to_list_spec_no(Model model, UserCookie userCookie, Integer page, Integer size) {
+        model.addAttribute("user", userCookie);
+        page = CheckDataUtils.isEmpty(page) ? DefaultValue.FENYE_FIRSTPAGE_VALUE : page;
+        size = CheckDataUtils.isEmpty(size) ? DefaultValue.FENYE_PAGESIZE_VALUE : size;
+        PageInfo<Specification> specificationPageInfo = goodsServcie.listSpecService(page, size, new Specification());
+        model.addAttribute("data", specificationPageInfo.getList());
+        model.addAttribute("url", "/common/to_list_spec_no");
+        FenyeUtils.setFenyeValue(model, specificationPageInfo);
+        return "common/list_spec_no";
+    }
+
 
     /**
      * 展示商品列表
