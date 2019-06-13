@@ -228,7 +228,7 @@ public class GoodsController {
         size = CheckDataUtils.isEmpty(size) ? DefaultValue.FENYE_PAGESIZE_VALUE : size;
         PageInfo<SpuVO> spuVOPageInfo = goodsServcie.listSpuVO(page, size, new Spu());
         model.addAttribute("data", spuVOPageInfo.getList());
-        model.addAttribute("url", "/common/to_list_spu_no");
+        model.addAttribute("url", "/goods/to_list_spu_no");
         FenyeUtils.setFenyeValue(model, spuVOPageInfo);
         return "common/list_spu_no";
     }
@@ -241,7 +241,7 @@ public class GoodsController {
         size = CheckDataUtils.isEmpty(size) ? DefaultValue.FENYE_PAGESIZE_VALUE : size;
         PageInfo<Specification> specificationPageInfo = goodsServcie.listSpecService(page, size, new Specification());
         model.addAttribute("data", specificationPageInfo.getList());
-        model.addAttribute("url", "/common/to_list_spec_no");
+        model.addAttribute("url", "/goods/to_list_spec_no");
         FenyeUtils.setFenyeValue(model, specificationPageInfo);
         return "common/list_spec_no";
     }
@@ -319,7 +319,7 @@ public class GoodsController {
      */
     @PostMapping("/miaosha")
     @ResponseBody
-    @IsLogin
+    @IsLogin(requiredController = true)
     public RpcResponse miaosha(UserCookie userCookie, Long skuId, Integer number) {
         if (CheckDataUtils.isEmpty(skuId)) {//指定被购买的sku
             return RpcResponse.error(ErrorCode.STOCK_NOTENOUGH_ERROR);

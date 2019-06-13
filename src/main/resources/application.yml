@@ -58,8 +58,8 @@ redis:
   passWord: bamboo
   port:  6379
   timeout: 3
-  poolMaxTotal: 10 #最大连接数
-  poolMaxldle: 10 #最大空闲数
+  poolMaxTotal: 1000 #最大连接数
+  poolMaxldle: 1000 #最大空闲数
   poolMaxWait: 3 #最大等待时间
 
 #rabbitmq

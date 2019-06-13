@@ -1,8 +1,10 @@
 package com.deng.seckilling.service;
 
+import com.deng.seckilling.constant.DefaultValue;
 import com.deng.seckilling.dao.OrderMapper;
 import com.deng.seckilling.domain.Order;
 import com.deng.seckilling.domain.Sku;
+import com.deng.seckilling.rpc.redis.RedisLocker;
 import com.deng.seckilling.rpc.util.CheckDataUtils;
 import com.deng.seckilling.rpc.util.DateUtils;
 import com.deng.seckilling.vo.SkuVO;
@@ -28,6 +30,9 @@ public class OrderService {
     private OrderMapper orderMapper;
 
     @Resource
+    private RedisLocker redisLocker;
+
+    @Resource
     private GoodsServcie goodsServcie;
 
     /**
@@ -37,8 +42,14 @@ public class OrderService {
      * @param skuId       商品skuId
      * @param orderSecret 订单的唯一标识
      */
+    public void afterMiaoshaService(Long userId, Long skuId, String orderSecret, Integer number) {
+        redisLocker.lock(DefaultValue.LOCKER_PREFIX_VALUE + skuId + "after");
+        afterMiaosha(userId, skuId, orderSecret, number);
+        redisLocker.unlock(DefaultValue.LOCKER_PREFIX_VALUE + skuId + "after");
+    }
+
     @Transactional
-    public void afterMiaosha(Long userId, Long skuId, String orderSecret, Integer number) {
+    protected void afterMiaosha(Long userId, Long skuId, String orderSecret, Integer number) {
         //mysql库存减少
         SkuVO skuVO = goodsServcie.getSkuVOService(skuId);
         Integer newStock = skuVO.getStock() - number;
@@ -78,20 +89,20 @@ public class OrderService {
      * @param orderSecret 订单唯一标识
      * @return 订单详情
      */
-    public Order getOrder(String orderSecret){
+    public Order getOrder(String orderSecret) {
         return orderMapper.getOrder(orderSecret);
     }
 
     /**
      * 根据用户ID展示其订单
      *
-     * @param page 第几页
-     * @param size 每页展示项数
+     * @param page   第几页
+     * @param size   每页展示项数
      * @param userId 用户ID
      * @return 订单组
      */
-    public PageInfo<Order> listOrder(Integer page, Integer size,Long userId) {
-        PageHelper.startPage(page,size);
+    public PageInfo<Order> listOrder(Integer page, Integer size, Long userId) {
+        PageHelper.startPage(page, size);
         return new PageInfo<Order>(orderMapper.listOrder(userId));
     }
 }

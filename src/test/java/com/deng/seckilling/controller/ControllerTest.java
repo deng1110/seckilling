@@ -1,7 +1,11 @@
 package com.deng.seckilling.controller;
 
+import com.deng.seckilling.domain.UserCookie;
+import com.deng.seckilling.rpc.constant.RpcResponse;
 import com.deng.seckilling.rpc.redis.RedisClient;
 import com.deng.seckilling.rpc.redis.RedisLocker;
+import com.deng.seckilling.rpc.util.UUIDUtils;
+import com.deng.seckilling.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,24 +26,57 @@ import static org.junit.Assert.*;
 @Slf4j
 public class ControllerTest {
 
-//    @Resource
-//    private RedisClient redisClient;
+    @Resource
+    private RedisClient redisClient;
+
+    @Resource
+    private GoodsController goodsController;
 
     @Resource
     private RedisLocker redisLocker;
-    @Test
-    public void test() {
 
-        redisLocker.lock("haha");
-//        log.info(redisClient.set("key1","value1")+"");
-//        log.info(redisClient.setnx("key3","20",10)+"");
-//        log.info(redisClient.get("key1"));
-//        log.info(redisClient.get("key2"));
-////        log.info(redisClient.incr("key1")+"");
-//        log.info(redisClient.incr("key2")+"");
-////        log.info(redisClient.decr("key1")+"");
-//        log.info(redisClient.decr("key2")+"");
-//        log.info(""+redisClient.setnx("key1","value111"));
+    @Resource
+    private OrderService orderService;
+
+    @Test
+    public void afterMiaosha() {
+
+        for (int i = 0; i < 300; i++) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    orderService.afterMiaoshaService(10016L,16L,UUIDUtils.uuid()+"NEFU",2);
+                }
+            }).start();
+        }
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    @Test
+    public void miaoshaTest() {
+        UserCookie userCookie = new UserCookie();
+        userCookie.setId(10016L);
+        userCookie.setUserName("xixi2");
+        for (int i = 0; i < 300; i++) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    RpcResponse rpcResponse = goodsController.miaosha(userCookie, 16L, 2);
+                    log.info("===>code:" + rpcResponse.getCode() + ", message:" + rpcResponse.getMsg() + ", data:" + rpcResponse.getData());
+                }
+            }).start();
+        }
+
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
     }
 }

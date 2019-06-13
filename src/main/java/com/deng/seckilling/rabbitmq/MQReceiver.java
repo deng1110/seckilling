@@ -35,7 +35,7 @@ public class MQReceiver {
         Long skuId = mm.getSkuId();
         String orderSecret = mm.getOrderSecret();
         Integer number = mm.getNumber();
-        orderService.afterMiaosha(userId, skuId, orderSecret, number);
+        orderService.afterMiaoshaService(userId, skuId, orderSecret, number);
     }
 
 }
