@@ -319,7 +319,7 @@ public class GoodsController {
      */
     @PostMapping("/miaosha")
     @ResponseBody
-    @IsLogin(requiredController = true)
+//    @IsLogin(requiredController = true)
     public RpcResponse miaosha(UserCookie userCookie, Long skuId, Integer number) {
         if (CheckDataUtils.isEmpty(skuId)) {//指定被购买的sku
             return RpcResponse.error(ErrorCode.STOCK_NOTENOUGH_ERROR);
