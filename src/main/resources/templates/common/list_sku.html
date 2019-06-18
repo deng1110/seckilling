@@ -1,0 +1,75 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>展示SKU</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <!-- jquery -->
+    <script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+    <!-- bootstrap -->
+    <link rel="stylesheet" type="text/css" th:href="@{/bootstrap/css/bootstrap.min.css}"/>
+    <script type="text/javascript" th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+    <!-- jquery-validator -->
+    <script type="text/javascript" th:src="@{/jquery-validation/jquery.validate.min.js}"></script>
+    <script type="text/javascript" th:src="@{/jquery-validation/localization/messages_zh.min.js}"></script>
+    <!-- layer -->
+    <script type="text/javascript" th:src="@{/layer/layer.js}"></script>
+    <!-- md5.js -->
+    <script type="text/javascript" th:src="@{/js/md5.min.js}"></script>
+    <!-- common.js -->
+    <script type="text/javascript" th:src="@{/js/common.js}"></script>
+    <style type="text/css">
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+
+        #skuVOList td {
+            border-top: 1px solid #39503f61;
+        }
+    </style>
+</head>
+<body>
+<div th:include="common/common_header :: header"></div>
+<div class="panel panel-default" style="height:62%;background-color:rgba(222,222,222,0.8)">
+
+    <div class="panel-heading">展示SKU</div>
+
+    <table class="table" id="skuVOList">
+        <tr >
+            <td>spu编号</td>
+            <td>sku编号</td>
+            <td>商品名称</td>
+            <td>价格</td>
+            <td>最低价格</td>
+            <td>秒杀价格</td>
+            <td>秒杀开始时间</td>
+            <td>秒杀结束时间</td>
+            <td>库存</td>
+            <td>品牌名称</td>
+            <td>所属分类</td>
+            <td>是否在架</td>
+            <td>所属店铺</td>
+        </tr>
+        <tr th:each="skuVO,skuVOStatus : ${data}">
+            <td th:text="${skuVO.getSpuNo()}"></td>
+            <td th:text="${skuVO.getSkuNo()}"></td>
+            <td th:text="${skuVO.getSkuName()}"></td>
+            <td th:text="${skuVO.getPrice()}"></td>
+            <td th:text="${skuVO.getLowPrice()}"></td>
+            <td th:text="${skuVO.getMiaoshaPrice()}"></td>
+            <td th:text="${skuVO.getStartTime()}"></td>
+            <td th:text="${skuVO.getEndTime()}"></td>
+            <td th:text="${skuVO.getStock()}"></td>
+            <td th:text="${skuVO.getBrandName()}"></td>
+            <td th:text="${skuVO.getCategoryName()}"></td>
+            <td th:if="1 == ${skuVO.getIsSale()}" th:text="在架"></td>
+            <td th:if="2 == ${skuVO.getIsSale()}" th:text="下架"></td>
+            <td th:text="${skuVO.getShopName()}"></td>
+        </tr>
+
+    </table>
+
+</div>
+<div th:include="fenye :: fenye"></div>
+</body>
+</html>

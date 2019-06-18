@@ -1,0 +1,45 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>fenye</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    <!-- jquery -->
+    <script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+    <!-- bootstrap -->
+    <link rel="stylesheet" type="text/css" th:href="@{/bootstrap/css/bootstrap.min.css}"/>
+    <script type="text/javascript" th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+    <!-- jquery-validator -->
+    <script type="text/javascript" th:src="@{/jquery-validation/jquery.validate.min.js}"></script>
+    <script type="text/javascript" th:src="@{/jquery-validation/localization/messages_zh.min.js}"></script>
+    <!-- layer -->
+    <script type="text/javascript" th:src="@{/layer/layer.js}"></script>
+    <!-- md5.js -->
+    <script type="text/javascript" th:src="@{/js/md5.min.js}"></script>
+    <!-- common.js -->
+    <script type="text/javascript" th:src="@{/js/common.js}"></script>
+
+</head>
+<body>
+<!-- Collect the nav links, forms, and other content for toggling -->
+<!--此 div 供其他页面 引入-->
+<div th:fragment="fenye">
+    <div class="collapse navbar-collapse" id="fenye">
+
+        <div>
+            <ul class="pagination">
+                <li><a th:href="@{${url}(page=${firstPage})}">&laquo;</a></li>
+                <li><a th:href="@{${url}(page=${prePage})}">上一页</a></li>
+                <li><a th:href="@{${url}(page=${nextPage})}">下一页</a></li>
+                <li><a th:href="@{${url}(page=${lastPage})}">&raquo;</a></li>
+                <li><a disabled="true" th:text="'当前第'+${pageNum}+'页, 共'+${totalPage}+'页'"></a></li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+
+</body>
+
+
+</html>

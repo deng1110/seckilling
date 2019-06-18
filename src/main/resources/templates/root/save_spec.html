@@ -1,0 +1,108 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>增加规格</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    <!-- jquery -->
+    <script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+    <!-- bootstrap -->
+    <link rel="stylesheet" type="text/css" th:href="@{/bootstrap/css/bootstrap.min.css}"/>
+    <script type="text/javascript" th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+    <!-- jquery-validator -->
+    <script type="text/javascript" th:src="@{/jquery-validation/jquery.validate.min.js}"></script>
+    <script type="text/javascript" th:src="@{/jquery-validation/localization/messages_zh.min.js}"></script>
+    <!-- layer -->
+    <script type="text/javascript" th:src="@{/layer/layer.js}"></script>
+    <!-- md5.js -->
+    <script type="text/javascript" th:src="@{/js/md5.min.js}"></script>
+    <!-- common.js -->
+    <script type="text/javascript" th:src="@{/js/common.js}"></script>
+
+</head>
+<body>
+<div th:include="root/root_header :: header"></div>
+<form name="saveSpecForm" id="saveSpecForm" method="post" style="width:50%; margin:0 auto">
+
+    <h2 style="text-align:center; margin-bottom: 20px">增加规格</h2>
+
+    <div class="form-group">
+        <div class="row" style="display: flex;flex-direction: row;justify-content: center;">
+            <label class="form-label col-md-1">规格编号</label>
+            <div class="col-md-5">
+                <input id="specNo" name="specNo" class="form-control" type="text" placeholder="规格编号" required="true"
+                       minlength="2" maxlength="10"/>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="row" style="display: flex;flex-direction: row;justify-content: center;">
+            <label class="form-label col-md-1">规格名称</label>
+            <div class="col-md-5">
+                <input id="specName" name="specName" class="form-control" type="text" placeholder="规格名称" required="true"
+                       minlength="1" maxlength="10"/>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" style="display: flex;flex-direction: row;justify-content: center;">
+        <div class="col-md-2">
+            <button class="btn btn-primary btn-block" type="reset" onclick="reset()">重置</button>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary btn-block" type="submit" onclick="saveSpec()">增加规格</button>
+        </div>
+    </div>
+
+</form>
+</body>
+<script>
+    function saveSpec() {
+        $("#saveSpecForm").validate({
+            submitHandler: function (form) {
+                doSaveSpec();
+            }
+        });
+    }
+
+    function doSaveSpec() {
+        g_showLoading();
+
+        var specName = $("#specName").val();
+        var specNo = $("#specNo").val();
+
+
+        $.ajax({
+            url: "/goods/savespec",
+            type: "POST",
+            data: {
+                specName: specName,
+                specNo: specNo
+            },
+            success: function (data) {
+                layer.closeAll();
+                if (data.code == 0) {
+                    layer.msg("增加规格成功");
+                    setTimeout(() => {
+                        window.location.href = "/goods/to_list_spec";
+                },
+                    600
+                )
+                } else {
+                    if (data.code == -1) {
+                        layer.msg("服务器繁忙");
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                }
+            },
+            error: function () {
+                layer.msg("服务器繁忙");
+                layer.setTimeout(2000);
+                layer.closeAll();
+            }
+        });
+    }
+</script>
+</html>

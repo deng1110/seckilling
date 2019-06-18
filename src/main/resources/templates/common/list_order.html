@@ -1,0 +1,68 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>展示订单</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <!-- jquery -->
+    <script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+    <!-- bootstrap -->
+    <link rel="stylesheet" type="text/css" th:href="@{/bootstrap/css/bootstrap.min.css}"/>
+    <script type="text/javascript" th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+    <!-- jquery-validator -->
+    <script type="text/javascript" th:src="@{/jquery-validation/jquery.validate.min.js}"></script>
+    <script type="text/javascript" th:src="@{/jquery-validation/localization/messages_zh.min.js}"></script>
+    <!-- layer -->
+    <script type="text/javascript" th:src="@{/layer/layer.js}"></script>
+    <!-- md5.js -->
+    <script type="text/javascript" th:src="@{/js/md5.min.js}"></script>
+    <!-- common.js -->
+    <script type="text/javascript" th:src="@{/js/common.js}"></script>
+    <style type="text/css">
+        html, body {
+            height: 100%;
+            width: 100%;
+        }
+
+        #orderList td {
+            border-top: 1px solid #39503f61;
+            width: 10px;
+        }
+    </style>
+</head>
+<body>
+<div th:include="common/common_header2 :: header2"></div>
+<div class="panel panel-default" style="height:62%;background-color:rgba(222,222,222,0.8)">
+
+    <div class="panel-heading">展示订单</div>
+
+    <table class="table" id="orderList">
+        <tr >
+            <td>订单ID</td>
+            <td>商品名称</td>
+            <td>秒杀价格</td>
+            <td>购买数量</td>
+            <td>下单时间</td>
+            <td>收货地址</td>
+            <td>订单状态</td>
+        </tr>
+        <tr th:each="order,orderStatus : ${data}">
+            <td th:text="${order.getId()}"></td>
+            <td th:text="${order.getGoodsName()}"></td>
+            <td th:text="${order.getMiaoshaPrice()}"></td>
+            <td th:text="${order.getNumber()}"></td>
+            <td th:text="${order.getOrderTime()}"></td>
+            <td th:text="${order.getShippingAddress()}"></td>
+            <td th:if="${order.status eq 0}" th:text="未支付"></td>
+            <td th:if="${order.status eq 1}" th:text="待发货"></td>
+            <td th:if="${order.status eq 2}" th:text="已发货"></td>
+            <td th:if="${order.status eq 3}" th:text="已收货"></td>
+            <td th:if="${order.status eq 4}" th:text="已退款"></td>
+            <td th:if="${order.status eq 5}" th:text="已完成"></td>
+        </tr>
+
+    </table>
+
+</div>
+<div th:include="fenye :: fenye"></div>
+</body>
+</html>

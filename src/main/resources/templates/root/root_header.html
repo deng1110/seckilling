@@ -1,0 +1,186 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>root_header</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    <!-- jquery -->
+    <script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+    <!-- bootstrap -->
+    <link rel="stylesheet" type="text/css" th:href="@{/bootstrap/css/bootstrap.min.css}"/>
+    <script type="text/javascript" th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+    <!-- jquery-validator -->
+    <script type="text/javascript" th:src="@{/jquery-validation/jquery.validate.min.js}"></script>
+    <script type="text/javascript" th:src="@{/jquery-validation/localization/messages_zh.min.js}"></script>
+    <!-- layer -->
+    <script type="text/javascript" th:src="@{/layer/layer.js}"></script>
+    <!-- md5.js -->
+    <script type="text/javascript" th:src="@{/js/md5.min.js}"></script>
+    <!-- common.js -->
+    <script type="text/javascript" th:src="@{/js/common.js}"></script>
+
+</head>
+<body>
+<!-- Collect the nav links, forms, and other content for toggling -->
+<!--此 div 供其他页面 引入-->
+<div th:fragment="header">
+    <div class="collapse navbar-collapse" id="header">
+
+        <ul class="nav navbar-nav" style="width: 100%;">
+            <li><a href="/user/to_root"> 首页 </a></li>
+
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                   aria-expanded="false"> 管理店铺 <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="../goods/to_save_shop">注册店铺</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="../goods/to_modify_shop">修改店铺信息</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="../goods/to_list_shop">展示店铺信息</a></li>
+                </ul>
+            </li>
+
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                   aria-expanded="false"> 管理SPU <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="../goods/to_save_spu">增加SPU</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="../goods/to_list_spu">展示SPU信息</a></li>
+                </ul>
+            </li>
+
+
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                   aria-expanded="false"> 管理分类 <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="../goods/to_save_category">增加分类</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="../goods/to_list_category">展示分类信息</a></li>
+                </ul>
+            </li>
+
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                   aria-expanded="false"> 管理品牌 <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="../goods/to_save_brand">增加品牌</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="../goods/to_list_brand">展示品牌信息</a></li>
+                </ul>
+            </li>
+
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                   aria-expanded="false"> 管理规格 <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="../goods/to_save_spec">增加规格</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="../goods/to_list_spec">展示规格信息</a></li>
+                </ul>
+            </li>
+
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                   aria-expanded="false"> 规格关联SPU <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="../goods/to_save_spu_spec">增加规格和SPU关联</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="../goods/to_list_spu_spec">展示规格和SPU关联</a></li>
+                </ul>
+            </li>
+
+            <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                   aria-expanded="false"> 管理用户 <span class="caret"></span></a>
+                <ul class="dropdown-menu">
+                    <li><a href="/user/to_list_user">查看用户列表</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="/user/to_frozen_user">冻结用户</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="/user/to_unfrozen_user">解冻用户</a></li>
+                    <li role="separator" class="divider"></li>
+                    <li><a href="/user/to_invalid_user">作废用户</a></li>
+
+                </ul>
+            </li>
+
+            <li class="dropdown" style="float: right;">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
+                   aria-expanded="false" th:text=" '你好，管理员:'+${user.getUserName()}"></a>
+                <ul class="dropdown-menu">
+                    <!--<button class="btn btn-primary btn-block" type="submit" onclick="logout()">登录</button>-->
+                    <li><a href="#" th:onclick="logout()">下线</a></li>
+                </ul>
+            </li>
+
+        </ul>
+
+
+        <style>
+            div#header {
+                background-color: #286090;
+            }
+
+            div#header a {
+                color: #ffffff;
+            }
+
+            .nav .open > a, .nav .open > a:focus, .nav .open > a:hover,
+            div#header .nav > li > a:focus, div#header .nav > li > a:hover {
+                background-color: #204d74;
+            }
+
+            div#header .dropdown-menu > li > a:focus, div#header .dropdown-menu > li > a:hover {
+                background-color: #204d74;
+            }
+
+            .dropdown-menu {
+                background-color: #286090;
+            }
+
+            /*div#header .nav > li:last-child > a {*/
+            /*background: right center / 13% no-repeat;*/
+            /*background-image: url("/img/sanjiao.png");*/
+            /*}*/
+
+        </style>
+        <script>
+            function logout() {
+                g_showLoading();
+                $.ajax({
+                    url: "/user/logout",
+                    type: "POST",
+                    data: {
+                    },
+                    success: function (data) {
+                        layer.closeAll();
+                        if (data.code == 0) {
+                            layer.msg("成功");
+                            var userArr = data.data;
+                            window.location.href = "/user/to_login";
+                        } else {
+                            if (data.code == -1) {
+                                layer.msg("服务器繁忙.");
+                            } else {
+                                layer.msg(data.msg);
+                            }
+                        }
+                    },
+                    error: function () {
+                        layer.msg("服务器繁忙");
+                        layer.setTimeout(2000);
+                        layer.closeAll();
+                    }
+                });
+            }
+        </script>
+    </div>
+</div>
+
+</body>
+
+
+</html>

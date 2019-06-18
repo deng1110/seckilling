@@ -1,0 +1,194 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>增加SKU</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    <!-- jquery -->
+    <script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+    <!-- bootstrap -->
+    <link rel="stylesheet" type="text/css" th:href="@{/bootstrap/css/bootstrap.min.css}"/>
+    <script type="text/javascript" th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+    <!-- jquery-validator -->
+    <script type="text/javascript" th:src="@{/jquery-validation/jquery.validate.min.js}"></script>
+    <script type="text/javascript" th:src="@{/jquery-validation/localization/messages_zh.min.js}"></script>
+    <!-- layer -->
+    <script type="text/javascript" th:src="@{/layer/layer.js}"></script>
+    <!-- md5.js -->
+    <script type="text/javascript" th:src="@{/js/md5.min.js}"></script>
+    <!-- common.js -->
+    <script type="text/javascript" th:src="@{/js/common.js}"></script>
+
+</head>
+<body>
+<div th:include="common/common_header :: header"></div>
+<form name="saveSkuForm" id="saveSkuForm" method="post" style="width:50%; margin:0 auto">
+
+    <h2 style="text-align:center; margin-bottom: 20px">增加SKU</h2>
+
+    <div class="form-group">
+        <div class="row" style="display: flex;flex-direction: row;justify-content: center;">
+            <label class="form-label col-md-1">SKU编号</label>
+            <div class="col-md-5">
+                <input id="skuNO" name="skuNO" class="form-control" type="text" placeholder="SKU编号" required="true"
+                       minlength="2" maxlength="20"/>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="row" style="display: flex;flex-direction: row;justify-content: center;">
+            <label class="form-label col-md-1">SPU编号</label>
+            <div class="col-md-5">
+                <input id="spuNO" name="spuNO" class="form-control" type="text" placeholder="SPU编号" required="true"
+                       minlength="2" maxlength="20" th:disabled="${spuNo} != null" th:value="${spuNo}"/>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="row" style="display: flex;flex-direction: row;justify-content: center;">
+            <label class="form-label col-md-1">价格</label>
+            <div class="col-md-5">
+                <input id="price" name="price" class="form-control" type="text" placeholder="价格" required="true"
+                       minlength="2" maxlength="10"/>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="row" style="display: flex;flex-direction: row;justify-content: center;">
+            <label class="form-label col-md-1">库存</label>
+            <div class="col-md-5">
+                <input id="stock" name="stock" class="form-control" type="text" placeholder="库存" required="true"
+                       minlength="2" maxlength="10"/>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="row" style="display: flex;flex-direction: row;justify-content: center;">
+            <label class="form-label col-md-1">所属店铺</label>
+            <div class="col-md-5">
+                <input id="shopName" name="shopName" class="form-control" type="text" placeholder="所属店铺" required="true"
+                       minlength="2" maxlength="10"/>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="row" style="display: flex;flex-direction: row;justify-content: center;">
+            <label class="form-label col-md-1">秒杀价格</label>
+            <div class="col-md-5">
+                <input id="miaoshaPrice" name="miaoshaPrice" class="form-control" type="text" placeholder="秒杀价格" required="true"
+                       minlength="2" maxlength="10"/>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="row" style="display: flex;flex-direction: row;justify-content: center;">
+            <label class="form-label col-md-1">开始时间</label>
+            <div class="col-md-5">
+                <input id="startTime" name="startTime" class="form-control" type="datetime-local" placeholder="开始时间" required="true"
+                       />
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="row" style="display: flex;flex-direction: row;justify-content: center;">
+            <label class="form-label col-md-1">结束时间</label>
+            <div class="col-md-5">
+                <input id="endTime" name="endTime" class="form-control" type="datetime-local" placeholder="结束时间" required="true"
+                       />
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <div class="row" style="display: flex;flex-direction: row;justify-content: center;">
+            <label class="form-label col-md-1">是否在架</label>
+            <div class="col-md-5">
+                <select id="isSale" class="form-control" required="true">
+                    <option disabled selected>请选择</option>
+                    <option th:value="1">在架</option>
+                    <option th:value="2">下架</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" style="display: flex;flex-direction: row;justify-content: center;">
+        <div class="col-md-2">
+            <button class="btn btn-primary btn-block" type="reset" onclick="reset()">重置</button>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary btn-block" type="submit" onclick="saveSku()">增加SKU</button>
+        </div>
+    </div>
+
+</form>
+</body>
+<script>
+    function saveSku() {
+        $("#saveSkuForm").validate({
+            submitHandler: function (form) {
+                doSaveSku();
+            }
+        });
+    }
+
+    function doSaveSku() {
+        g_showLoading();
+
+        var skuNo = $("#skuNO").val();
+        var spuNo = $("#spuNO").val();
+        var price = $("#price").val();
+        var stock = $("#stock").val();
+        var isSale = $("#isSale").val();
+        var shopName = $("#shopName").val();
+        var miaoshaPrice = $("#miaoshaPrice").val();
+        var startTime = $("#startTime").val();
+        var endTime = $("#endTime").val();
+
+        $.ajax({
+            url: "/goods/savesku",
+            type: "POST",
+            data: {
+                skuNo: skuNo,
+                spuNo: spuNo,
+                price: price,
+                stock: stock,
+                isSale: isSale,
+                shopName: shopName,
+                miaoshaPrice: miaoshaPrice,
+                startTime: startTime,
+                endTime: endTime
+            },
+            success: function (data) {
+                layer.closeAll();
+                if (data.code == 0) {
+                    layer.msg("增加SKU成功");
+                    setTimeout(() => {
+                        window.location.href = "/goods/to_list_sku";
+                },
+                    600
+                )
+                } else {
+                    if (data.code == -1) {
+                        layer.msg("服务器繁忙");
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                }
+            },
+            error: function () {
+                layer.msg("服务器繁忙");
+                layer.setTimeout(2000);
+                layer.closeAll();
+            }
+        });
+    }
+</script>
+</html>

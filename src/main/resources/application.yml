@@ -6,28 +6,69 @@ server:
       enabled: true
       pattern: "%h %t %r %s %b %T"
 
-mybatis:
- configuration:
-  map-underscore-to-camel-case: true
-
+#日志
 logging:
   config: classpath:logback-spring.xml
 
-deng:
-  rabbitmq:
-      addresses: localhost
-      port: 5672
-      username: guest
-      password: guest
-      virtual: seckilling
-
-
+#datasource
 spring:
+ thymeleaf: #注意缩进要用空格，不要用tab
+  prefix: classpath:/templates/ #前缀
+  suffix: .html #后缀
+  cache: false #不使用缓存
  datasource:
    url: jdbc:mysql://localhost:3306/seckilling_db?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=GMT
    username: root
    password: smile
-   driver-class-name: com.mysql.cj.jdbc.Driver
+   driver-class-name: com.mysql.jdbc.Driver
+   type: com.alibaba.druid.pool.DruidDataSource
+ rabbitmq:
+   addresses: 127.0.0.1
+   username: guest
+   password: guest
+   port: 5672
+   virtual-host: /
+   listener:
+     simple:
+       concurrency: 10 #消费线程数
+       max-concurrency: 10 #最大消费线程数
+       prefetch: 2 #消费者统一批次获取的消息数
+       auto-startup: true #消费者自动消费
+       default-requeue-rejected: true
+   template:
+     retry:
+       enabled: true
+       initial-interval: 1000
+       max-attempts: 3
+       max-interval: 10000
+       multiplier: 1.0
+
+#mybatis
+mybatis:
+    type-aliases-package: com.deng.seckilling.domain
+    configuration:
+        map-underscore-to-camel-case: true
+#        log-impl: org.apache.ibatis.logging.stdout.StdOutImpl   #若是想调试sql以及查看sql语句请把这个配置打开
+        default-fetch-size: 100
+        default-statement-timeout: 3000
+
+#redis
+redis:
+  host: 192.168.8.128
+  passWord: bamboo
+  port:  6379
+  timeout: 3
+  poolMaxTotal: 1000 #最大连接数
+  poolMaxldle: 1000 #最大空闲数
+  poolMaxWait: 3 #最大等待时间
+
+#rabbitmq
+#rabbitmq:
+#  host: 127.0.0.1
+#  userName: guest
+#  passWord: guest
+#  port: 5672
+#  virtual: seckilling
 
 #pagehelper分页插件配置
 pagehelper:
@@ -35,3 +76,7 @@ pagehelper:
   reasonable: true
   supportMethodsArguments: true
   params=count: countSql
+
+
+
+

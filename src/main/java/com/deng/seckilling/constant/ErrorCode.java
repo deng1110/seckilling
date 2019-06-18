@@ -1,6 +1,6 @@
 package com.deng.seckilling.constant;
 
-import com.deng.seckilling.rpc.ErrorInfo;
+import com.deng.seckilling.rpc.constant.ErrorInfo;
 
 /**
  * ErrorCode常量表
@@ -11,21 +11,48 @@ import com.deng.seckilling.rpc.ErrorInfo;
  */
 public class ErrorCode {
 
-    public static final ErrorInfo SYSTEM_ERROR = new ErrorInfo(1000, "系统错误，请联系管理员，tel：13104089661");
+    public static final ErrorInfo SYSTEM_ERROR = new ErrorInfo(9999, "系统繁忙，请稍后再试");
+    public static final ErrorInfo PERMISSION_DENIED_ERROR = new ErrorInfo(1000, "权限不足");
     public static final ErrorInfo SECKILLING_PARAMS_ERROR = new ErrorInfo(1001, "入参不能为空或格式错误");
     public static final ErrorInfo USERLOGIN_FAIL_ERROR = new ErrorInfo(1002, "用户名或者密码错误");
     public static final ErrorInfo QUERYUSER_NULL_ERROR = new ErrorInfo(1003, "查询成功，但查出零条数据");
-    public static final ErrorInfo REGISTER_FAIL_ERROR = new ErrorInfo(1004, "注册失败");
+    public static final ErrorInfo SHOPNAME_EXIST_ERROR = new ErrorInfo(1004, "已存在相同店铺名称");
     public static final ErrorInfo USERNAME_EXIT_ERROR = new ErrorInfo(1005, "用户名已存在");
     public static final ErrorInfo USER_NOTEXIT_ERROR = new ErrorInfo(1006, "该用户不存在");
     public static final ErrorInfo COMPLETE_USERINFO_ERROR = new ErrorInfo(1007, "完善个人信息失败");
-    public static final ErrorInfo QUERYUSER_FAIL_ERROR = new ErrorInfo(1008, "查询用户失败");
     public static final ErrorInfo INVALID_USER_ERROR = new ErrorInfo(1009, "作废用户账户失败");
     public static final ErrorInfo FROZEN_USER_ERROR = new ErrorInfo(1010, "冻结用户账户失败");
-    public static final ErrorInfo FENYE_PARAMS_ERROR = new ErrorInfo(1011, "请输入正确页码");
-    public static final ErrorInfo PASSWORD_NOTPARAMS_ERROR = new ErrorInfo(1012, "密码不能作为查询条件");
-    public static final ErrorInfo QUERYPARAMS_ISNULL_ERROR = new ErrorInfo(1013, "查询条件不能为空");
-    public static final ErrorInfo USERSTATUS_NORMAL_ERROR = new ErrorInfo(1014, "该用户当前为非冻结状态，无需解冻");
+    public static final ErrorInfo NOTNORMALUSER_CANNOT_FROZEN = new ErrorInfo(1011, "用户账户状态非正常不允许冻结");
+    public static final ErrorInfo NOTFROZENUSER_CANNOT_UNFROXEN = new ErrorInfo(1012, "用户账户之前非冻结状态不允许解冻");
+    public static final ErrorInfo SAVE_SHOPINFO_ERROR = new ErrorInfo(1013, "保存商铺信息失败");
+    public static final ErrorInfo MODIFYSHOPNAME_SAME_ERROR = new ErrorInfo(1014, "您所修改的店铺名称和之前的相同");
     public static final ErrorInfo UNFROZEN_USER_ERROR = new ErrorInfo(1015, "解冻用户失败");
-
+    public static final ErrorInfo SHOPINFO_NOTEXIST_ERROR = new ErrorInfo(1016, "该店铺ID不存在");
+    public static final ErrorInfo REGIEST_FAIL_ERROR = new ErrorInfo(1017, "注册失败");
+    public static final ErrorInfo NOT_LOGIN_ERROR = new ErrorInfo(1018, "请先登录");
+    public static final ErrorInfo BRAND_NOTEXIST_ERROR = new ErrorInfo(1019, "该品牌不存在");
+    public static final ErrorInfo CATEGORY_NOTEXIST_ERROR = new ErrorInfo(1020, "该分类不存在 ");
+    public static final ErrorInfo SPUNO_EXIST_ERROR = new ErrorInfo(1021, "SPU编号已存在");
+    public static final ErrorInfo SAVE_SPU_ERROR = new ErrorInfo(1022, "新增Spu失败");
+    public static final ErrorInfo CATEGORY_EXIST_ERROR = new ErrorInfo(1021, "该分类名称已存在 ");
+    public static final ErrorInfo SAVE_CATEGORY_ERROR = new ErrorInfo(1022, "增加分类失败");
+    public static final ErrorInfo BRAND_EXIST_ERROR = new ErrorInfo(1023, "该品牌名称已存在");
+    public static final ErrorInfo SAVE_BRAND_ERROR = new ErrorInfo(1024, "保存品牌名称失败");
+    public static final ErrorInfo SPEC_EXIST_ERROR = new ErrorInfo(1025, "规格名称已存在");
+    public static final ErrorInfo SPECNO_EXIST_ERROR = new ErrorInfo(1026, "规格编号已存在");
+    public static final ErrorInfo SAVE_SPEC_ERROR = new ErrorInfo(1027,"保存规格失败");
+    public static final ErrorInfo SPUID_NOTEXIST_ERROR = new ErrorInfo(1028,"该SPU不存在");
+    public static final ErrorInfo SPECID_NOTEXIST_ERROR = new ErrorInfo(1029,"该规格不存在");
+    public static final ErrorInfo SAVE_SPUSPEC_ERROR = new ErrorInfo(1030, "保存SPU和规格关联失败");
+    public static final ErrorInfo SPECNO_NOTEXIST_ERROR = new ErrorInfo(1031, "规格编号不存在");
+    public static final ErrorInfo SPECVALUE_EXIST_ERROR = new ErrorInfo(1032, "规格值已存在");
+    public static final ErrorInfo SAVE_SPECVALUE_ERROR = new ErrorInfo(1033,"增加规格值失败");
+    public static final ErrorInfo SPUNO_NOTEXIST_ERROR = new ErrorInfo(1034, "SPU编号不存在");
+    public static final ErrorInfo SKUNO_EXIST_ERROR = new ErrorInfo(1035,"SKU编号已存在");
+    public static final ErrorInfo ILLEGAL_PRICE_ERROR = new ErrorInfo(1036,"设定价格不允许低于最低价格");
+    public static final ErrorInfo SHOPNAME_NOTEXIST_ERROR = new ErrorInfo(1037, "该店铺名称不存在");
+    public static final ErrorInfo ILLEGAL_SHOPNAME_ERROR = new ErrorInfo(1037, "请填写属于你的店铺名称");
+    public static final ErrorInfo SAVE_SKU_ERROR = new ErrorInfo(1038,"保存SKU失败");
+    public static final ErrorInfo SKUID_NOTEXIST_ERROR = new ErrorInfo(1039,"该商品已售罄");
+    public static final ErrorInfo STOCK_NOTENOUGH_ERROR = new ErrorInfo(1040, "该商品库存不足");
 }

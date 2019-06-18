@@ -1,0 +1,176 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>商品详情</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <!-- jquery -->
+    <script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+    <!-- bootstrap -->
+    <link rel="stylesheet" type="text/css" th:href="@{/bootstrap/css/bootstrap.min.css}"/>
+    <script type="text/javascript" th:src="@{/bootstrap/js/bootstrap.min.js}"></script>
+    <!-- jquery-validator -->
+    <script type="text/javascript" th:src="@{/jquery-validation/jquery.validate.min.js}"></script>
+    <script type="text/javascript" th:src="@{/jquery-validation/localization/messages_zh.min.js}"></script>
+    <!-- layer -->
+    <script type="text/javascript" th:src="@{/layer/layer.js}"></script>
+    <!-- md5.js -->
+    <script type="text/javascript" th:src="@{/js/md5.min.js}"></script>
+    <!-- common.js -->
+    <script type="text/javascript" th:src="@{/js/common.js}"></script>
+</head>
+<body>
+<div th:include="common/common_header2 :: header2"></div>
+<div class="panel panel-default">
+    <div class="panel-heading">秒杀商品详情</div>
+    <div class="panel-body">
+    </div>
+    <table class="table" id="goodslist">
+        <tr>
+            <td>商品名称</td>
+            <td colspan="3" th:text="${goods.getSkuName()}"></td>
+        </tr>
+        <tr>
+            <td>秒杀开始时间</td>
+            <td th:text="${goods.getStartTime()}"></td>
+            <td id="miaoshaTip">
+                <input type="hidden" id="remainSeconds" th:value="${remainSeconds}"/>
+                <span th:if="${miaoshaStatus eq 0}">秒杀倒计时：<span id="countDown"
+                                                                th:text="${remainSeconds}"></span>秒</span>
+                <span th:if="${miaoshaStatus eq 1}">秒杀进行中</span>
+                <span th:if="${miaoshaStatus eq 2}">秒杀已结束</span>
+            </td>
+
+        </tr>
+        <tr>
+            <td>秒杀截止时间</td>
+            <td th:text="${goods.getEndTime()}"></td>
+        </tr>
+        <tr>
+            <td>商品原价</td>
+            <td colspan="3" th:text="${goods.getPrice()}"></td>
+        </tr>
+        <tr>
+            <td>秒杀价</td>
+            <td colspan="3" th:text="${goods.miaoshaPrice}"></td>
+        </tr>
+        <tr>
+            <td>库存数量</td>
+            <td colspan="3" th:id="stock" th:text="${goods.getStock()}"></td>
+        </tr>
+        <tr>
+            <td>购买数量</td>
+            <td><input type="number" name="number" id="number" th:value="1"/></td>
+            <td>
+                <input type="hidden" name="skuId" id="skuId" th:value="${goods.getSkuId()}"/>
+                <button class="btn btn-primary btn-block" type="button" onclick="miaosha()" id="buyButton">立即秒杀</button>
+            </td>
+        </tr>
+    </table>
+</div>
+</body>
+<script>
+    $(function () {
+        countDown();
+    });
+
+    function miaosha() {
+        g_showLoading();
+        var skuId = $("#skuId").val();
+        var number = $("#number").val();
+
+        $.ajax({
+            url: "/goods/miaosha",
+            type: "POST",
+            data: {
+                skuId: skuId,
+                number: number
+            },
+            success: function (data) {
+                if (data.code == 0) {
+                    getResult(data.data);
+                } else {
+                    layer.closeAll();
+                    if (data.code == -1) {
+                        layer.msg("服务器繁忙");
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                }
+            },
+            error: function () {
+                layer.msg("服务器繁忙");
+                layer.setTimeout(2000);
+                layer.closeAll();
+            }
+        });
+
+    }
+
+    function getResult(orderSecret) {
+        $.ajax({
+            url: "/order/getorderdetail",
+            type: "GET",
+            data: {
+                orderSecret: orderSecret,
+            },
+            success: function (data) {
+                if (data.code == 0) {
+                    if (data.data == null) {
+                        setTimeout(function(){
+                            getResult(orderSecret);
+                        }, 200);
+                    } else {
+                        layer.confirm("恭喜你，秒杀成功！查看订单？", {btn:["确定","取消"]},
+                            function(){
+                                var order = data.data;
+                                window.location.href = "/order/to_order_detail?id="+order["id"]+"&orderSecret="+order["orderSecret"]+"&goodsName="+order["goodsName"]+"&miaoshaPrice="+order["miaoshaPrice"]+"&number="+order["number"]+"&userId="+order["userId"]+"&orderTime="+order["orderTime"]+"&shippingAddress="+order["shippingAddress"]+"&status="+order["status"];
+                            },
+                            function(){
+                                window.location.reload();
+                            });
+
+
+                    }
+                } else {
+                    layer.closeAll();
+                    if (data.code == -1) {
+                        layer.msg("服务器繁忙");
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                }
+            },
+            error: function () {
+                layer.msg("服务器繁忙");
+                layer.setTimeout(2000);
+                layer.closeAll();
+            }
+        });
+
+    }
+
+    function countDown() {
+        var remainSeconds = $("#remainSeconds").val();
+        var stock = $("#stock").text();
+        var timeout;
+        if (remainSeconds > 0) {//秒杀还没开始，倒计时
+            $("#buyButton").attr("disabled", true);
+            timeout = setTimeout(function () {
+                $("#countDown").text(remainSeconds - 1);
+                $("#remainSeconds").val(remainSeconds - 1);
+                countDown();
+            }, 1000);
+        } else if (remainSeconds == 0 && stock > 0) {//秒杀进行中
+            $("#buyButton").attr("disabled", false);
+            if (timeout) {
+                clearTimeout(timeout);
+            }
+            $("#miaoshaTip").html("秒杀进行中");
+        } else {//秒杀已经结束
+            $("#buyButton").attr("disabled", true);
+            $("#miaoshaTip").html("秒杀已经结束");
+        }
+    }
+
+</script>
+</html>
