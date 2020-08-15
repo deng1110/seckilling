@@ -12,8 +12,8 @@ public class BinSearch {
     public static void main(String[] args) {
 
         int[] arr = new int[]{2, 5, 8, 13, 15, 16, 24};
-        System.out.println(binSearch(arr, 0, arr.length - 1, 5));
         System.out.println(binSearch(arr,24));
+        System.out.println(binSearch(arr, 0, arr.length - 1, 5));
     }
 
     /**
